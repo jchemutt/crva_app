@@ -1,0 +1,237 @@
+{% extends "WebApp/app_base.html" %}
+{% load static i18n %}
+
+{% block title %}{% trans "Adaptation Map" %}{% endblock %}
+
+
+{% block script %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.2/dist/leaflet.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+<style>
+  #map { height: 75vh; border-radius: 8px; }
+  .legend-box {
+    position: absolute;
+    top: 90px;
+    right: 20px;
+    z-index: 999;
+    background: white;
+    padding: 12px 15px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+    font-size: 0.9rem;
+  }
+  .vc-label {
+    background: #007847;
+    color: white;
+    border-radius: 20px;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: bold;
+  }
+</style>
+
+<script src="https://unpkg.com/leaflet@1.9.2/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+
+<script>
+const map = L.map('map').setView([-15.6, 36.9], 6);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+let currentStrategyData = [];
+let currentValueChain = "";
+let currentHazard = "";
+
+function filterStrategyTable() {
+  const keyword = document.getElementById("strategy-search").value.toLowerCase();
+  document.querySelectorAll("#strategy-table tbody tr").forEach(row => {
+    row.style.display = row.innerText.toLowerCase().includes(keyword) ? "" : "none";
+  });
+}
+
+function exportToCSV() {
+  let csv = "Impact Stage,Impact,Adaptation Strategy\n";
+  currentStrategyData.forEach(row => {
+    csv += `"${row.stage}","${row.risk}","${row.strategy}"\n`;
+  });
+  const blob = new Blob([csv], { type: "text/csv" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `${currentValueChain}_${currentHazard}_adaptation.csv`;
+  a.click();
+}
+
+function exportToPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  doc.text(`Adaptation Strategies – ${currentValueChain.replace(/_/g, " ")} / ${currentHazard.replace(/_/g, " ")}`, 14, 14);
+  doc.autoTable({
+    head: [["Impact Stage", "Impact", "Adaptation Strategy"]],
+    body: currentStrategyData.map(r => [r.stage, r.risk, r.strategy]),
+    startY: 20,
+    styles: { fontSize: 9 },
+  });
+  doc.save(`${currentValueChain}_${currentHazard}_adaptation.pdf`);
+}
+
+function showStrategyModal(provinceId, valueChain, hazard) {
+  const decodedVC = decodeURIComponent(valueChain);
+  const decodedHazard = decodeURIComponent(hazard);
+  currentValueChain = decodedVC.replace(/\s+/g, "_");
+  currentHazard = decodedHazard.replace(/\s+/g, "_");
+
+  fetch(`/api/strategies/?province=${provinceId}&value_chain=${valueChain}&hazard=${hazard}`)
+    .then(res => res.json())
+    .then(data => {
+      currentStrategyData = data;
+
+      let html = `
+        <div class="d-flex justify-content-between mb-3">
+          <h5 class="mb-0"><i class="fas fa-seedling me-2"></i>${decodedVC}</h5>
+          <div>
+            <button class="btn btn-sm btn-outline-secondary me-2" onclick="exportToCSV()">
+              <i class="fas fa-file-csv me-1"></i>CSV
+            </button>
+            <button class="btn btn-sm btn-outline-danger" onclick="exportToPDF()">
+              <i class="fas fa-file-pdf me-1"></i>PDF
+            </button>
+          </div>
+        </div>
+
+        <input id="strategy-search" oninput="filterStrategyTable()" class="form-control form-control-sm mb-2" placeholder="🔍 Filter by keyword" />
+
+        <table id="strategy-table" class="table table-bordered table-hover table-sm align-middle">
+          <thead class="table-light">
+            <tr><th>Stage</th><th>Impact</th><th>Adaptation Strategy</th></tr>
+          </thead>
+          <tbody>`;
+
+      data.forEach(row => {
+        html += `<tr>
+          <td><span class="badge bg-secondary">${row.stage}</span></td>
+          <td>${row.risk}</td>
+          <td>${row.strategy}</td>
+        </tr>`;
+      });
+
+      html += `</tbody></table>`;
+      document.getElementById('modal-content-placeholder').innerHTML = html;
+      new bootstrap.Modal(document.getElementById('strategyModal')).show();
+    });
+}
+
+// Load provinces
+fetch('/api/provinces/')
+  .then(res => res.json())
+  .then(data => {
+    L.geoJSON(data, {
+      onEachFeature: (feature, layer) => {
+        const props = feature.properties;
+        const accordionId = `popupAccordion-${props.id}`;
+        const vcCount = props.value_chains.length;
+
+        let html = `<h5>
+          <i class="fas fa-map-marker-alt text-success me-1"></i>${props.name}
+          <span class="badge rounded-pill bg-dark ms-2">${vcCount} VC</span>
+        </h5><hr class="my-1"><div class="accordion" id="${accordionId}">`;
+
+        props.value_chains.forEach((vc, index) => {
+          const groupId = `collapseVC-${props.id}-${index}`;
+          html += `
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="heading-${groupId}">
+                <button class="accordion-button collapsed p-2" type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#${groupId}"
+                        aria-expanded="false"
+                        aria-controls="${groupId}">
+                  🌱 ${vc}
+                </button>
+              </h2>
+              <div id="${groupId}" class="accordion-collapse collapse"
+                   aria-labelledby="heading-${groupId}"
+                   data-bs-parent="#${accordionId}">
+                <div class="accordion-body py-2 px-3">
+                  <ul class="list-unstyled mb-0">`;
+
+          props.hazards.forEach(hz => {
+            html += `<li>
+              <a href="#" onclick="showStrategyModal(${props.id}, '${encodeURIComponent(vc)}', '${encodeURIComponent(hz)}')">
+                <span class="badge rounded-pill bg-info text-dark mb-1">${hz}</span>
+              </a>
+            </li>`;
+          });
+
+          html += `</ul></div></div></div>`;
+        });
+
+        html += `</div>`;
+        layer.bindPopup(html, { maxWidth: 350 });
+
+        // Add Leaflet label with VC count
+       if (layer.getBounds && layer.getBounds().isValid()) {
+        const center = layer.getBounds().getCenter();
+        const labelIcon = L.divIcon({
+            className: 'vc-label',
+            html: vcCount,
+            iconSize: [30, 30],
+            iconAnchor: [15, 15]
+        });
+
+        const labelMarker = L.marker(center, { icon: labelIcon });
+
+        // Make the badge marker open the polygon popup
+        labelMarker.on("click", () => {
+            layer.openPopup(center);
+        });
+
+        labelMarker.addTo(map);
+        }
+      },
+      style: { color: '#007847', fillOpacity: 0.3, weight: 1 }
+    }).addTo(map);
+  });
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-lg-12 mb-4">
+      <div class="card shadow border-0">
+        <div class="card-header text-white" style="background: linear-gradient(90deg, #007847, #66bb6a);">
+          <h5 class="m-0">
+            <i class="fas fa-map-marked-alt me-2"></i>{% trans "Climate Adaptation Strategies Map" %}
+          </h5>
+        </div>
+        <div class="card-body position-relative">
+          <div id="map" class="mb-3"></div>
+
+          <div class="legend-box">
+            <strong><i class="fas fa-circle text-success"></i> {% trans "Instructions" %}</strong>
+            <ul class="mb-0 ps-3">
+              <li>{% trans "Click a province" %}</li>
+              <li>{% trans "Expand a value chain" %}</li>
+              <li>{% trans "Click hazard badge to view strategies" %}</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="strategyModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title text-white">{% trans "Adaptation Strategies" %}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="modal-content-placeholder"></div>
+    </div>
+  </div>
+</div>
+{% endblock %}

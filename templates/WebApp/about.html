@@ -1,0 +1,90 @@
+{% extends "WebApp/app_base.html" %}
+{% load static i18n %}
+
+{% block title %}{% trans "About" %}{% endblock %}
+
+{% block script %}
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+    <link href="{% static '/css/about.css' %}" rel="stylesheet" type="text/css">
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+    <script src="{% static 'js/about.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+<br>
+<div class="container-fluid bg-gray-300">
+
+  <!-- About Section -->
+  <div class="row">
+    <div class="col-lg-12 mb-4">
+      <div class="card shadow mb-4 border-0">
+        <div class="card-header py-3 text-white" style="background-color: #007847;">
+          <h5 class="m-0">{% trans "About the CRVA Portal" %}</h5>
+        </div>
+        <div class="card-body">
+          <div class="text-left text-dark">
+            <p>
+              {% blocktrans %}
+              The <strong>Climate Risk and Vulnerability Assessment (CRVA) Portal</strong> is an interactive web-based platform designed to support climate-resilient agriculture in Mozambique. It delivers accessible tools and data for informed decision-making at local, regional, and national levels.
+              {% endblocktrans %}
+            </p>
+
+            <p>{% trans "The portal integrates the following key services:" %}</p>
+            <ul>
+              <li>
+                <strong>{% trans "Agro-Weather Advisory:" %}</strong>
+                {% trans "Provides timely weather forecasts and alerts to assist farmers with scheduling critical activities such as planting, irrigation, and harvesting." %}
+              </li>
+              <li>
+                <strong>{% trans "Crop Advisory:" %}</strong>
+                {% trans "Offers location-specific agronomic guidance on best crop practices, pest management, and nutrient application." %}
+              </li>
+              <li>
+                <strong>{% trans "Market Information:" %}</strong>
+                {% trans "Supplies data on crop prices, market demand, and logistics to improve farmers’ access to markets and maximize income." %}
+              </li>
+              <li>
+                <strong>{% trans "Climate Risk & Vulnerability Assessment:" %}</strong>
+                {% trans "Identifies regions most at risk from climate shocks like droughts or floods, enabling targeted adaptation and planning." %}
+              </li>
+              <li>
+                <strong>{% trans "Adaptation Strategies:" %}</strong>
+                {% trans "Suggests tailored resilience measures, including climate-smart agriculture practices, soil management, and water conservation." %}
+              </li>
+            </ul>
+
+            <p>
+              {% blocktrans %}
+              This portal was developed by the <strong>Alliance of Bioversity International and CIAT</strong>, in collaboration with local partners, to enhance food security and resilience to climate change in Mozambique.
+              {% endblocktrans %}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Partners Section -->
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="card shadow m-4 border-0">
+        <div class="card-header text-white" style="background-color: #007847;">
+          <h5 class="m-0">{% trans "Partners" %}</h5>
+        </div>
+        <div class="card-body text-center">
+          <div class="d-flex flex-wrap justify-content-center align-items-center gap-4">
+            <a href="https://alliancebioversityciat.org" target="_blank" class="p-2 mb-3">
+              <img class="org-logo" src="{% static 'images/logos/Alliance Logo_EN color.png' %}" alt="{% trans 'Alliance of Bioversity International and CIAT' %}">
+            </a>
+            <a href="https://www.worldbank.org/ext/en/home" target="_blank" class="p-2 mb-3">
+              <img class="org-logo" src="{% static 'images/logos/worldbank.png' %}" alt="{% trans 'World Bank' %}">
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <br>
+</div>
+{% endblock %}

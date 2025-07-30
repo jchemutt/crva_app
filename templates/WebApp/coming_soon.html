@@ -1,0 +1,42 @@
+{% extends "WebApp/app_base.html" %}
+{% load static %}
+{% block title %}SERVIR AppTemplate - About{% endblock %}
+{% block script %}
+    <!-- Custom styles-->
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+    <link href="{% static '/css/about.css' %}" rel="stylesheet" type="text/css">
+    <!-- Custom scripts-->
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.js"></script>
+    <script src="{% static 'js/about.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+    <br>
+    <!-- Root container for the about page's content -->
+    <div class="container-fluid  bg-gray-300">
+        <!-- About -->
+  <!-- About -->
+<div class="row">
+    <div class="col-lg-12 mb-4">
+        <div class="card shadow mb-4 border-0">
+            <div class="card-header py-3 text-white" style="background-color: #007847;">
+                <h5 class="m-0">Coming Soon</h5>
+            </div>
+            <div class="card-body">
+                <div class="text-left text-dark">
+                    <p>The <strong>Climate Risk and Vulnerability Assessment (CRVA) Portal</strong> is an interactive web-based platform designed to support climate-resilient agriculture in Mozambique. It delivers accessible tools and data for informed decision-making at local, regional, and national levels.</p>
+                    
+                  
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+
+    
+    <br>
+    </div>
+
+{% endblock %}

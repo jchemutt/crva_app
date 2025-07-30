@@ -1,0 +1,16 @@
+name: crva_app
+channels:
+  - defaults
+  - conda-forge
+dependencies:
+  - python=3.9
+  - django=4.1
+  - django-allauth
+  - django-import-export
+  - netcdf4
+  - shapely
+  - earthengine-api
+  - beautifulsoup4
+  - pip
+  - pip:
+      - asgiref==3.8.0

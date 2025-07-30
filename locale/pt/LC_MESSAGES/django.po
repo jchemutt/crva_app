@@ -1,0 +1,341 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-05-27 14:26+0300\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: .\WebApp\views.py:30
+msgid "Climate Risk & Vulnerability"
+msgstr "Risco Climático e Vulnerabilidade"
+
+#: .\WebApp\views.py:32 .\templates\WebApp\adaptation_map.html:230
+#: .\templates\WebApp\hazard_map.html:274
+msgid "Adaptation Strategies"
+msgstr "Estratégias de Adaptação"
+
+#: .\WebApp\views.py:34
+msgid "Agro-Weather Advisory"
+msgstr "Boletim Agroclimático"
+
+#: .\WebApp\views.py:36
+msgid "Crop Advisory"
+msgstr "Orientação Agrícola"
+
+#: .\WebApp\views.py:38
+msgid "Market Information"
+msgstr "Informações de Mercado"
+
+#: .\templates\WebApp\about.html:22
+#, fuzzy
+#| msgid "CRVA Portal"
+msgid "About the CRVA Portal"
+msgstr "Sobre o Portal CRVA"
+
+#: .\templates\WebApp\about.html:27
+msgid ""
+"\n"
+"              The <strong>Climate Risk and Vulnerability Assessment (CRVA) "
+"Portal</strong> is an interactive web-based platform designed to support "
+"climate-resilient agriculture in Mozambique. It delivers accessible tools "
+"and data for informed decision-making at local, regional, and national "
+"levels.\n"
+"              "
+msgstr ""
+
+"\n"
+"              O <strong>Portal de Avaliação de Riscos e Vulnerabilidades Climáticas (CRVA)</strong> é uma plataforma web interativa concebida para apoiar a agricultura resiliente ao clima em Moçambique. Ela fornece ferramentas e dados acessíveis para a tomada de decisões informadas em níveis local, regional e nacional.\n"
+"              "
+
+#: .\templates\WebApp\about.html:32
+msgid "The portal integrates the following key services:"
+msgstr "O portal integra os seguintes serviços principais:"
+
+#: .\templates\WebApp\about.html:35 .\templates\WebApp\home.html:59
+msgid "Agro-Weather Advisory:"
+msgstr "Boletim Agroclimático:"
+
+#: .\templates\WebApp\about.html:36
+msgid ""
+"Provides timely weather forecasts and alerts to assist farmers with "
+"scheduling critical activities such as planting, irrigation, and harvesting."
+msgstr "Fornece previsões meteorológicas e alertas oportunos para ajudar os agricultores a programar atividades críticas como plantio, irrigação e colheita."
+
+#: .\templates\WebApp\about.html:39 .\templates\WebApp\home.html:60
+msgid "Crop Advisory:"
+msgstr "Orientação Agrícola:"
+
+#: .\templates\WebApp\about.html:40
+msgid ""
+"Offers location-specific agronomic guidance on best crop practices, pest "
+"management, and nutrient application."
+msgstr "Oferece orientação agronômica específica para o local sobre melhores práticas agrícolas, manejo de pragas e aplicação de nutrientes."
+
+#: .\templates\WebApp\about.html:43 .\templates\WebApp\home.html:61
+msgid "Market Information:"
+msgstr "Informações de Mercado:"
+
+#: .\templates\WebApp\about.html:44
+msgid ""
+"Supplies data on crop prices, market demand, and logistics to improve "
+"farmers’ access to markets and maximize income."
+msgstr "Fornece dados sobre preços agrícolas, demanda de mercado e logística para melhorar o acesso dos agricultores aos mercados e maximizar a renda."
+
+#: .\templates\WebApp\about.html:47 .\templates\WebApp\home.html:62
+msgid "Climate Risk & Vulnerability Assessment:"
+msgstr "Avaliação de Risco Climático e Vulnerabilidade:"
+
+#: .\templates\WebApp\about.html:48
+#, fuzzy
+#| msgid ""
+#| "Maps areas most exposed to climate threats such as drought and floods, "
+#| "helping target adaptation and investment efforts effectively."
+msgid ""
+"Identifies regions most at risk from climate shocks like droughts or floods, "
+"enabling targeted adaptation and planning."
+msgstr ""
+"Mapeia as áreas mais expostas a ameaças climáticas como secas e inundações, "
+"ajudando a direcionar de forma eficaz os esforços de adaptação e "
+"investimento."
+
+#: .\templates\WebApp\about.html:51 .\templates\WebApp\home.html:63
+msgid "Adaptation Strategies:"
+msgstr "Estratégias de Adaptação:"
+
+#: .\templates\WebApp\about.html:52
+msgid ""
+"Suggests tailored resilience measures, including climate-smart agriculture "
+"practices, soil management, and water conservation."
+msgstr "Sugere medidas de resiliência personalizadas, incluindo práticas agrícolas inteligentes em relação ao clima, manejo do solo e conservação da água."
+
+#: .\templates\WebApp\about.html:57
+msgid ""
+"\n"
+"              This portal was developed by the <strong>Alliance of "
+"Bioversity International and CIAT</strong>, in collaboration with local "
+"partners, to enhance food security and resilience to climate change in "
+"Mozambique.\n"
+"              "
+msgstr ""
+"\n"
+"              Este portal foi desenvolvido pela <strong>Aliança da Bioversity International e CIAT</strong>, em colaboração com parceiros locais, para melhorar a segurança alimentar e a resiliência às mudanças climáticas em Moçambique.\n"
+"              "
+
+#: .\templates\WebApp\about.html:72
+msgid "Partners"
+msgstr "Parceiros"
+
+#: .\templates\WebApp\about.html:77 .\templates\WebApp\app_base.html:30
+#: .\templates\WebApp\app_base.html:94 .\templates\WebApp\home.html:66
+msgid "Alliance of Bioversity International and CIAT"
+msgstr "Aliança da Bioversity International e CIAT"
+
+#: .\templates\WebApp\about.html:80
+msgid "World Bank"
+msgstr "Banco Mundial"
+
+#: .\templates\WebApp\adaptation_map.html:4
+#, fuzzy
+#| msgid "Adaptation Strategies"
+msgid "Adaptation Map"
+msgstr "Estratégias de Adaptação"
+
+#: .\templates\WebApp\adaptation_map.html:205
+#, fuzzy
+#| msgid "Adaptation Strategies"
+msgid "Climate Adaptation Strategies Map"
+msgstr "Estratégias de Adaptação"
+
+#: .\templates\WebApp\adaptation_map.html:212
+msgid "Instructions"
+msgstr "Instruções"
+
+#: .\templates\WebApp\adaptation_map.html:214
+msgid "Click a province"
+msgstr "Clique numa província"
+
+#: .\templates\WebApp\adaptation_map.html:215
+msgid "Expand a value chain"
+msgstr "Expanda uma cadeia de valor"
+
+#: .\templates\WebApp\adaptation_map.html:216
+msgid "Click hazard badge to view strategies"
+msgstr "Clique no selo de risco para ver as estratégias"
+
+#: .\templates\WebApp\app_base.html:8 .\templates\WebApp\app_base.html:38
+msgid "CRVA Portal"
+msgstr "Portal CRVA"
+
+#: .\templates\WebApp\app_base.html:27
+msgid "Mozambique"
+msgstr "Moçambique"
+
+#: .\templates\WebApp\app_base.html:28
+msgid "Mozambique Logo"
+msgstr "Logotipo de Moçambique"
+
+#: .\templates\WebApp\app_base.html:31
+msgid "CIAT Logo"
+msgstr "Logotipo do CIAT"
+
+#: .\templates\WebApp\app_base.html:44
+msgid "Home"
+msgstr "Início"
+
+#: .\templates\WebApp\app_base.html:45
+msgid "About"
+msgstr "Sobre"
+
+#: .\templates\WebApp\app_base.html:50 .\templates\WebApp\app_base.html:64
+msgid "Português"
+msgstr "Português"
+
+#: .\templates\WebApp\app_base.html:50 .\templates\WebApp\app_base.html:57
+msgid "English"
+msgstr "Inglês"
+
+#: .\templates\WebApp\app_base.html:77
+msgid "Log Out"
+msgstr "Sair"
+
+#: .\templates\WebApp\app_base.html:96
+msgid "Alliance Logo"
+msgstr "Logotipo da Aliança"
+
+#: .\templates\WebApp\hazard_map.html:4 .\templates\WebApp\hazard_map.html:247
+msgid "Hazard Map Viewer"
+msgstr "Visualizador de Mapa de Riscos"
+
+#: .\templates\WebApp\hazard_map.html:253
+msgid "Hazard Type"
+msgstr "Tipo de Risco"
+
+#: .\templates\WebApp\hazard_map.html:255
+msgid "-- Select type --"
+msgstr "-- Selecionar camada --"
+
+#: .\templates\WebApp\hazard_map.html:258
+msgid "Layer"
+msgstr "Camada"
+
+#: .\templates\WebApp\hazard_map.html:260
+msgid "-- Select layer --"
+msgstr "-- Selecionar camada --"
+
+#: .\templates\WebApp\home.html:4
+msgid "CRVA Portal - Home"
+msgstr "Portal CRVA - Início"
+
+#: .\templates\WebApp\home.html:15
+msgid "Hero Image"
+msgstr "Imagem de Destaque"
+
+#: .\templates\WebApp\home.html:17
+msgid "Climate Risk and Vulnerability Assessment Portal"
+msgstr "Portal de Avaliação de Riscos e Vulnerabilidades Climáticas"
+
+#: .\templates\WebApp\home.html:19
+msgid ""
+"An interactive platform delivering agro-weather updates, crop advisory, "
+"market insights, climate risk assessments, and adaptation strategies to "
+"support climate-smart agricultural decision-making."
+msgstr ""
+"Uma plataforma interativa que fornece atualizações agroclimáticas, "
+"orientações agrícolas, informações de mercado, avaliações de riscos "
+"climáticos e estratégias de adaptação para apoiar decisões agrícolas "
+"inteligentes em relação ao clima."
+
+#: .\templates\WebApp\home.html:27
+msgid "🔍 Search for a Service"
+msgstr "🔍 Pesquisar um Serviço"
+
+#: .\templates\WebApp\home.html:27
+msgid "Search"
+msgstr "Pesquisar"
+
+#: .\templates\WebApp\home.html:53
+msgid "Service Overview"
+msgstr "Visão Geral dos Serviços"
+
+#: .\templates\WebApp\home.html:56
+msgid ""
+"This platform provides tailored decision-support tools to strengthen "
+"agricultural resilience in Mozambique. It offers timely, location-specific "
+"information and guidance to farmers, extension workers, and policymakers. "
+"Below is a breakdown of the key services available:"
+msgstr ""
+"Esta plataforma oferece ferramentas de apoio à decisão personalizadas para "
+"fortalecer a resiliência agrícola em Moçambique. Ela fornece informações e "
+"orientações oportunas e específicas para cada local, destinadas a "
+"agricultores, extensionistas e formuladores de políticas. Abaixo está uma "
+"visão geral dos principais serviços disponíveis:"
+
+#: .\templates\WebApp\home.html:59
+msgid ""
+"Delivers localized forecasts and early warnings to help farmers plan "
+"agricultural activities based on rainfall, temperature, and extreme weather "
+"events."
+msgstr ""
+"Fornece previsões localizadas e alertas antecipados para ajudar os "
+"agricultores a planejar atividades agrícolas com base nas chuvas, "
+"temperatura e eventos climáticos extremos."
+
+#: .\templates\WebApp\home.html:60
+msgid ""
+"Provides expert guidance on crop selection, pest and disease management, and "
+"sustainable farming practices aligned with seasonal conditions."
+msgstr ""
+"Oferece orientações especializadas sobre a escolha de culturas, controle de "
+"pragas e doenças, e práticas agrícolas sustentáveis alinhadas às condições "
+"sazonais."
+
+#: .\templates\WebApp\home.html:61
+msgid ""
+"Shares up-to-date data on crop prices, demand trends, and nearby market "
+"access points to support informed selling decisions and increase income."
+msgstr ""
+"Disponibiliza dados atualizados sobre preços agrícolas, tendências de "
+"demanda e pontos de acesso ao mercado mais próximos para apoiar decisões de "
+"venda informadas e aumentar a renda."
+
+#: .\templates\WebApp\home.html:62
+msgid ""
+"Maps areas most exposed to climate threats such as drought and floods, "
+"helping target adaptation and investment efforts effectively."
+msgstr ""
+"Mapeia as áreas mais expostas a ameaças climáticas como secas e inundações, "
+"ajudando a direcionar de forma eficaz os esforços de adaptação e "
+"investimento."
+
+#: .\templates\WebApp\home.html:63
+msgid ""
+"Recommends practical solutions such as drought-tolerant crops, water "
+"conservation, soil protection, and agroforestry tailored to specific zones."
+msgstr ""
+"Recomenda soluções práticas como culturas tolerantes à seca, conservação da "
+"água, proteção do solo e agroflorestas adaptadas a zonas específicas."
+
+#: .\templates\WebApp\home.html:66
+msgid "This platform is developed by the"
+msgstr "Esta plataforma foi desenvolvida pela"
+
+#: .\templates\WebApp\home.html:66
+msgid ""
+"supporting climate-smart agriculture and food security initiatives in "
+"Mozambique."
+msgstr ""
+"apoiando iniciativas de agricultura inteligente em relação ao clima e "
+"segurança alimentar em Moçambique."
