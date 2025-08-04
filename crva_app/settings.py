@@ -12,8 +12,13 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 import json
 import os
 from pathlib import Path
+import sys
 
-GDAL_LIBRARY_PATH = os.path.join(os.environ['CONDA_PREFIX'], 'Library', 'bin', 'gdal.dll')
+if sys.platform.startswith('win'):
+    GDAL_LIBRARY_PATH = os.path.join(
+        os.environ['CONDA_PREFIX'], 'Library', 'bin', 'gdal.dll'
+    )
+
 
 from django.contrib.messages import constants as messages
 
