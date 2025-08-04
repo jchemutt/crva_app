@@ -20,3 +20,4 @@ dependencies:
       - asgiref==3.8.0
       - djangorestframework
       - django-extensions
+      - PyJWT
