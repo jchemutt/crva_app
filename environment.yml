@@ -9,6 +9,7 @@ dependencies:
   - django-import-export
   - netcdf4
   - shapely
+  - gdal
   - earthengine-api
   - beautifulsoup4
   - psycopg2
