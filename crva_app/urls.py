@@ -18,7 +18,6 @@ urlpatterns = [
     path('set-language/', set_language, name='set_language'),
     path('', include('WebApp.webapp_urls_api')),  # non-translatable
     path('api/', include(router.urls)),
-    path('api/', include('django_large_image.urls')),
     path('admin/', admin.site.urls),
 ]
 

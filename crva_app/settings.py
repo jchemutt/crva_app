@@ -35,7 +35,7 @@ LARGE_IMAGE_ALLOW_SYMLINK = False  #
 SECRET_KEY = data['SECRET_KEY']
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = data['DEBUG_KEY']
 
 ALLOWED_HOSTS = data['ALLOWED_HOSTS']
 
@@ -52,7 +52,6 @@ INSTALLED_APPS = [
     'WebApp.apps.WebappConfig',
     'django.contrib.sites',
     'hazard_layer',
-    'django_large_image',
     'rest_framework',
     'django_extensions',
     'allauth',
