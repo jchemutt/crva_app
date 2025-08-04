@@ -1,0 +1,349 @@
+{% extends "WebApp/app_base.html" %}
+{% load static %}
+
+{% block title %}Implementation Strategies{% endblock %}
+
+{% block content %}
+<div class="container-fluid my-3">
+  <div class="card shadow border-0">
+    <div class="card-header d-flex justify-content-between align-items-center text-white" style="background-color:#007847;">
+      <h5 class="m-0">Implementation Strategies</h5>
+      <div class="small">
+        <span id="result-count" class="badge bg-warning text-dark">0</span>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <!-- Filter bar -->
+      <div class="row g-3 align-items-end filters mb-3">
+        <div class="col-lg-4">
+          <label class="form-label">Keyword</label>
+          <div class="input-group">
+            <input id="kw" class="form-control" placeholder="Search strategy, activities, implementers, outcomes…">
+            <button id="clear-kw" class="btn btn-outline-secondary" type="button" title="Clear">✕</button>
+          </div>
+          <div class="form-text">Search across titles, activities, implementers, outcomes, and linked adaptation strategies.</div>
+        </div>
+
+        <div class="col-lg-3">
+          <label class="form-label">Timeframe</label>
+          <select id="timeframe" class="form-select" multiple>
+            <option value="Short term">Short-term</option>
+            <option value="Medium term">Medium-term</option>
+            <option value="Medium to long term">Medium-to-long-term</option>
+            <option value="Long term">Long-term</option>
+          </select>
+          <div class="form-text">Hold Ctrl/Cmd to select multiple.</div>
+        </div>
+
+        <div class="col-lg-4">
+          <label class="form-label">Adaptation Strategy</label>
+          <select id="adapt-strategies" class="form-select" multiple></select>
+          <div class="form-text">Filter by linked Adaptation Strategies.</div>
+        </div>
+
+        <div class="col-lg-1 d-grid">
+          <button id="apply" class="btn btn-success">Apply</button>
+          <button id="clear" class="btn btn-outline-secondary mt-2">Clear</button>
+        </div>
+      </div>
+
+      <!-- Active filters summary -->
+      <div id="active-filters" class="mb-2" style="min-height:28px;"></div>
+
+      <!-- Display options -->
+      <div class="d-flex flex-wrap gap-2 mb-2">
+        <div class="input-group input-group-sm" style="max-width: 280px;">
+          <span class="input-group-text">Group by</span>
+          <select id="group-by" class="form-select">
+            <option value="strategy_title" selected>Strategy</option>
+            <option value="timeframe">Timeframe</option>
+          </select>
+        </div>
+
+        <div class="btn-group btn-group-sm" role="group" aria-label="Collapse groups">
+          <button id="collapse-all" class="btn btn-outline-secondary">Collapse all</button>
+          <button id="expand-all" class="btn btn-outline-secondary">Expand all</button>
+        </div>
+
+        <div id="dt-buttons" class="ms-auto"></div>
+      </div>
+
+      <!-- Table: keep it compact (no `nowrap`) -->
+      <div class="table-responsive">
+        <table id="impl-table" class="display table table-striped align-middle" style="width:100%">
+          <thead class="table-light">
+            <tr>
+              <th>Strategy</th>
+              <th>Timeframe</th>
+              <th>Proposed Activities</th>
+              <th>Implementers</th>
+              <th>Resources / Investments Needed</th>
+              <th>Expected Outcomes</th>
+              <th>Beneficiaries</th>
+              <th>Adaptation Strategies</th>
+            </tr>
+          </thead>
+        </table>
+      </div>
+
+      <!-- Loading overlay -->
+      <div id="loading-overlay" class="position-absolute top-50 start-50 translate-middle text-muted d-none">
+        <div class="spinner-border" role="status" aria-hidden="true"></div>
+        <div class="mt-2">Loading…</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block script %}
+  <!-- DataTables CSS -->
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/rowgroup/1.4.1/css/rowGroup.dataTables.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
+
+  <style>
+    .filters .form-control, .filters .form-select { max-width: 100%; }
+    /* Allow wrapping inside visible cells */
+    table.dataTable td, table.dataTable th { white-space: normal; }
+    .truncate { display: inline-block; max-height: 3.6em; overflow: hidden; }
+    .toggle-more { cursor: pointer; font-size: .875rem; }
+    .badge-as { margin: 0 4px 4px 0; }
+    .dt-buttons .btn, .dt-buttons .dt-button { margin-right: 6px; }
+    .d-none { display: none !important; }
+    /* Group header styling */
+    tr.dtrg-start > td { background: #f6f8f9; font-weight: 600; }
+  </style>
+
+  <!-- DataTables JS (base already loads jQuery) -->
+  <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/rowgroup/1.4.1/js/dataTables.rowGroup.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.colVis.min.js"></script>
+  <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+
+  <script>
+  jQuery(function($) {
+    const apiEntries = "{% url 'api_implementation_entries' %}";
+    const apiAdapt   = "{% url 'api_adaptation_strategies' %}";
+
+    // Populate AdaptationStrategy filter
+    fetch(apiAdapt)
+      .then(r => r.json())
+      .then(list => {
+        const sel = $("#adapt-strategies");
+        list.forEach(a => sel.append(`<option value="${a.id}">${$('<div/>').text(a.description).html()}</option>`));
+      });
+
+    // Column index map
+    const COL = { strategy_title: 0, timeframe: 1 };
+
+    // Grouping state & collapse state per group key
+    let currentGroup = 'strategy_title';
+    let collapsed = Object.create(null);
+
+    // Helpers ----------------------------------------------------
+    const showOverlay = (on) => $("#loading-overlay").toggleClass("d-none", !on);
+
+    function debounce(fn, delay) { let t; return function(...a){ clearTimeout(t); t=setTimeout(()=>fn.apply(this,a), delay); }; }
+
+    function getFilters() {
+      return {
+        q: $("#kw").val().trim(),
+        timeframe: $("#timeframe").val() || [],
+        adapt_ids: ($("#adapt-strategies").val() || []).join(',')
+      };
+    }
+
+    function renderFilterChips() {
+      const { q, timeframe, adapt_ids } = getFilters();
+      const container = $("#active-filters").empty();
+      const chips = [];
+      if (q) chips.push(`<span class="badge rounded-pill text-bg-secondary me-1">Keyword: ${$('<div/>').text(q).html()}</span>`);
+      if (timeframe.length) chips.push(`<span class="badge rounded-pill text-bg-secondary me-1">Timeframe: ${timeframe.join(', ')}</span>`);
+      if (adapt_ids) chips.push(`<span class="badge rounded-pill text-bg-secondary me-1">Adapt IDs: ${adapt_ids}</span>`);
+      if (!chips.length) container.append(`<span class="text-muted">No filters applied.</span>`);
+      else container.append(chips.join(' '));
+    }
+
+    function truncateRenderer(text, limit=180) {
+      if (!text) return '';
+      const safe = $('<div/>').text(text).html();
+      if (safe.length <= limit) return `<span>${safe}</span>`;
+      const short = safe.slice(0, limit);
+      return `<span class="truncate" data-full="${safe}">${short}…</span> <a class="toggle-more">More</a>`;
+    }
+
+    // DataTable --------------------------------------------------
+    const table = $("#impl-table").DataTable({
+      stateSave: true,
+      processing: true,
+      searching: false,
+      paging: true,
+      pageLength: 25,
+      autoWidth: false,           // helps responsive calculations
+      scrollX: false,
+      responsive: { details: { type: 'inline', target: 'tr' } },
+      dom: 'Bfrtip',
+      buttons: [
+        { extend: 'colvis', text: 'Columns' },
+        { extend: 'csvHtml5', title: 'implementation_entries' },
+        { extend: 'excelHtml5', title: 'implementation_entries' },
+        { extend: 'print', title: 'Implementation Entries' }
+      ],
+      initComplete: function() { table.buttons().container().appendTo('#dt-buttons'); },
+      ajax: {
+        url: apiEntries,
+        data: function(d) {
+          const f = getFilters();
+          d.q = f.q;
+          (f.timeframe || []).forEach(() => { d.timeframe = f.timeframe; }); // send as array
+          d.adapt_ids = f.adapt_ids;
+        },
+        dataSrc: function(json) { $("#result-count").text(json.length); renderFilterChips(); return json; },
+        beforeSend: () => showOverlay(true),
+        complete:   () => showOverlay(false)
+      },
+      // Keep main row compact: show only Timeframe; move long text into responsive details
+      columns: [
+        { data: 'strategy_title', responsivePriority: 1 },             // 0 (grouped; hidden below)
+        { data: 'timeframe',      responsivePriority: 2, className: 'all' }, // keep visible in row
+        { data: 'proposed_activities', className: 'details-cell none', render: (d) => truncateRenderer(d) },
+        { data: 'implementers',        className: 'details-cell none', render: (d) => truncateRenderer(d, 140) },
+        { data: 'resources_needed',    className: 'details-cell none', render: (d) => truncateRenderer(d, 140) },
+        { data: 'expected_outcomes',   className: 'details-cell none', render: (d) => truncateRenderer(d, 160) },
+        { data: 'beneficiaries',       className: 'details-cell none', render: (d) => truncateRenderer(d, 120) },
+        {
+          data: 'adaptation_strategies',
+          className: 'none', // keep badges in details for compactness (change to 'all' if you want inline)
+          render: function(arr) {
+            if (!arr || !arr.length) return '';
+            return arr.map(x => `<span class="badge rounded-pill text-bg-light badge-as">${$('<div/>').text(x.description).html()}</span>`).join(' ');
+          },
+          orderable: false
+        }
+      ],
+      // RowGroup with custom header; we store the group key in data-group
+      rowGroup: {
+        dataSrc: currentGroup,
+        startRender: function(rows, group) {
+          const key = String(group);
+          const isCollapsed = !!collapsed[key];
+          const count = rows.count();
+          const icon = isCollapsed ? '▸' : '▾';
+          return $('<tr/>')
+            .addClass('group-header')
+            .attr('data-group', key)
+            .append(`
+              <td colspan="8" style="cursor:pointer">
+                <span class="me-2 header-icon">${icon}</span>
+                <strong>${$('<div/>').text(key).html()}</strong>
+                <span class="text-muted">(${count} item${count>1?'s':''})</span>
+              </td>
+            `);
+        }
+      },
+      // Hide the grouped column so titles don't repeat in each row
+      columnDefs: [{ targets: COL.strategy_title, visible: false }],
+      order: [[COL.strategy_title, 'asc'], [COL.timeframe, 'asc']]
+    });
+
+    // Toggle More/Less for truncated cells
+    $("#impl-table").on("click", ".toggle-more", function(e) {
+      e.preventDefault();
+      const $link = $(this);
+      const $span = $link.prev(".truncate");
+      if ($span.length) {
+        const full = $span.attr("data-full");
+        if ($link.text() === "More") {
+          $span.removeClass("truncate").html(full);
+          $link.text("Less");
+        } else {
+          const short = full.slice(0, 180);
+          $span.addClass("truncate").html(short + "…").attr("data-full", full);
+          $link.text("More");
+        }
+      }
+    });
+
+    // Header click => toggle collapse for that group
+    $("#impl-table tbody").on("click", "tr.group-header", function() {
+      const key = $(this).attr('data-group');
+      collapsed[key] = !collapsed[key];
+      table.draw(false);
+    });
+
+    // On every draw, hide data rows whose group is collapsed; update header icons
+    table.on('draw', function() {
+      table.rows({ page: 'current' }).every(function() {
+        const d = this.data();
+        const key = currentGroup === 'strategy_title' ? d.strategy_title : (d.timeframe || '');
+        $(this.node()).toggle(!collapsed[key]);
+      });
+      $("#impl-table tbody tr.group-header").each(function() {
+        const $tr = $(this);
+        const key = $tr.attr('data-group');
+        $tr.find('.header-icon').text(collapsed[key] ? '▸' : '▾');
+      });
+    });
+
+    // Group by drop-down
+    $("#group-by").on("change", function() {
+      const val = $(this).val();
+      currentGroup = val;
+      collapsed = Object.create(null); // reset collapse state
+      table.rowGroup().dataSrc(val);
+
+      // Show both candidate columns first, then hide the grouped one
+      table.column(COL.strategy_title).visible(true, false);
+      table.column(COL.timeframe).visible(true, false);
+
+      if (val === 'strategy_title') {
+        table.column(COL.strategy_title).visible(false, false);
+        table.order([[COL.strategy_title, 'asc'], [COL.timeframe, 'asc']]);
+      } else {
+        table.column(COL.timeframe).visible(false, false);
+        table.order([[COL.timeframe, 'asc'], [COL.strategy_title, 'asc']]);
+      }
+      table.rows().invalidate().draw();
+    });
+
+    // Collapse/Expand all for current data
+    $("#collapse-all").on("click", function() {
+      collapsed = Object.create(null);
+      table.rows({ page: 'current' }).every(function() {
+        const d = this.data();
+        const key = currentGroup === 'strategy_title' ? d.strategy_title : (d.timeframe || '');
+        collapsed[key] = true;
+      });
+      table.draw(false);
+    });
+    $("#expand-all").on("click", function() {
+      collapsed = Object.create(null);
+      table.draw(false);
+    });
+
+    // Filters: Apply & Clear
+    $("#apply").on("click", () => table.ajax.reload());
+
+    $("#clear").on("click", function() {
+      $("#kw").val('');
+      $("#timeframe").val([]);
+      $("#adapt-strategies").val([]);
+      table.ajax.reload();
+    });
+
+    $("#clear-kw").on("click", function() {
+      $("#kw").val('');
+      table.ajax.reload();
+    });
+
+    // Debounced keyword search
+    $("#kw").on("input", debounce(() => table.ajax.reload(), 300));
+  });
+  </script>
+{% endblock %}

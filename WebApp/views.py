@@ -10,14 +10,23 @@ from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.contrib.gis.geos import GEOSGeometry
-from WebApp.models import Province, RiskAdaptation,ProvinceTimeSeries
+
+from WebApp.models import (
+    Province, ValueChain, Hazard, Stage,
+    ValueChainHazard, Risk, AdaptationStrategy, RiskAdaptation,
+    ProvinceTimeSeries,ImplementationStrategy, 
+    ImplementationEntry
+)
 import json
 from django.utils.translation import gettext_lazy as _
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .models import Province, ProvinceTimeSeries
+
 from collections import defaultdict
+
+from django.db.models import Prefetch, Q  # for filtering
+
 
 
 
@@ -38,7 +47,7 @@ def home(request):
             #{"name": _("Agro-Weather Advisory"), "background_image_url": static("images/cards/agro.PNG"),
              #'url': reverse('coming_soon')},
             {"name": _("Implementation Strategies"), "background_image_url": static("images/cards/crop.PNG"),
-             'url': reverse('coming_soon')},
+             'url': reverse('implementation_strategies')},
             #{"name": _("Market Information"), "background_image_url": static("images/cards/market.PNG"),
              #'url': reverse('coming_soon')},
         ],
@@ -47,9 +56,6 @@ def home(request):
     return render(request, 'WebApp/home.html', context)
 
 
-@csrf_exempt
-def select_aoi(request):
-    return render(request, 'WebApp/select_aoi.html', {})
 
 @csrf_exempt
 def coming_soon(request):
@@ -62,43 +68,17 @@ def crva(request):
     context = {}
     return render(request, 'WebApp/crva.html', context)
 
-@csrf_exempt
-def map_chart(request):
-    context = {}
-    return render(request, 'WebApp/map_chart.html', context)
-
-
-def map_fixed_size(request):
-    return render(request, 'WebApp/map_fixedsize.html', {})
-
 
 def login(request):
     return render(request, 'WebApp/login.html', {})
 
 
-def map_from_gee(request):
-    return render(request, 'WebApp/map_from_GEE.html', {})
 
-
-def map_full_screen(request):
-    return render(request, 'WebApp/map_fullscreen.html', {})
-
-
-def chart_from_netcdf(request):
-    # url = 'https://thredds.servirglobal.net/thredds/wms/mk_aqx/geos/20191123.nc?service=WMS&version=1.3.0&request
-    # =GetCapabilities' document = requests.get(url) soup = BeautifulSoup(document.content, "lxml-xml")
-    # bounds=soup.find("EX_GeographicBoundingBox") children = bounds.findChildren() bounds_nc=[float(children[
-    # 0].get_text()),float(children[1].get_text()),float(children[2].get_text()),float(children[3].get_text())]
-
-    context = {
-        "netcdf_path": data["sample_netCDF"],
-        # "netcdf_bounds":bounds_nc
-    }
-    return render(request, 'WebApp/chart_from_netCDF.html', context)
-
-
-def chart_climateserv(request):
-    return render(request, 'WebApp/chart_from_ClimateSERV.html', {})
+def implementation_strategies_view(request):
+    """
+    Renders the UI page (DataTable + filters) for Implementation Strategies.
+    """
+    return render(request, 'WebApp/implementation_strategies.html')
 
 
 
@@ -222,4 +202,169 @@ def adaptation_map_view(request):
 
 def hazard_map_view(request):
     return render(request, 'WebApp/hazard_map.html')
+
+@api_view(['GET'])
+def adaptation_strategies_api(request):
+    """
+    Returns [{id, description}, ...] for populating the Adaptation Strategy filter.
+    """
+    qs = AdaptationStrategy.objects.order_by('description').only('id', 'description')
+    data = [{"id": a.id, "description": a.description} for a in qs]
+    return Response(data)
+
+@api_view(['GET'])
+def implementation_entries_api(request):
+    """
+    Returns a flat list of ImplementationEntry rows for DataTables.
+
+    Query params:
+      q=keyword
+      timeframe=Short-term|Medium-term|Long-term (repeatable)
+      adapt_ids=1,2,3 (M2M AdaptationStrategy ids)
+    """
+    q = (request.GET.get('q') or '').strip()
+    timeframe_vals = request.GET.getlist('timeframe')  # may be multiple
+    adapt_ids_raw = (request.GET.get('adapt_ids') or '').strip()
+    adapt_ids = [int(x) for x in adapt_ids_raw.split(',') if x.strip().isdigit()]
+
+    qs = (
+        ImplementationEntry.objects
+        .select_related('strategy')
+        .prefetch_related(
+            Prefetch(
+                'strategy__adaptation_strategies',
+                queryset=AdaptationStrategy.objects.only('id', 'description')
+            )
+        )
+        .all()
+    )
+
+    if q:
+        qs = qs.filter(
+            Q(strategy__title__icontains=q) |
+            Q(proposed_activities__icontains=q) |
+            Q(implementers__icontains=q) |
+            Q(resources_needed__icontains=q) |
+            Q(expected_outcomes__icontains=q) |
+            Q(beneficiaries__icontains=q) |
+            Q(strategy__adaptation_strategies__description__icontains=q)
+        ).distinct()
+
+    if timeframe_vals:
+        qs = qs.filter(timeframe__in=timeframe_vals)
+
+    if adapt_ids:
+        qs = qs.filter(strategy__adaptation_strategies__id__in=adapt_ids).distinct()
+
+    qs = qs.order_by('strategy__title', 'timeframe', 'id')
+
+    data = []
+    for e in qs:
+        data.append({
+            "id": e.id,
+            "strategy": e.strategy_id,
+            "strategy_title": e.strategy.title if e.strategy_id else "",
+            "timeframe": e.timeframe or "",
+            "proposed_activities": e.proposed_activities or "",
+            "implementers": e.implementers or "",
+            "resources_needed": e.resources_needed or "",
+            "expected_outcomes": e.expected_outcomes or "",
+            "beneficiaries": e.beneficiaries or "",
+            "adaptation_strategies": [
+                {"id": a.id, "description": a.description}
+                for a in e.strategy.adaptation_strategies.all()
+            ] if e.strategy_id else []
+        })
+
+    return Response(data)
+
+# ---------- Page view ----------
+def risk_adaptations_view(request):
+    """
+    Renders the Risk Adaptations table page (DataTables + filters).
+    """
+    return render(request, 'WebApp/risk_adaptations.html')
+
+
+# ---------- Lookup endpoints for filters ----------
+@api_view(['GET'])
+def provinces_api(request):
+    qs = Province.objects.order_by('name').only('id', 'name')
+    return Response([{"id": p.id, "name": p.name} for p in qs])
+
+@api_view(['GET'])
+def value_chains_api(request):
+    qs = ValueChain.objects.order_by('name').only('id', 'name')
+    return Response([{"id": v.id, "name": v.name} for v in qs])
+
+'''@api_view(['GET'])
+def hazards_api(request):
+    qs = Hazard.objects.order_by('name').only('id', 'name')
+    return Response([{"id": h.id, "name": h.name} for h in qs])'''
+
+
+# ---------- Main data endpoint ----------
+@api_view(['GET'])
+def risk_adaptations_api(request):
+    """
+    Returns a flat list of RiskAdaptation rows with optional filters.
+
+    Query params:
+      q=keyword (search in risk, strategy, stage, province, vc, hazard)
+      province=<id>
+      value_chain=<id>
+      hazard=<id>
+      stage=<id>  (optional)
+    """
+    q = (request.GET.get('q') or '').strip()
+
+    province_id = request.GET.get('province')
+    value_chain_id = request.GET.get('value_chain')
+    hazard_id = request.GET.get('hazard')
+    stage_id = request.GET.get('stage')
+
+    qs = (
+        RiskAdaptation.objects
+        .select_related(
+            'province', 'stage',
+            'vc_hazard__value_chain', 'vc_hazard__hazard',
+            'risk_ref', 'adaptation_strategy_ref'
+        )
+        .all()
+    )
+
+    if province_id and province_id.isdigit():
+        qs = qs.filter(province_id=int(province_id))
+    if value_chain_id and value_chain_id.isdigit():
+        qs = qs.filter(vc_hazard__value_chain_id=int(value_chain_id))
+    if hazard_id and hazard_id.isdigit():
+        qs = qs.filter(vc_hazard__hazard_id=int(hazard_id))
+    if stage_id and stage_id.isdigit():
+        qs = qs.filter(stage_id=int(stage_id))
+
+    if q:
+        qs = qs.filter(
+            Q(province__name__icontains=q) |
+            Q(vc_hazard__value_chain__name__icontains=q) |
+            Q(vc_hazard__hazard__name__icontains=q) |
+            Q(stage__name__icontains=q) |
+            Q(risk_ref__description__icontains=q) |
+            Q(adaptation_strategy_ref__description__icontains=q)
+        ).distinct()
+
+    qs = qs.order_by('vc_hazard__value_chain__name', 'vc_hazard__hazard__name', 'province__name', 'stage__name', 'id')
+
+    data = []
+    for ra in qs:
+        data.append({
+            "id": ra.id,
+            "province": ra.province.name if ra.province_id else "",
+            "value_chain": ra.vc_hazard.value_chain.name if ra.vc_hazard_id else "",
+            "hazard": ra.vc_hazard.hazard.name if ra.vc_hazard_id else "",
+            "stage": ra.stage.name if ra.stage_id else "",
+            "risk": getattr(ra.risk_ref, 'description', "") or "",
+            "adaptation_strategy": getattr(ra.adaptation_strategy_ref, 'description', "") or "",
+        })
+    return Response(data)
+
 

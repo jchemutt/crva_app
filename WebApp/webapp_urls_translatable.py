@@ -12,6 +12,8 @@ urlpatterns = [
     path('crva/', views.crva, name='crva'),
     path('adaptation/', views.adaptation_map_view, name='adaptation_map'),
     path('hazard_map/', views.hazard_map_view, name='hazard_map'),
+    path('implementation-strategies/', views.implementation_strategies_view, name='implementation_strategies'),
+    path('risk-adaptations/', views.risk_adaptations_view, name='risk_adaptations'),
     
     path('about/', views.about, name='about'),
     path('login/', views.login, name='login'),

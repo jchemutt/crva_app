@@ -1,0 +1,357 @@
+{% extends "WebApp/app_base.html" %}
+{% load static %}
+
+{% block title %}Risk Adaptations{% endblock %}
+
+{% block content %}
+<div class="container-fluid my-3">
+  <div class="card shadow border-0">
+    <div class="card-header d-flex justify-content-between align-items-center text-white" style="background-color:#007847;">
+      <h5 class="m-0">Risk Adaptations</h5>
+      <div class="small">
+        <span id="result-count" class="badge bg-warning text-dark">0</span>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <!-- Filter bar -->
+      <div class="row g-3 align-items-end filters mb-3">
+        <div class="col-lg-3">
+          <label class="form-label">Province</label>
+          <select id="province" class="form-select">
+            <option value="">All Provinces</option>
+          </select>
+        </div>
+
+        <div class="col-lg-3">
+          <label class="form-label">Value Chain</label>
+          <select id="value-chain" class="form-select">
+            <option value="">All Value Chains</option>
+          </select>
+        </div>
+
+        <div class="col-lg-3">
+          <label class="form-label">Hazard</label>
+          <select id="hazard" class="form-select">
+            <option value="">All Hazards</option>
+          </select>
+        </div>
+
+        <div class="col-lg-3">
+          <label class="form-label">Keyword</label>
+          <div class="input-group">
+            <input id="kw" class="form-control" placeholder="Search province, VC, hazard, stage, risk, strategy…">
+            <button id="clear-kw" class="btn btn-outline-secondary" type="button" title="Clear">✕</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex gap-2 mb-2">
+        <button id="apply" class="btn btn-success">Apply</button>
+        <button id="clear" class="btn btn-outline-secondary">Clear</button>
+
+        <div class="input-group input-group-sm ms-auto" style="max-width: 320px;">
+          <span class="input-group-text">Group by</span>
+          <select id="group-by" class="form-select">
+            <option value="value_chain" selected>Value Chain</option>
+            <option value="hazard">Hazard</option>
+            <option value="province">Province</option>
+            <option value="stage">Stage</option>
+          </select>
+        </div>
+
+        <div class="btn-group btn-group-sm" role="group">
+          <button id="collapse-all" class="btn btn-outline-secondary">Collapse all</button>
+          <button id="expand-all" class="btn btn-outline-secondary">Expand all</button>
+        </div>
+
+        <div id="dt-buttons"></div>
+      </div>
+
+      <!-- Active filters summary -->
+      <div id="active-filters" class="mb-2" style="min-height:28px;"></div>
+
+      <!-- Table -->
+      <div class="table-responsive">
+        <table id="ra-table" class="display table table-striped align-middle" style="width:100%">
+          <thead class="table-light">
+            <tr>
+              <th>Province</th>
+              <th>Value Chain</th>
+              <th>Hazard</th>
+              <th>Stage</th>
+              <th>Risk</th>
+              <th>Adaptation Strategy</th>
+            </tr>
+          </thead>
+        </table>
+      </div>
+
+      <!-- Loading overlay -->
+      <div id="loading-overlay" class="position-absolute top-50 start-50 translate-middle text-muted d-none">
+        <div class="spinner-border" role="status" aria-hidden="true"></div>
+        <div class="mt-2">Loading…</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block script %}
+  <!-- DataTables CSS -->
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/rowgroup/1.4.1/css/rowGroup.dataTables.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.dataTables.min.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
+
+  <style>
+    table.dataTable td, table.dataTable th { white-space: normal; }
+    .truncate { display: inline-block; max-height: 3.6em; overflow: hidden; }
+    .toggle-more { cursor: pointer; font-size: .875rem; }
+    .badge-as { margin: 0 4px 4px 0; }
+    .dt-buttons .btn, .dt-buttons .dt-button { margin-right: 6px; }
+    .d-none { display: none !important; }
+    tr.dtrg-start > td { background: #f6f8f9; font-weight: 600; }
+  </style>
+
+  <!-- DataTables JS (base already loads jQuery) -->
+  <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/rowgroup/1.4.1/js/dataTables.rowGroup.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.colVis.min.js"></script>
+  <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+
+  <script>
+  jQuery(function($) {
+
+    // --- Endpoints
+    const apiData   = "{% url 'api_risk_adaptations' %}";
+    const apiProv   = "{% url 'api_provinces' %}";
+    const apiVC     = "{% url 'api_value_chains' %}";
+    const apiHaz    = "{% url 'api_hazards' %}";
+
+    // Populate selects
+    Promise.all([fetch(apiProv), fetch(apiVC), fetch(apiHaz)])
+      .then(async ([rp, rvc, rh]) => [await rp.json(), await rvc.json(), await rh.json()])
+      .then(([provinces, valueChains, hazards]) => {
+        const $prov = $("#province");
+        provinces.forEach(p => $prov.append(`<option value="${p.id}">${$('<div/>').text(p.name).html()}</option>`));
+        const $vc = $("#value-chain");
+        valueChains.forEach(v => $vc.append(`<option value="${v.id}">${$('<div/>').text(v.name).html()}</option>`));
+        const $hz = $("#hazard");
+        hazards.forEach(h => $hz.append(`<option value="${h.id}">${$('<div/>').text(h.name).html()}</option>`));
+      });
+
+    // Group state
+    let currentGroup = 'value_chain';   // default
+    let collapsed = Object.create(null);
+
+    // Column indices (keep in sync with <thead> order)
+    const COL = {
+      province: 0,
+      value_chain: 1,
+      hazard: 2,
+      stage: 3,
+      risk: 4,
+      adaptation_strategy: 5
+    };
+
+    const showOverlay = (on) => $("#loading-overlay").toggleClass("d-none", !on);
+    const debounce = (fn, d) => { let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), d); }; };
+
+    function getFilters() {
+      return {
+        province: $("#province").val() || "",
+        value_chain: $("#value-chain").val() || "",
+        hazard: $("#hazard").val() || "",
+        q: $("#kw").val().trim()
+      };
+    }
+    function renderFilterChips() {
+      const f = getFilters();
+      const container = $("#active-filters").empty();
+      const chips = [];
+      if (f.province) chips.push(`<span class="badge rounded-pill text-bg-secondary me-1">Province ID: ${f.province}</span>`);
+      if (f.value_chain) chips.push(`<span class="badge rounded-pill text-bg-secondary me-1">Value Chain ID: ${f.value_chain}</span>`);
+      if (f.hazard) chips.push(`<span class="badge rounded-pill text-bg-secondary me-1">Hazard ID: ${f.hazard}</span>`);
+      if (f.q) chips.push(`<span class="badge rounded-pill text-bg-secondary me-1">Keyword: ${$('<div/>').text(f.q).html()}</span>`);
+      if (!chips.length) container.append(`<span class="text-muted">No filters applied.</span>`);
+      else container.append(chips.join(' '));
+    }
+    function truncateRenderer(text, limit=200) {
+      if (!text) return '';
+      const safe = $('<div/>').text(text).html();
+      if (safe.length <= limit) return `<span>${safe}</span>`;
+      const short = safe.slice(0, limit);
+      return `<span class="truncate" data-full="${safe}">${short}…</span> <a class="toggle-more">More</a>`;
+    }
+
+    // DataTable
+    const table = $("#ra-table").DataTable({
+      stateSave: true,
+      processing: true,
+      searching: false,
+      paging: true,
+      pageLength: 25,
+      autoWidth: false,
+      scrollX: false,
+      responsive: { details: { type: 'inline', target: 'tr' } },
+      dom: 'Bfrtip',
+      buttons: [
+        { extend: 'colvis', text: 'Columns' },
+        { extend: 'csvHtml5', title: 'risk_adaptations' },
+        { extend: 'excelHtml5', title: 'risk_adaptations' },
+        { extend: 'print', title: 'Risk Adaptations' }
+      ],
+      initComplete: function() {
+        table.buttons().container().appendTo('#dt-buttons');
+      },
+      ajax: {
+        url: apiData,
+        data: function(d) {
+          const f = getFilters();
+          d.province = f.province;
+          d.value_chain = f.value_chain;
+          d.hazard = f.hazard;
+          d.q = f.q;
+        },
+        dataSrc: function(json) {
+          $("#result-count").text(json.length);
+          renderFilterChips();
+          return json;
+        },
+        beforeSend: () => showOverlay(true),
+        complete:   () => showOverlay(false)
+      },
+      // Keep main row compact: push long text to details
+      columns: [
+        { data: 'province', responsivePriority: 2, className: 'all' },
+        { data: 'value_chain', responsivePriority: 1, className: 'all' },
+        { data: 'hazard', responsivePriority: 3, className: 'all' },
+        { data: 'stage', responsivePriority: 4, className: 'all' },
+        { data: 'risk', className: 'details-cell none', render: (d)=>truncateRenderer(d) },
+        { data: 'adaptation_strategy', className: 'details-cell none', render: (d)=>truncateRenderer(d, 220) }
+      ],
+      rowGroup: {
+        dataSrc: currentGroup,
+        startRender: function(rows, group) {
+          const key = String(group || '');
+          const isCollapsed = !!collapsed[key];
+          const count = rows.count();
+          const icon = isCollapsed ? '▸' : '▾';
+          return $('<tr/>')
+            .addClass('group-header')
+            .attr('data-group', key)
+            .append(`
+              <td colspan="6" style="cursor:pointer">
+                <span class="me-2 header-icon">${icon}</span>
+                <strong>${$('<div/>').text(key || '(Blank)').html()}</strong>
+                <span class="text-muted">(${count} item${count>1?'s':''})</span>
+              </td>
+            `);
+        }
+      },
+      // Hide the grouped column (set below on first draw as group-by may change)
+      order: [[COL.value_chain, 'asc'], [COL.hazard, 'asc'], [COL.province, 'asc'], [COL.stage, 'asc']]
+    });
+
+    // Hide the default grouped column initially (value_chain)
+    table.on('init', function() {
+      table.column(COL.value_chain).visible(false, false);
+      table.draw(false);
+    });
+
+    // Toggle More/Less
+    $("#ra-table").on("click", ".toggle-more", function(e) {
+      e.preventDefault();
+      const $link = $(this);
+      const $span = $link.prev(".truncate");
+      if (!$span.length) return;
+      const full = $span.attr("data-full");
+      if ($link.text() === "More") {
+        $span.removeClass("truncate").html(full);
+        $link.text("Less");
+      } else {
+        const short = full.slice(0, 200);
+        $span.addClass("truncate").html(short + "…").attr("data-full", full);
+        $link.text("More");
+      }
+    });
+
+    // Header click => collapse/expand group
+    $("#ra-table tbody").on("click", "tr.group-header", function() {
+      const key = $(this).attr('data-group');
+      collapsed[key] = !collapsed[key];
+      table.draw(false);
+    });
+
+    // On draw, hide rows in collapsed groups and update icons
+    table.on('draw', function() {
+      table.rows({ page: 'current' }).every(function() {
+        const d = this.data();
+        const key =
+          currentGroup === 'value_chain' ? d.value_chain :
+          currentGroup === 'hazard'      ? d.hazard :
+          currentGroup === 'province'    ? d.province :
+                                           d.stage;
+        $(this.node()).toggle(!collapsed[String(key || '')]);
+      });
+      $("#ra-table tbody tr.group-header").each(function() {
+        const key = $(this).attr('data-group') || '';
+        $(this).find('.header-icon').text(collapsed[key] ? '▸' : '▾');
+      });
+    });
+
+    // Apply & Clear
+    $("#apply").on("click", () => table.ajax.reload());
+    $("#clear").on("click", function() {
+      $("#province").val('');
+      $("#value-chain").val('');
+      $("#hazard").val('');
+      $("#kw").val('');
+      table.ajax.reload();
+    });
+    $("#clear-kw").on("click", function() {
+      $("#kw").val('');
+      table.ajax.reload();
+    });
+    $("#kw").on("input", debounce(() => table.ajax.reload(), 300));
+
+    // Group-by selector
+    $("#group-by").on("change", function() {
+      const val = $(this).val();
+      currentGroup = val;
+      collapsed = Object.create(null); // reset
+
+      table.rowGroup().dataSrc(val);
+
+      // Show all candidate columns, then hide the grouped one
+      table.column(COL.province).visible(true, false);
+      table.column(COL.value_chain).visible(true, false);
+      table.column(COL.hazard).visible(true, false);
+      table.column(COL.stage).visible(true, false);
+
+      if (val === 'province') {
+        table.column(COL.province).visible(false, false);
+        table.order([[COL.province, 'asc'], [COL.value_chain, 'asc'], [COL.hazard, 'asc'], [COL.stage, 'asc']]);
+      } else if (val === 'value_chain') {
+        table.column(COL.value_chain).visible(false, false);
+        table.order([[COL.value_chain, 'asc'], [COL.hazard, 'asc'], [COL.province, 'asc'], [COL.stage, 'asc']]);
+      } else if (val === 'hazard') {
+        table.column(COL.hazard).visible(false, false);
+        table.order([[COL.hazard, 'asc'], [COL.value_chain, 'asc'], [COL.province, 'asc'], [COL.stage, 'asc']]);
+      } else { // stage
+        table.column(COL.stage).visible(false, false);
+        table.order([[COL.stage, 'asc'], [COL.value_chain, 'asc'], [COL.hazard, 'asc'], [COL.province, 'asc']]);
+      }
+
+      table.rows().invalidate().draw();
+    });
+
+    // Result: start grouped by value_chain (hide that column)
+    // (handled in 'init' listener above)
+  });
+  </script>
+{% endblock %}

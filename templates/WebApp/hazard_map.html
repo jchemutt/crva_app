@@ -6,56 +6,46 @@
 {% block script %}
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.2/dist/leaflet.css" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet-loading@0.1.23/src/Control.Loading.css" />
 <style>
-  #map {
-    height: 80vh;
-    border-radius: 8px;
+  #map { height: 80vh; border-radius: 8px; }
+  .leaflet-top.leaflet-left {
+    top: 10px !important;
   }
   .control-panel {
     position: absolute;
-    top: 80px;
-    left: 20px;
-    z-index: 999;
-    background: white;
-    padding: 12px 15px;
-    border-radius: 8px;
-    box-shadow: 0 0 8px rgba(0,0,0,0.2);
+    top: 120px; left: 20px; z-index: 999;
+    background: white; padding: 12px 15px;
+    border-radius: 8px; box-shadow: 0 0 8px rgba(0,0,0,0.2);
     width: 320px;
   }
-  #view-strategies .table th {
-  position: sticky;
-  top: 0;
-  background: #f8f9fa;
+  .instructions-panel {
+    position: absolute;
+    top: 80px; right: 20px; z-index: 999;
+    background: #f8f9fa; padding: 12px 15px;
+    border-radius: 8px; box-shadow: 0 0 8px rgba(0,0,0,0.2);
+    width: 300px; font-size: 0.9rem;
+  }
+  .badge-stage { margin: 2px; }
+  #ts-chart {
+  width: 100%;
+  height: 300px;
 }
-
-#view-strategies {
-  max-height: 400px;
-  overflow-y: auto;
-}
-
-.modal-body {
-  font-size: 0.9rem;
-}
-
-.nav-tabs .nav-link {
-  white-space: nowrap;
-}
-
 </style>
 <script src="https://unpkg.com/leaflet@1.9.2/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://unpkg.com/leaflet-loading@0.1.23/src/Control.Loading.js"></script>
 
 <script>
 let map, rasterLayer, currentHazardId = null;
-let hazardTypeMap = {};
-let currentHazardType = '';
-let strategyDataByVC = {};
-let timeseriesGroups = {};
-let defaultGroup = "";
+let hazardTypeMap = {}, currentHazardType = '';
+let strategyDataByVC = {}, timeseriesGroups = {};
+let selectedProvince = '', defaultGroup = "";
 
 document.addEventListener("DOMContentLoaded", () => {
   map = L.map("map").setView([-18.6, 35.5], 5);
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
+  map.addControl(new L.Control.Loading());
 
   fetch("/api/hazards/")
     .then(res => res.json())
@@ -94,40 +84,56 @@ document.addEventListener("DOMContentLoaded", () => {
     currentHazardId = selectedOption.dataset.id;
     const layerName = e.target.value;
     defaultGroup = layerName;
+
     if (rasterLayer) map.removeLayer(rasterLayer);
     if (layerName) {
-      rasterLayer = L.tileLayer.wms("http://localhost:8080/geoserver/wms", {
+      map.fire("dataloading");
+      rasterLayer = L.tileLayer.wms("https://crva.jcdevops.com/geoserver/wms", {
         layers: layerName,
         format: "image/png",
         transparent: true,
         version: "1.1.1"
-      }).addTo(map);
+      })
+      .on("load", () => map.fire("dataload"))
+      .on("tileloadstart", () => map.fire("dataloading"))
+      .on("tileload", () => map.fire("dataload"))
+      .addTo(map);
     }
   });
 
+  map.fire("dataloading");
   fetch("/api/provinces/")
     .then(res => res.json())
     .then(data => {
-      L.geoJSON(data, {
+      const provinceLayer = L.geoJSON(data, {
         onEachFeature: (feature, layer) => {
           const props = feature.properties;
           layer.bindPopup(`<strong>${props.name}</strong><br><i>Click to view data</i>`);
           layer.on("click", () => {
             if (currentHazardId && currentHazardType) {
-              showHazardPopup(currentHazardId, currentHazardType, props.name);
+              selectedProvince = props.name;
+              showHazardPopup(currentHazardId, currentHazardType, selectedProvince);
             } else {
               alert("Please select a hazard layer first.");
             }
           });
         },
-        style: {
-          color: "#000", fillOpacity: 0.0, weight: 1.5
-        }
-      }).addTo(map);
+        style: { color: "#000", fillOpacity: 0.0, weight: 1.5 }
+      });
+      provinceLayer.addTo(map);
+      map.fire("dataload");
     });
 });
 
 function showHazardPopup(hazardId, hazardType, provinceName) {
+  const stageOrder = [
+    "Provision of inputs",
+    "On farm production",
+    "Post harvest and local processing",
+    "Product marketing",
+    "Consumption"
+  ];
+
   Promise.all([
     fetch(`/api/strategies-by-hazard/?hazard=${hazardId}&province=${provinceName}`).then(res => res.json()),
     fetch(`/api/timeseries/?hazard=${hazardId}&province=${provinceName}`).then(res => res.json())
@@ -135,51 +141,113 @@ function showHazardPopup(hazardId, hazardType, provinceName) {
     strategyDataByVC = groupBy(strategyData, "value_chain");
     timeseriesGroups = timeseriesData;
 
+    const groupNames = Object.keys(timeseriesGroups);
+    const selectedGroup = groupNames.find(g => timeseriesGroups[g].layer_name === defaultGroup) || groupNames[0];
+
     let html = `
       <div class="d-flex justify-content-between mb-3">
-        <h5 class="mb-0"><i class="fas fa-chart-area me-2"></i>${hazardType} – ${provinceName}</h5>
-        <div class="btn-group">
-          <button class="btn btn-sm btn-outline-secondary active" onclick="toggleView('timeseries')">Time Series</button>
-          <button class="btn btn-sm btn-outline-success" onclick="toggleView('strategies')">Strategies</button>
+        <div>
+          <h5 class="mb-1">${hazardType} in ${provinceName}</h5>
+          <small class="text-muted">Explore data for selected hazard and province.</small>
+        </div>
+        <div class="btn-group" role="group">
+          <button type="button" id="btn-timeseries" class="btn btn-sm btn-outline-secondary active" onclick="toggleView('timeseries')">Time Series</button>
+          <button type="button" id="btn-strategies" class="btn btn-sm btn-outline-success" onclick="toggleView('strategies')">Strategies</button>
         </div>
       </div>
-      <div id="view-timeseries">`;
 
-    const groupNames = Object.keys(timeseriesGroups);
-    html += `<select class="form-select form-select-sm mb-2" onchange="renderTimeseriesChart(this.value)">`;
-    groupNames.forEach(group => {
-      const selected = timeseriesGroups[group].layer_name === defaultGroup ? "selected" : "";
-      html += `<option value="${group}" ${selected}>${group}</option>`;
-    });
-    html += `</select><canvas id="ts-chart" height="200"></canvas></div>`;
+      <div id="view-timeseries" class="px-2">
+        <div class="card shadow-sm border-light mb-3">
+          <div class="card-body">
+            <h6 class="card-title mb-3"><i class="fas fa-chart-line me-2"></i>Time Series Chart</h6>
+            <div class="mb-3">
+              <label for="timeseries-group-select" class="form-label">Select Dataset</label>
+              <select id="timeseries-group-select" class="form-select form-select-sm" onchange="renderTimeseriesChart(this.value)">
+                ${groupNames.map(group => {
+                  const selected = timeseriesGroups[group].layer_name === defaultGroup ? "selected" : "";
+                  return `<option value="${group}" ${selected}>${group}</option>`;
+                }).join("")}
+              </select>
+            </div>
+            <div style="position:relative;">
+              <canvas id="ts-chart" style="max-height: 320px; width: 100%;"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
 
-    html += `<div id="view-strategies" style="display:none;">`;
-    const vcKeys = Object.keys(strategyDataByVC);
-    html += `<ul class="nav nav-tabs mb-2">`;
-    vcKeys.forEach((vc, idx) => {
-      html += `<li class="nav-item"><button class="nav-link ${idx === 0 ? "active" : ""}" data-bs-toggle="tab" data-bs-target="#tab-${idx}">${vc}</button></li>`;
-    });
-    html += `</ul><div class="tab-content">`;
-    vcKeys.forEach((vc, idx) => {
-      html += `<div class="tab-pane fade ${idx === 0 ? "show active" : ""}" id="tab-${idx}">
-        <table class="table table-sm table-bordered">
-          <thead><tr><th>Stage</th><th>Impact</th><th>Strategy</th></tr></thead>
-          <tbody>`;
-      strategyDataByVC[vc].forEach(r => {
-        html += `<tr><td>${r.stage}</td><td>${r.risk}</td><td>${r.strategy}</td></tr>`;
-      });
-      html += `</tbody></table></div>`;
-    });
-    html += `</div></div>`;
+      <div id="view-strategies" style="display:none;">
+        <ul class="nav nav-tabs mb-2">
+          ${Object.keys(strategyDataByVC).map((vc, idx) => `
+            <li class="nav-item">
+              <button class="nav-link vc-tab ${idx === 0 ? "active" : ""}" data-target="tab-${idx}">${vc}</button>
+            </li>`).join("")}
+        </ul>
+        <div class="tab-content">
+          ${Object.entries(strategyDataByVC).map(([vc, records], idx) => {
+            const sortedRecords = [...records].sort((a, b) => {
+              const indexA = stageOrder.indexOf(a.stage);
+              const indexB = stageOrder.indexOf(b.stage);
+              return indexA - indexB;
+            });
+
+            return `
+              <div class="tab-pane fade ${idx === 0 ? "show active" : ""}" id="tab-${idx}">
+                <div class="mb-2">
+                  <strong>Province:</strong> ${provinceName}, 
+                  <strong>Hazard:</strong> ${hazardType}, 
+                  <strong>Value Chain:</strong> ${vc}
+                </div>
+                <table class="table table-sm table-bordered">
+                  <thead>
+                    <tr>
+                      <th style="width:25%;">Stage</th>
+                      <th style="width:35%;">Impact</th>
+                      <th>Strategy</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${sortedRecords.map(r => `
+                      <tr>
+                        <td><span class="badge bg-primary">${r.stage}</span></td>
+                        <td>${r.risk}</td>
+                        <td>${r.strategy}</td>
+                      </tr>`).join("")}
+                  </tbody>
+                </table>
+              </div>`;
+          }).join("")}
+        </div>
+      </div>
+    `;
 
     document.getElementById("modal-content-placeholder").innerHTML = html;
     new bootstrap.Modal(document.getElementById("strategyModal")).show();
 
-    const selectedGroup = groupNames.find(
-      g => timeseriesGroups[g].layer_name === defaultGroup
-    ) || groupNames[0];
     renderTimeseriesChart(selectedGroup);
+
+    document.querySelectorAll(".vc-tab").forEach(btn => {
+      btn.addEventListener("click", function () {
+        document.querySelectorAll(".vc-tab").forEach(b => b.classList.remove("active"));
+        document.querySelectorAll(".tab-pane").forEach(p => p.classList.remove("show", "active"));
+        this.classList.add("active");
+        const targetId = this.dataset.target;
+        document.getElementById(targetId).classList.add("show", "active");
+      });
+    });
   });
+}
+
+
+
+
+
+function toggleView(view) {
+  document.getElementById("view-timeseries").style.display = view === "timeseries" ? "" : "none";
+  document.getElementById("view-strategies").style.display = view === "strategies" ? "" : "none";
+
+  document.getElementById("btn-timeseries").classList.toggle("active", view === "timeseries");
+  document.getElementById("btn-strategies").classList.toggle("active", view === "strategies");
 }
 
 function renderTimeseriesChart(group) {
@@ -190,55 +258,48 @@ function renderTimeseriesChart(group) {
   const chartData = {
     labels: data.map(d => d.year),
     datasets: [{
-      label: `${group} (${data.length > 0 ? 'values' : 'no data'})`,
+      label: `Hazard Value (${group})`,
       data: data.map(d => d.value),
-      borderColor: "#007bff",
-      pointBackgroundColor: "#007bff",
+      borderColor: "#198754",
+      pointBackgroundColor: "#198754",
       tension: 0.3,
-      fill: false
+      fill: true,
+      backgroundColor: "rgba(25, 135, 84, 0.1)",
     }]
   };
 
   const chartOptions = {
     responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       tooltip: { mode: 'index', intersect: false },
-      legend: { display: true },
+      legend: { display: false },
       title: {
-        display: true,
-        text: `Time Series – ${group}`,
-        font: { size: 16 }
+        display: false
       }
     },
     scales: {
-      x: { title: { display: true, text: 'Year' } },
-      y: { title: { display: true, text: 'Value' } }
+      x: {
+        title: {
+          display: true,
+          text: "Year",
+          font: { size: 12 }
+        }
+      },
+      y: {
+        title: {
+          display: true,
+          text: "Value",
+          font: { size: 12 }
+        }
+      }
     }
   };
 
   if (window.tsChart) window.tsChart.destroy();
-  window.tsChart = new Chart(ctx, {
-    type: "line",
-    data: chartData,
-    options: chartOptions
-  });
+  window.tsChart = new Chart(ctx, { type: "line", data: chartData, options: chartOptions });
 }
 
-
-function toggleView(view) {
-  const btns = document.querySelectorAll(".btn-group .btn");
-  btns.forEach(btn => btn.classList.remove("active"));
-
-  if (view === 'timeseries') {
-    document.getElementById("view-timeseries").style.display = '';
-    document.getElementById("view-strategies").style.display = 'none';
-    btns[0].classList.add("active");
-  } else {
-    document.getElementById("view-timeseries").style.display = 'none';
-    document.getElementById("view-strategies").style.display = '';
-    btns[1].classList.add("active");
-  }
-}
 
 
 function groupBy(array, key) {
@@ -264,13 +325,17 @@ function groupBy(array, key) {
           <div id="map" class="mb-3"></div>
           <div class="control-panel">
             <label for="hazard-type-select" class="form-label fw-bold">{% trans "Hazard Type" %}</label>
-            <select id="hazard-type-select" class="form-select form-select-sm mb-2">
-              <option value="">{% trans "-- Select type --" %}</option>
-            </select>
+            <select id="hazard-type-select" class="form-select form-select-sm mb-2"><option value="">{% trans "-- Select type --" %}</option></select>
             <label for="hazard-layer-select" class="form-label fw-bold">{% trans "Layer" %}</label>
-            <select id="hazard-layer-select" class="form-select form-select-sm">
-              <option value="">{% trans "-- Select layer --" %}</option>
-            </select>
+            <select id="hazard-layer-select" class="form-select form-select-sm"><option value="">{% trans "-- Select layer --" %}</option></select>
+          </div>
+          <div class="instructions-panel">
+            <h6><i class="fas fa-info-circle me-1"></i>Instructions</h6>
+            <ul class="mb-0">
+              <li>Select a hazard type and layer</li>
+              <li>Click on a province on the map</li>
+              <li>Explore strategies or time series</li>
+            </ul>
           </div>
         </div>
       </div>

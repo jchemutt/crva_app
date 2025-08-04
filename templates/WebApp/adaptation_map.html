@@ -3,57 +3,98 @@
 
 {% block title %}{% trans "Adaptation Map" %}{% endblock %}
 
-
 {% block script %}
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.2/dist/leaflet.css" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.8/css/jquery.dataTables.min.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet-loading@0.1.23/src/Control.Loading.css" />
 
 <style>
-  #map { height: 75vh; border-radius: 8px; }
-  .legend-box {
-    position: absolute;
-    top: 90px;
-    right: 20px;
-    z-index: 999;
-    background: white;
-    padding: 12px 15px;
+  #map {
+    height: 75vh;
     border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
-    font-size: 0.9rem;
   }
+
+ .legend-box {
+  position: absolute;
+  top: 90px;
+  right: 20px;
+  z-index: 999;
+  background: white;
+  padding: 12px 15px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+  font-size: 0.9rem;
+  max-width: 280px;
+}
+
+  .leaflet-top.leaflet-left {
+    top: 15px !important;
+    left: 15px !important;
+  }
+
+  .hazard-badge {
+    cursor: pointer;
+    display: inline-block;
+    margin: 2px 2px;
+  }
+
   .vc-label {
     background: #007847;
     color: white;
-    border-radius: 20px;
-    padding: 2px 8px;
-    font-size: 11px;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    text-align: center;
+    line-height: 26px;
+    font-size: 13px;
     font-weight: bold;
+    border: 2px solid #fff;
+    box-shadow: 0 0 4px #00000050;
+  }
+
+  .vc-icon {
+    font-size: 14px;
+    margin-right: 4px;
+  }
+
+  .hazard-badge.active {
+    background-color: #007847 !important;
+    color: white !important;
+  }
+
+  .legend-section {
+    margin-top: 10px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 4px;
   }
 </style>
 
 <script src="https://unpkg.com/leaflet@1.9.2/dist/leaflet.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+<script src="https://unpkg.com/leaflet-loading@0.1.23/src/Control.Loading.js"></script>
+<script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
 
 <script>
-const map = L.map('map').setView([-15.6, 36.9], 6);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-
-let currentStrategyData = [];
-let currentValueChain = "";
-let currentHazard = "";
-
-function filterStrategyTable() {
-  const keyword = document.getElementById("strategy-search").value.toLowerCase();
-  document.querySelectorAll("#strategy-table tbody tr").forEach(row => {
-    row.style.display = row.innerText.toLowerCase().includes(keyword) ? "" : "none";
-  });
-}
+let map, currentStrategyData = [], currentProvinceId, currentValueChain, currentHazard;
+const vcIcons = {
+  "Groundnuts": "<i class='fas fa-seedling text-success vc-icon'></i>",
+  "Cassava": "<i class='fas fa-leaf text-primary vc-icon'></i>",
+  "Maize": "<i class='fas fa-tractor text-warning vc-icon'></i>",
+  "Goats": "<i class='fas fa-paw text-secondary vc-icon'></i>",
+  "Cattle": "<i class='fas fa-cow text-danger vc-icon'></i>",
+  "Rice": "<i class='fas fa-water text-info vc-icon'></i>",
+  "Sesame": "<i class='fas fa-seedling text-muted vc-icon'></i>"
+};
 
 function exportToCSV() {
-  let csv = "Impact Stage,Impact,Adaptation Strategy\n";
-  currentStrategyData.forEach(row => {
-    csv += `"${row.stage}","${row.risk}","${row.strategy}"\n`;
+  let csv = "Stage,Impact,Adaptation Strategy\n";
+  currentStrategyData.forEach(r => {
+    csv += `"${r.stage}","${r.risk}","${r.strategy}"\n`;
   });
   const blob = new Blob([csv], { type: "text/csv" });
   const a = document.createElement("a");
@@ -62,136 +103,118 @@ function exportToCSV() {
   a.click();
 }
 
-function exportToPDF() {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-  doc.text(`Adaptation Strategies – ${currentValueChain.replace(/_/g, " ")} / ${currentHazard.replace(/_/g, " ")}`, 14, 14);
-  doc.autoTable({
-    head: [["Impact Stage", "Impact", "Adaptation Strategy"]],
-    body: currentStrategyData.map(r => [r.stage, r.risk, r.strategy]),
-    startY: 20,
-    styles: { fontSize: 9 },
+function populateStrategyTable(data) {
+  const stageOrder = [
+    "Provision of inputs",
+    "On farm production",
+    "Post harvest and local processing",
+    "Product marketing",
+    "Consumption"
+  ];
+
+  const orderedData = [...data].sort((a, b) =>
+    stageOrder.indexOf(a.stage) - stageOrder.indexOf(b.stage)
+  );
+
+  let table = document.getElementById("strategy-table-body");
+  table.innerHTML = "";
+
+  orderedData.forEach(r => {
+    table.innerHTML += `
+      <tr>
+        <td style="width: 15%;"><span class="badge bg-info text-dark">${r.stage}</span></td>
+        <td style="width: 42%;">${r.risk}</td>
+        <td style="width: 43%;">${r.strategy}</td>
+      </tr>`;
   });
-  doc.save(`${currentValueChain}_${currentHazard}_adaptation.pdf`);
+
+  const existing = $("#strategy-table").DataTable();
+  if (existing) existing.destroy();
+  $("#strategy-table").DataTable({ order: [], autoWidth: false });
 }
 
+
+
+
 function showStrategyModal(provinceId, valueChain, hazard) {
-  const decodedVC = decodeURIComponent(valueChain);
-  const decodedHazard = decodeURIComponent(hazard);
-  currentValueChain = decodedVC.replace(/\s+/g, "_");
-  currentHazard = decodedHazard.replace(/\s+/g, "_");
+  currentValueChain = decodeURIComponent(valueChain);
+  currentHazard = decodeURIComponent(hazard);
+  currentProvinceId = provinceId;
+
+  // Fetch name of the province (already available from popup in most cases)
+  const provinceName = map._layers
+    ? Object.values(map._layers)
+        .find(l => l.feature && l.feature.properties.id === provinceId)?.feature.properties.name
+    : "Unknown";
+
+  // Update modal context badges
+  document.getElementById("selected-province").innerText = provinceName;
+  document.getElementById("selected-vc").innerText = currentValueChain;
+  document.getElementById("selected-hazard").innerText = currentHazard;
 
   fetch(`/api/strategies/?province=${provinceId}&value_chain=${valueChain}&hazard=${hazard}`)
     .then(res => res.json())
     .then(data => {
       currentStrategyData = data;
-
-      let html = `
-        <div class="d-flex justify-content-between mb-3">
-          <h5 class="mb-0"><i class="fas fa-seedling me-2"></i>${decodedVC}</h5>
-          <div>
-            <button class="btn btn-sm btn-outline-secondary me-2" onclick="exportToCSV()">
-              <i class="fas fa-file-csv me-1"></i>CSV
-            </button>
-            <button class="btn btn-sm btn-outline-danger" onclick="exportToPDF()">
-              <i class="fas fa-file-pdf me-1"></i>PDF
-            </button>
-          </div>
-        </div>
-
-        <input id="strategy-search" oninput="filterStrategyTable()" class="form-control form-control-sm mb-2" placeholder="🔍 Filter by keyword" />
-
-        <table id="strategy-table" class="table table-bordered table-hover table-sm align-middle">
-          <thead class="table-light">
-            <tr><th>Stage</th><th>Impact</th><th>Adaptation Strategy</th></tr>
-          </thead>
-          <tbody>`;
-
-      data.forEach(row => {
-        html += `<tr>
-          <td><span class="badge bg-secondary">${row.stage}</span></td>
-          <td>${row.risk}</td>
-          <td>${row.strategy}</td>
-        </tr>`;
-      });
-
-      html += `</tbody></table>`;
-      document.getElementById('modal-content-placeholder').innerHTML = html;
+      populateStrategyTable(data);
+      document.querySelectorAll(".hazard-badge").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll(`.hazard-badge[data-vc='${valueChain}'][data-hz='${hazard}']`)
+        .forEach(el => el.classList.add("active"));
       new bootstrap.Modal(document.getElementById('strategyModal')).show();
     });
 }
 
-// Load provinces
-fetch('/api/provinces/')
-  .then(res => res.json())
-  .then(data => {
-    L.geoJSON(data, {
-      onEachFeature: (feature, layer) => {
-        const props = feature.properties;
-        const accordionId = `popupAccordion-${props.id}`;
-        const vcCount = props.value_chains.length;
 
-        let html = `<h5>
-          <i class="fas fa-map-marker-alt text-success me-1"></i>${props.name}
-          <span class="badge rounded-pill bg-dark ms-2">${vcCount} VC</span>
-        </h5><hr class="my-1"><div class="accordion" id="${accordionId}">`;
+document.addEventListener("DOMContentLoaded", () => {
+  map = L.map('map', { loadingControl: true }).setView([-15.6, 36.9], 6);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+  map.fire('dataloading');
 
-        props.value_chains.forEach((vc, index) => {
-          const groupId = `collapseVC-${props.id}-${index}`;
-          html += `
-            <div class="accordion-item">
-              <h2 class="accordion-header" id="heading-${groupId}">
-                <button class="accordion-button collapsed p-2" type="button"
-                        data-bs-toggle="collapse"
-                        data-bs-target="#${groupId}"
-                        aria-expanded="false"
-                        aria-controls="${groupId}">
-                  🌱 ${vc}
-                </button>
-              </h2>
-              <div id="${groupId}" class="accordion-collapse collapse"
-                   aria-labelledby="heading-${groupId}"
-                   data-bs-parent="#${accordionId}">
-                <div class="accordion-body py-2 px-3">
-                  <ul class="list-unstyled mb-0">`;
+  fetch('/api/provinces/')
+    .then(res => res.json())
+    .then(data => {
+      L.geoJSON(data, {
+        onEachFeature: (feature, layer) => {
+          const props = feature.properties;
+          const vcCount = props.value_chains.length;
+          let html = `<h6><i class='fas fa-map-marker-alt text-success me-1'></i>${props.name}</h6><hr class='my-1'>`;
 
-          props.hazards.forEach(hz => {
-            html += `<li>
-              <a href="#" onclick="showStrategyModal(${props.id}, '${encodeURIComponent(vc)}', '${encodeURIComponent(hz)}')">
-                <span class="badge rounded-pill bg-info text-dark mb-1">${hz}</span>
-              </a>
-            </li>`;
+          props.value_chains.forEach(vc => {
+            const icon = vcIcons[vc] || "<i class='fas fa-leaf vc-icon'></i>";
+            html += `<strong>${icon}${vc}</strong><br>`;
+            props.hazards.forEach(hz => {
+              html += `<span class='badge bg-info text-dark hazard-badge'
+                         onclick="showStrategyModal(${props.id}, '${encodeURIComponent(vc)}', '${encodeURIComponent(hz)}')"
+                         data-vc='${encodeURIComponent(vc)}' data-hz='${encodeURIComponent(hz)}'>${hz}</span> `;
+            });
+            html += "<hr class='my-1'>";
           });
 
-          html += `</ul></div></div></div>`;
-        });
-
-        html += `</div>`;
-        layer.bindPopup(html, { maxWidth: 350 });
-
-        // Add Leaflet label with VC count
-       if (layer.getBounds && layer.getBounds().isValid()) {
-        const center = layer.getBounds().getCenter();
-        const labelIcon = L.divIcon({
+          layer.bindPopup(html);
+          const center = layer.getBounds().getCenter();
+          const vcLabel = L.divIcon({
             className: 'vc-label',
             html: vcCount,
             iconSize: [30, 30],
             iconAnchor: [15, 15]
-        });
-
-        const labelMarker = L.marker(center, { icon: labelIcon });
-
-        // Make the badge marker open the polygon popup
-        labelMarker.on("click", () => {
+          });
+          L.marker(center, { icon: vcLabel }).on("click", () => {
             layer.openPopup(center);
-        });
+            setTimeout(() => layer.openPopup(center), 100);
+          }).addTo(map);
+        },
+        style: { color: '#007847', fillOpacity: 0.2, weight: 1 }
+      }).addTo(map);
+      map.fire('dataload');
+    })
+    .catch(() => map.fire('dataload'));
 
-        labelMarker.addTo(map);
-        }
-      },
-      style: { color: '#007847', fillOpacity: 0.3, weight: 1 }
-    }).addTo(map);
+  const modal = document.getElementById('strategyModal');
+  modal.addEventListener('hidden.bs.modal', () => {
+    const popup = map._popup;
+    if (popup) popup._container?.classList?.remove("leaflet-popup-content-wrapper");
   });
+});
 </script>
 {% endblock %}
 
@@ -201,20 +224,26 @@ fetch('/api/provinces/')
     <div class="col-lg-12 mb-4">
       <div class="card shadow border-0">
         <div class="card-header text-white" style="background: linear-gradient(90deg, #007847, #66bb6a);">
-          <h5 class="m-0">
-            <i class="fas fa-map-marked-alt me-2"></i>{% trans "Climate Adaptation Strategies Map" %}
-          </h5>
+          <h5 class="m-0"><i class="fas fa-map-marked-alt me-2"></i>{% trans "Climate Adaptation Strategies Map" %}</h5>
         </div>
         <div class="card-body position-relative">
           <div id="map" class="mb-3"></div>
 
+          <!-- INSTRUCTIONS + LEGEND -->
           <div class="legend-box">
             <strong><i class="fas fa-circle text-success"></i> {% trans "Instructions" %}</strong>
-            <ul class="mb-0 ps-3">
-              <li>{% trans "Click a province" %}</li>
-              <li>{% trans "Expand a value chain" %}</li>
+            <ul class="mb-2 ps-3">
+              <li>{% trans "Click a province circle to open value chains" %}</li>
               <li>{% trans "Click hazard badge to view strategies" %}</li>
+              <li>{% trans "Download table as CSV from modal" %}</li>
             </ul>
+
+           <!-- <div class="legend-section">
+              <strong class="d-block mb-1">{% trans "Value Chains" %}</strong>
+              <div class="legend-item"><i class="fas fa-seedling text-success"></i> Groundnuts</div>
+              <div class="legend-item"><i class="fas fa-leaf text-primary"></i> Cassava</div>
+              <div class="legend-item"><i class="fas fa-tractor text-warning"></i> Maize</div>
+            </div>-->
           </div>
         </div>
       </div>
@@ -222,16 +251,48 @@ fetch('/api/provinces/')
   </div>
 </div>
 
+<!-- Strategy Modal -->
 <!-- Modal -->
 <div class="modal fade" id="strategyModal" tabindex="-1">
-  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+  <div class="modal-dialog modal-xl modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header bg-success text-white">
-        <h5 class="modal-title text-white">{% trans "Adaptation Strategies" %}</h5>
+        <h5 class="modal-title">
+          <i class="fas fa-lightbulb me-2"></i>{% trans "Adaptation Strategies" %}
+        </h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
-      <div class="modal-body" id="modal-content-placeholder"></div>
+      <div class="modal-body">
+        <!-- Selected Context Info -->
+        <div class="mb-3">
+          <div class="d-flex flex-wrap gap-3">
+            <div><strong>{% trans "Province" %}:</strong> <span id="selected-province" class="badge bg-primary"></span></div>
+            <div><strong>{% trans "Value Chain" %}:</strong> <span id="selected-vc" class="badge bg-success"></span></div>
+            <div><strong>{% trans "Hazard" %}:</strong> <span id="selected-hazard" class="badge bg-warning text-dark"></span></div>
+          </div>
+        </div>
+
+        <!-- Export Button -->
+        <div class="d-flex justify-content-end mb-2">
+          <button class="btn btn-sm btn-outline-secondary me-2" onclick="exportToCSV()">
+            <i class="fas fa-file-csv"></i> CSV
+          </button>
+        </div>
+
+        <!-- Strategies Table -->
+        <table id="strategy-table" class="table table-bordered table-hover table-sm align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>{% trans "Stage" %}</th>
+              <th>{% trans "Impact" %}</th>
+              <th>{% trans "Adaptation Strategy" %}</th>
+            </tr>
+          </thead>
+          <tbody id="strategy-table-body"></tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div>
+
 {% endblock %}
