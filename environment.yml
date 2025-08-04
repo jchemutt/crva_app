@@ -10,6 +10,7 @@ dependencies:
   - netcdf4
   - shapely
   - gdal
+  - geos
   - earthengine-api
   - beautifulsoup4
   - psycopg2
