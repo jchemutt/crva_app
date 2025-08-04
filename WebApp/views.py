@@ -40,15 +40,15 @@ data = json.load(f)
 def home(request):
     context = {
         "app_cards": [
-            {"name": _("Climate Risk & Vulnerability"), "background_image_url": static("images/cards/crva.PNG"),
+            {"name": _("Climate Risk & Vulnerability"), "background_image_url": static("images/cards/crva.png"),
              'url': reverse('hazard_map')},
-            {"name": _("Adaptation Strategies"), "background_image_url": static("images/cards/adaptation.PNG"),
+            {"name": _("Adaptation Strategies"), "background_image_url": static("images/cards/adaptation.png"),
              'url': reverse('adaptation_map')},
-            #{"name": _("Agro-Weather Advisory"), "background_image_url": static("images/cards/agro.PNG"),
+            #{"name": _("Agro-Weather Advisory"), "background_image_url": static("images/cards/agro.png"),
              #'url': reverse('coming_soon')},
-            {"name": _("Implementation Strategies"), "background_image_url": static("images/cards/crop.PNG"),
+            {"name": _("Implementation Strategies"), "background_image_url": static("images/cards/crop.png"),
              'url': reverse('implementation_strategies')},
-            #{"name": _("Market Information"), "background_image_url": static("images/cards/market.PNG"),
+            #{"name": _("Market Information"), "background_image_url": static("images/cards/market.png"),
              #'url': reverse('coming_soon')},
         ],
     }
