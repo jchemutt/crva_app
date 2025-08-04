@@ -11,6 +11,8 @@ dependencies:
   - shapely
   - earthengine-api
   - beautifulsoup4
+  - psycopg2
+  - gunicorn
   - pip
   - pip:
       - asgiref==3.8.0
