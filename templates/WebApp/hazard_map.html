@@ -53,7 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const typeSelect = document.getElementById("hazard-type-select");
       hazardTypeMap = data.reduce((acc, item) => {
         const hazardName = item.hazard;
-        const label = `${item.name}${item.scenario ? ' (' + item.scenario + ')' : ''}`;
+        const label = item.name;
         if (!acc[hazardName]) acc[hazardName] = [];
         acc[hazardName].push({ id: item.hazard_id, label, layerName: item.geoserver_layer_name });
         return acc;
@@ -152,7 +152,7 @@ function showHazardPopup(hazardId, hazardType, provinceName) {
         </div>
         <div class="btn-group" role="group">
           <button type="button" id="btn-timeseries" class="btn btn-sm btn-outline-secondary active" onclick="toggleView('timeseries')">Time Series</button>
-          <button type="button" id="btn-strategies" class="btn btn-sm btn-outline-success" onclick="toggleView('strategies')">Strategies</button>
+          <button type="button" id="btn-strategies" class="btn btn-sm btn-outline-success" onclick="toggleView('strategies')">Adpatation Strategies</button>
         </div>
       </div>
 
