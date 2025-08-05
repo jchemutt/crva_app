@@ -43,7 +43,7 @@ let strategyDataByVC = {}, timeseriesGroups = {};
 let selectedProvince = '', defaultGroup = "";
 
 document.addEventListener("DOMContentLoaded", () => {
-  map = L.map("map").setView([-18.6, 35.5], 5);
+  map = L.map("map").setView([-20.6, 36.5], 5);
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
   map.addControl(new L.Control.Loading());
 
@@ -108,13 +108,13 @@ document.addEventListener("DOMContentLoaded", () => {
       const provinceLayer = L.geoJSON(data, {
         onEachFeature: (feature, layer) => {
           const props = feature.properties;
-          layer.bindPopup(`<strong>${props.name}</strong><br><i>Click to view data</i>`);
+          layer.bindPopup(`<strong>${props.name}</strong><br><i>{% trans "Click to view data" %}</i>`);
           layer.on("click", () => {
             if (currentHazardId && currentHazardType) {
               selectedProvince = props.name;
               showHazardPopup(currentHazardId, currentHazardType, selectedProvince);
             } else {
-              alert("Please select a hazard layer first.");
+              alert(gettext("Please select a hazard layer first."));
             }
           });
         },
@@ -148,20 +148,20 @@ function showHazardPopup(hazardId, hazardType, provinceName) {
       <div class="d-flex justify-content-between mb-3">
         <div>
           <h5 class="mb-1">${hazardType} in ${provinceName}</h5>
-          <small class="text-muted">Explore data for selected hazard and province.</small>
+          <small class="text-muted">{% trans "Explore data for selected hazard and province." %}</small>
         </div>
         <div class="btn-group" role="group">
-          <button type="button" id="btn-timeseries" class="btn btn-sm btn-outline-secondary active" onclick="toggleView('timeseries')">Time Series</button>
-          <button type="button" id="btn-strategies" class="btn btn-sm btn-outline-success" onclick="toggleView('strategies')">Adpatation Strategies</button>
+          <button type="button" id="btn-timeseries" class="btn btn-sm btn-outline-secondary active" onclick="toggleView('timeseries')">{% trans "Time Series" %}</button>
+          <button type="button" id="btn-strategies" class="btn btn-sm btn-outline-success" onclick="toggleView('strategies')">{% trans "Adaptation Strategies" %}</button>
         </div>
       </div>
 
       <div id="view-timeseries" class="px-2">
         <div class="card shadow-sm border-light mb-3">
           <div class="card-body">
-            <h6 class="card-title mb-3"><i class="fas fa-chart-line me-2"></i>Time Series Chart</h6>
+            <h6 class="card-title mb-3"><i class="fas fa-chart-line me-2"></i>{% trans "Time Series Chart" %}</h6>
             <div class="mb-3">
-              <label for="timeseries-group-select" class="form-label">Select Dataset</label>
+              <label for="timeseries-group-select" class="form-label">{% trans "Select Dataset" %}</label>
               <select id="timeseries-group-select" class="form-select form-select-sm" onchange="renderTimeseriesChart(this.value)">
                 ${groupNames.map(group => {
                   const selected = timeseriesGroups[group].layer_name === defaultGroup ? "selected" : "";
@@ -201,9 +201,9 @@ function showHazardPopup(hazardId, hazardType, provinceName) {
                 <table class="table table-sm table-bordered">
                   <thead>
                     <tr>
-                      <th style="width:25%;">Stage</th>
-                      <th style="width:35%;">Impact</th>
-                      <th>Strategy</th>
+                      <th style="width:25%;">{% trans "Stage" %}</th>
+                      <th style="width:35%;">{% trans "Impact" %}</th>
+                      <th>{% trans "Adaptation Strategy" %}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -330,11 +330,11 @@ function groupBy(array, key) {
             <select id="hazard-layer-select" class="form-select form-select-sm"><option value="">{% trans "-- Select layer --" %}</option></select>
           </div>
           <div class="instructions-panel">
-            <h6><i class="fas fa-info-circle me-1"></i>Instructions</h6>
-            <ul class="mb-0">
-              <li>Select a hazard type and layer</li>
-              <li>Click on a province on the map</li>
-              <li>Explore strategies or time series</li>
+            <h6><i class="fas fa-info-circle me-1"></i>{% trans "Instructions" %}</h6>
+            <li>{% trans "Select a hazard type and layer" %}</li>
+            <li>{% trans "Click on a province on the map" %}</li>
+            <li>{% trans "Explore strategies or time series" %}</li>
+
             </ul>
           </div>
         </div>

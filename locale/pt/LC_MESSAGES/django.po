@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-27 14:26+0300\n"
+"POT-Creation-Date: 2025-08-05 22:27+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,30 +18,23 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: .\WebApp\views.py:30
+#: .\WebApp\views.py:43
 msgid "Climate Risk & Vulnerability"
 msgstr "Risco Climático e Vulnerabilidade"
 
-#: .\WebApp\views.py:32 .\templates\WebApp\adaptation_map.html:230
-#: .\templates\WebApp\hazard_map.html:274
+#: .\WebApp\views.py:45 .\templates\WebApp\hazard_map.html:155
 msgid "Adaptation Strategies"
 msgstr "Estratégias de Adaptação"
 
-#: .\WebApp\views.py:34
-msgid "Agro-Weather Advisory"
-msgstr "Boletim Agroclimático"
+#: .\WebApp\views.py:49
+msgid "Implementation Strategies"
+msgstr "Estratégias de Implementação"
 
-#: .\WebApp\views.py:36
-msgid "Crop Advisory"
-msgstr "Orientação Agrícola"
-
-#: .\WebApp\views.py:38
-msgid "Market Information"
-msgstr "Informações de Mercado"
+#: .\templates\WebApp\about.html:4 .\templates\WebApp\app_base.html:45
+msgid "About"
+msgstr "Sobre"
 
 #: .\templates\WebApp\about.html:22
-#, fuzzy
-#| msgid "CRVA Portal"
 msgid "About the CRVA Portal"
 msgstr "Sobre o Portal CRVA"
 
@@ -55,9 +48,12 @@ msgid ""
 "levels.\n"
 "              "
 msgstr ""
-
 "\n"
-"              O <strong>Portal de Avaliação de Riscos e Vulnerabilidades Climáticas (CRVA)</strong> é uma plataforma web interativa concebida para apoiar a agricultura resiliente ao clima em Moçambique. Ela fornece ferramentas e dados acessíveis para a tomada de decisões informadas em níveis local, regional e nacional.\n"
+"              O <strong>Portal de Avaliação de Riscos e Vulnerabilidades "
+"Climáticas (CRVA)</strong> é uma plataforma web interativa concebida para "
+"apoiar a agricultura resiliente ao clima em Moçambique. Ela fornece "
+"ferramentas e dados acessíveis para a tomada de decisões informadas em "
+"níveis local, regional e nacional.\n"
 "              "
 
 #: .\templates\WebApp\about.html:32
@@ -72,7 +68,10 @@ msgstr "Boletim Agroclimático:"
 msgid ""
 "Provides timely weather forecasts and alerts to assist farmers with "
 "scheduling critical activities such as planting, irrigation, and harvesting."
-msgstr "Fornece previsões meteorológicas e alertas oportunos para ajudar os agricultores a programar atividades críticas como plantio, irrigação e colheita."
+msgstr ""
+"Fornece previsões meteorológicas e alertas oportunos para ajudar os "
+"agricultores a programar atividades críticas como plantio, irrigação e "
+"colheita."
 
 #: .\templates\WebApp\about.html:39 .\templates\WebApp\home.html:60
 msgid "Crop Advisory:"
@@ -82,7 +81,9 @@ msgstr "Orientação Agrícola:"
 msgid ""
 "Offers location-specific agronomic guidance on best crop practices, pest "
 "management, and nutrient application."
-msgstr "Oferece orientação agronômica específica para o local sobre melhores práticas agrícolas, manejo de pragas e aplicação de nutrientes."
+msgstr ""
+"Oferece orientação agronômica específica para o local sobre melhores "
+"práticas agrícolas, manejo de pragas e aplicação de nutrientes."
 
 #: .\templates\WebApp\about.html:43 .\templates\WebApp\home.html:61
 msgid "Market Information:"
@@ -92,17 +93,15 @@ msgstr "Informações de Mercado:"
 msgid ""
 "Supplies data on crop prices, market demand, and logistics to improve "
 "farmers’ access to markets and maximize income."
-msgstr "Fornece dados sobre preços agrícolas, demanda de mercado e logística para melhorar o acesso dos agricultores aos mercados e maximizar a renda."
+msgstr ""
+"Fornece dados sobre preços agrícolas, demanda de mercado e logística para "
+"melhorar o acesso dos agricultores aos mercados e maximizar a renda."
 
 #: .\templates\WebApp\about.html:47 .\templates\WebApp\home.html:62
 msgid "Climate Risk & Vulnerability Assessment:"
 msgstr "Avaliação de Risco Climático e Vulnerabilidade:"
 
 #: .\templates\WebApp\about.html:48
-#, fuzzy
-#| msgid ""
-#| "Maps areas most exposed to climate threats such as drought and floods, "
-#| "helping target adaptation and investment efforts effectively."
 msgid ""
 "Identifies regions most at risk from climate shocks like droughts or floods, "
 "enabling targeted adaptation and planning."
@@ -119,7 +118,9 @@ msgstr "Estratégias de Adaptação:"
 msgid ""
 "Suggests tailored resilience measures, including climate-smart agriculture "
 "practices, soil management, and water conservation."
-msgstr "Sugere medidas de resiliência personalizadas, incluindo práticas agrícolas inteligentes em relação ao clima, manejo do solo e conservação da água."
+msgstr ""
+"Sugere medidas de resiliência personalizadas, incluindo práticas agrícolas "
+"inteligentes em relação ao clima, manejo do solo e conservação da água."
 
 #: .\templates\WebApp\about.html:57
 msgid ""
@@ -131,7 +132,10 @@ msgid ""
 "              "
 msgstr ""
 "\n"
-"              Este portal foi desenvolvido pela <strong>Aliança da Bioversity International e CIAT</strong>, em colaboração com parceiros locais, para melhorar a segurança alimentar e a resiliência às mudanças climáticas em Moçambique.\n"
+"              Este portal foi desenvolvido pela <strong>Aliança da "
+"Bioversity International e CIAT</strong>, em colaboração com parceiros "
+"locais, para melhorar a segurança alimentar e a resiliência às mudanças "
+"climáticas em Moçambique.\n"
 "              "
 
 #: .\templates\WebApp\about.html:72
@@ -148,32 +152,68 @@ msgid "World Bank"
 msgstr "Banco Mundial"
 
 #: .\templates\WebApp\adaptation_map.html:4
-#, fuzzy
-#| msgid "Adaptation Strategies"
 msgid "Adaptation Map"
-msgstr "Estratégias de Adaptação"
+msgstr "Mapa de Adaptação"
 
-#: .\templates\WebApp\adaptation_map.html:205
-#, fuzzy
-#| msgid "Adaptation Strategies"
+#: .\templates\WebApp\adaptation_map.html:257
 msgid "Climate Adaptation Strategies Map"
-msgstr "Estratégias de Adaptação"
+msgstr "Mapa de Estratégias de Adaptação Climática"
 
-#: .\templates\WebApp\adaptation_map.html:212
+#: .\templates\WebApp\adaptation_map.html:264
+#: .\templates\WebApp\hazard_map.html:333
 msgid "Instructions"
 msgstr "Instruções"
 
-#: .\templates\WebApp\adaptation_map.html:214
-msgid "Click a province"
-msgstr "Clique numa província"
+#: .\templates\WebApp\adaptation_map.html:266
+msgid "Click a province circle to open value chains"
+msgstr "Clique no círculo de uma província para abrir as cadeias de valor"
 
-#: .\templates\WebApp\adaptation_map.html:215
-msgid "Expand a value chain"
-msgstr "Expanda uma cadeia de valor"
-
-#: .\templates\WebApp\adaptation_map.html:216
+#: .\templates\WebApp\adaptation_map.html:267
 msgid "Click hazard badge to view strategies"
 msgstr "Clique no selo de risco para ver as estratégias"
+
+#: .\templates\WebApp\adaptation_map.html:268
+msgid "Download table as CSV from modal"
+msgstr "Baixar tabela como CSV a partir do modal"
+
+#: .\templates\WebApp\adaptation_map.html:272
+msgid "Value Chains"
+msgstr "Cadeias de Valor"
+
+#: .\templates\WebApp\adaptation_map.html:291
+msgid "Key Value Chains and Risks"
+msgstr "Principais Cadeias de Valor e Riscos"
+
+#: .\templates\WebApp\adaptation_map.html:299
+msgid "Province"
+msgstr "Província"
+
+#: .\templates\WebApp\adaptation_map.html:300
+msgid "Value Chain"
+msgstr "Cadeia de Valor"
+
+#: .\templates\WebApp\adaptation_map.html:301
+msgid "Hazard"
+msgstr "Risco"
+
+#: .\templates\WebApp\adaptation_map.html:308
+msgid "CSV"
+msgstr "CSV"
+
+#: .\templates\WebApp\adaptation_map.html:316
+#: .\templates\WebApp\hazard_map.html:204
+msgid "Stage"
+msgstr "Etapa"
+
+#: .\templates\WebApp\adaptation_map.html:317
+#: .\templates\WebApp\hazard_map.html:205
+msgid "Impact"
+msgstr "Impacto"
+
+#: .\templates\WebApp\adaptation_map.html:318
+#: .\templates\WebApp\hazard_map.html:206
+msgid "Adaptation Strategy"
+msgstr "Estratégia de Adaptação"
 
 #: .\templates\WebApp\app_base.html:8 .\templates\WebApp\app_base.html:38
 msgid "CRVA Portal"
@@ -195,10 +235,6 @@ msgstr "Logotipo do CIAT"
 msgid "Home"
 msgstr "Início"
 
-#: .\templates\WebApp\app_base.html:45
-msgid "About"
-msgstr "Sobre"
-
 #: .\templates\WebApp\app_base.html:50 .\templates\WebApp\app_base.html:64
 msgid "Português"
 msgstr "Português"
@@ -215,25 +251,64 @@ msgstr "Sair"
 msgid "Alliance Logo"
 msgstr "Logotipo da Aliança"
 
-#: .\templates\WebApp\hazard_map.html:4 .\templates\WebApp\hazard_map.html:247
+#: .\templates\WebApp\hazard_map.html:4 .\templates\WebApp\hazard_map.html:322
 msgid "Hazard Map Viewer"
 msgstr "Visualizador de Mapa de Riscos"
 
-#: .\templates\WebApp\hazard_map.html:253
+#: .\templates\WebApp\hazard_map.html:111
+msgid "Click to view data"
+msgstr "Clique para ver os dados"
+
+
+#: .\templates\WebApp\hazard_map.html:151
+msgid "Explore data for selected hazard and province."
+msgstr "Explore os dados para o risco e a província selecionados."
+
+#: .\templates\WebApp\hazard_map.html:154
+msgid "Time Series"
+msgstr "Séries Temporais"
+
+#: .\templates\WebApp\hazard_map.html:162
+msgid "Time Series Chart"
+msgstr "Gráfico de Séries Temporais"
+
+#: .\templates\WebApp\hazard_map.html:164
+msgid "Select Dataset"
+msgstr "Selecionar Conjunto de Dados"
+
+
+#: .\templates\WebApp\hazard_map.html:327
 msgid "Hazard Type"
 msgstr "Tipo de Risco"
 
-#: .\templates\WebApp\hazard_map.html:255
+#: .\templates\WebApp\hazard_map.html:328
 msgid "-- Select type --"
 msgstr "-- Selecionar camada --"
 
-#: .\templates\WebApp\hazard_map.html:258
+#: .\templates\WebApp\hazard_map.html:329
 msgid "Layer"
 msgstr "Camada"
 
-#: .\templates\WebApp\hazard_map.html:260
+#: .\templates\WebApp\hazard_map.html:330
 msgid "-- Select layer --"
 msgstr "-- Selecionar camada --"
+
+#: .\templates\WebApp\hazard_map.html:334
+msgid "Select a hazard type and layer"
+msgstr "Selecione um tipo de risco e uma camada"
+
+#: .\templates\WebApp\hazard_map.html:335
+msgid "Click on a province on the map"
+msgstr "Clique numa província no mapa"
+
+#: .\templates\WebApp\hazard_map.html:336
+msgid "Explore strategies or time series"
+msgstr "Explore estratégias ou séries temporais"
+
+
+#: .\templates\WebApp\hazard_map.html:351
+msgid "Adaptation Strategies & Time Series"
+msgstr "Estratégias de Adaptação e Séries Temporais"
 
 #: .\templates\WebApp\home.html:4
 msgid "CRVA Portal - Home"
@@ -339,3 +414,15 @@ msgid ""
 msgstr ""
 "apoiando iniciativas de agricultura inteligente em relação ao clima e "
 "segurança alimentar em Moçambique."
+
+#~ msgid "Agro-Weather Advisory"
+#~ msgstr "Boletim Agroclimático"
+
+#~ msgid "Crop Advisory"
+#~ msgstr "Orientação Agrícola"
+
+#~ msgid "Market Information"
+#~ msgstr "Informações de Mercado"
+
+#~ msgid "Expand a value chain"
+#~ msgstr "Expanda uma cadeia de valor"

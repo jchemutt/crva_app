@@ -116,27 +116,36 @@ function populateStrategyTable(data) {
     stageOrder.indexOf(a.stage) - stageOrder.indexOf(b.stage)
   );
 
-  let table = document.getElementById("strategy-table-body");
-  table.innerHTML = "";
+
+  if ($.fn.DataTable.isDataTable("#strategy-table")) {
+    $("#strategy-table").DataTable().clear().destroy();
+  }
+
+  let tableBody = document.getElementById("strategy-table-body");
+  tableBody.innerHTML = "";
 
   orderedData.forEach(r => {
-    table.innerHTML += `
+    tableBody.innerHTML += `
       <tr>
         <td style="width: 15%;"><span class="badge bg-info text-dark">${r.stage}</span></td>
         <td style="width: 42%;">${r.risk}</td>
-        <td style="width: 43%;">${r.strategy}</td>
+        <td style="width: 43%;">${r.strategy || ""}</td>
       </tr>`;
   });
 
-  const existing = $("#strategy-table").DataTable();
-  if (existing) existing.destroy();
-  $("#strategy-table").DataTable({ order: [], autoWidth: false });
+ 
+  $("#strategy-table").DataTable({
+    order: [],
+    autoWidth: false,
+    destroy: true // ensures no duplication
+  });
 }
 
 
 
 
 function showStrategyModal(provinceId, valueChain, hazard) {
+
   currentValueChain = decodeURIComponent(valueChain);
   currentHazard = decodeURIComponent(hazard);
   currentProvinceId = provinceId;
@@ -145,28 +154,49 @@ function showStrategyModal(provinceId, valueChain, hazard) {
   const provinceName = map._layers
     ? Object.values(map._layers)
         .find(l => l.feature && l.feature.properties.id === provinceId)?.feature.properties.name
-    : "Unknown";
+    : gettext("Unknown");
+
 
   // Update modal context badges
   document.getElementById("selected-province").innerText = provinceName;
   document.getElementById("selected-vc").innerText = currentValueChain;
   document.getElementById("selected-hazard").innerText = currentHazard;
 
-  fetch(`/api/strategies/?province=${provinceId}&value_chain=${valueChain}&hazard=${hazard}`)
-    .then(res => res.json())
+  const apiUrl = `/api/strategies/?province=${provinceId}` +
+    `&value_chain=${encodeURIComponent(currentValueChain)}` +
+    `&hazard=${encodeURIComponent(currentHazard)}` +
+    `&_=${Date.now()}`;
+
+
+
+  // fetch strategies
+  fetch(apiUrl, { cache: "no-store" })
+    .then(res => {
+      return res.json();
+    })
     .then(data => {
+    
+
       currentStrategyData = data;
       populateStrategyTable(data);
+
+      // highlight selected hazard badge
       document.querySelectorAll(".hazard-badge").forEach(b => b.classList.remove("active"));
-      document.querySelectorAll(`.hazard-badge[data-vc='${valueChain}'][data-hz='${hazard}']`)
+      document.querySelectorAll(`.hazard-badge[data-vc='${encodeURIComponent(currentValueChain)}'][data-hz='${encodeURIComponent(currentHazard)}']`)
         .forEach(el => el.classList.add("active"));
+
+      // open modal
       new bootstrap.Modal(document.getElementById('strategyModal')).show();
+    })
+    .catch(err => {
+      console.error("Error fetching strategies:", err);
     });
 }
 
 
+
 document.addEventListener("DOMContentLoaded", () => {
-  map = L.map('map', { loadingControl: true }).setView([-15.6, 36.9], 6);
+  map = L.map('map', { loadingControl: true }).setView([-17.6, 36.9], 6);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
   map.fire('dataloading');
 
@@ -258,7 +288,7 @@ document.addEventListener("DOMContentLoaded", () => {
     <div class="modal-content">
       <div class="modal-header bg-success text-white">
         <h5 class="modal-title">
-          <i class="fas fa-lightbulb me-2"></i>{% trans "Adaptation Strategies" %}
+          <i class="fas fa-lightbulb me-2"></i>{% trans "Key Value Chains and Risks" %}
         </h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
@@ -275,7 +305,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <!-- Export Button -->
         <div class="d-flex justify-content-end mb-2">
           <button class="btn btn-sm btn-outline-secondary me-2" onclick="exportToCSV()">
-            <i class="fas fa-file-csv"></i> CSV
+            <i class="fas fa-file-csv"></i> {% trans "CSV" %}
           </button>
         </div>
 
