@@ -1,13 +1,14 @@
 {% extends "WebApp/app_base.html" %}
+{% load static i18n %}
 {% load static %}
 
-{% block title %}Implementation Strategies{% endblock %}
+{% block title %}Adaptation Strategies{% endblock %}
 
 {% block content %}
 <div class="container-fluid my-3">
   <div class="card shadow border-0">
     <div class="card-header d-flex justify-content-between align-items-center text-white" style="background-color:#007847;">
-      <h5 class="m-0">Implementation Strategies</h5>
+      <h5 class="m-0">{% trans "Adaptation Strategies" %}</h5>
       <div class="small">
         <span id="result-count" class="badge bg-warning text-dark">0</span>
       </div>
@@ -15,38 +16,29 @@
 
     <div class="card-body">
       <!-- Filter bar -->
-      <div class="row g-3 align-items-end filters mb-3">
-        <div class="col-lg-4">
-          <label class="form-label">Keyword</label>
-          <div class="input-group">
-            <input id="kw" class="form-control" placeholder="Search strategy, activities, implementers, outcomes…">
-            <button id="clear-kw" class="btn btn-outline-secondary" type="button" title="Clear">✕</button>
-          </div>
-          <div class="form-text">Search across titles, activities, implementers, outcomes, and linked adaptation strategies.</div>
-        </div>
-
-        <div class="col-lg-3">
-          <label class="form-label">Timeframe</label>
-          <select id="timeframe" class="form-select" multiple>
-            <option value="Short term">Short-term</option>
-            <option value="Medium term">Medium-term</option>
-            <option value="Medium to long term">Medium-to-long-term</option>
-            <option value="Long term">Long-term</option>
-          </select>
-          <div class="form-text">Hold Ctrl/Cmd to select multiple.</div>
-        </div>
-
-        <div class="col-lg-4">
-          <label class="form-label">Adaptation Strategy</label>
-          <select id="adapt-strategies" class="form-select" multiple></select>
-          <div class="form-text">Filter by linked Adaptation Strategies.</div>
-        </div>
-
-        <div class="col-lg-1 d-grid">
-          <button id="apply" class="btn btn-success">Apply</button>
-          <button id="clear" class="btn btn-outline-secondary mt-2">Clear</button>
-        </div>
+<<div class="card p-3 mb-3 border shadow-sm">
+  <div class="row g-3 align-items-start">
+    <!-- Keyword search -->
+    <div class="col-lg-9 col-md-8">
+      <label for="kw" class="form-label">{% trans "Keyword" %}</label>
+      <div class="input-group">
+       <input id="kw" class="form-control" placeholder="{% trans 'Search strategy, activities, implementers, outcomes…' %}" />
+        <button id="clear-kw" class="btn btn-outline-secondary" type="button" title="{% trans 'Clear' %}">✕</button>
       </div>
+      <div class="form-text">{% trans "Search across strategy titles, activities, implementers, outcomes, and related content." %}</div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="col-lg-3 col-md-4">
+      <label class="form-label invisible">{% trans "Actions" %}</label> <!-- Invisible label for alignment -->
+      <div class="d-flex gap-2">
+        <button id="apply" class="btn btn-success w-100">{% trans "Apply" %}</button>
+        <button id="clear" class="btn btn-outline-secondary w-100">{% trans "Clear" %}</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 
       <!-- Active filters summary -->
       <div id="active-filters" class="mb-2" style="min-height:28px;"></div>
@@ -54,16 +46,16 @@
       <!-- Display options -->
       <div class="d-flex flex-wrap gap-2 mb-2">
         <div class="input-group input-group-sm" style="max-width: 280px;">
-          <span class="input-group-text">Group by</span>
+          <span class="input-group-text">{% trans "Group by" %}</span>
           <select id="group-by" class="form-select">
-            <option value="strategy_title" selected>Strategy</option>
-            <option value="timeframe">Timeframe</option>
+            <option value="strategy_title" selected>{% trans "Adaptation Strategy" %}</option>
+            <option value="timeframe">{% trans "Timeframe" %}</option>
           </select>
         </div>
 
         <div class="btn-group btn-group-sm" role="group" aria-label="Collapse groups">
-          <button id="collapse-all" class="btn btn-outline-secondary">Collapse all</button>
-          <button id="expand-all" class="btn btn-outline-secondary">Expand all</button>
+          <button id="collapse-all" class="btn btn-outline-secondary">{% trans "Collapse all" %}</button>
+          <button id="expand-all" class="btn btn-outline-secondary">{% trans "Expand all" %}</button>
         </div>
 
         <div id="dt-buttons" class="ms-auto"></div>
@@ -74,14 +66,13 @@
         <table id="impl-table" class="display table table-striped align-middle" style="width:100%">
           <thead class="table-light">
             <tr>
-              <th>Strategy</th>
-              <th>Timeframe</th>
-              <th>Proposed Activities</th>
-              <th>Implementers</th>
-              <th>Resources / Investments Needed</th>
-              <th>Expected Outcomes</th>
-              <th>Beneficiaries</th>
-              <th>Adaptation Strategies</th>
+              <th>{% trans "Adaptation Strategy" %}</th>
+              <th>{% trans "Timeframe" %}</th>
+              <th>{% trans "Proposed Activities" %}</th>
+              <th>{% trans "Implementers" %}</th>
+              <th>{% trans "Resources / Investments Needed" %}</th>
+              <th>{% trans "Expected Outcomes" %}</th>
+              <th>{% trans "Beneficiaries" %}</th>
             </tr>
           </thead>
         </table>
@@ -132,12 +123,12 @@
     const apiAdapt   = "{% url 'api_adaptation_strategies' %}";
 
     // Populate AdaptationStrategy filter
-    fetch(apiAdapt)
+   /* fetch(apiAdapt)
       .then(r => r.json())
       .then(list => {
         const sel = $("#adapt-strategies");
         list.forEach(a => sel.append(`<option value="${a.id}">${$('<div/>').text(a.description).html()}</option>`));
-      });
+      });*/
 
     // Column index map
     const COL = { strategy_title: 0, timeframe: 1 };
@@ -155,7 +146,7 @@
       return {
         q: $("#kw").val().trim(),
         timeframe: $("#timeframe").val() || [],
-        adapt_ids: ($("#adapt-strategies").val() || []).join(',')
+        //adapt_ids: ($("#adapt-strategies").val() || []).join(',')
       };
     }
 
@@ -166,7 +157,7 @@
       if (q) chips.push(`<span class="badge rounded-pill text-bg-secondary me-1">Keyword: ${$('<div/>').text(q).html()}</span>`);
       if (timeframe.length) chips.push(`<span class="badge rounded-pill text-bg-secondary me-1">Timeframe: ${timeframe.join(', ')}</span>`);
       if (adapt_ids) chips.push(`<span class="badge rounded-pill text-bg-secondary me-1">Adapt IDs: ${adapt_ids}</span>`);
-      if (!chips.length) container.append(`<span class="text-muted">No filters applied.</span>`);
+      if (!chips.length) container.append(`<span id="no-filters-msg" class="text-muted d-none" data-msg="{% trans 'No filters applied.' %}"></span>`);
       else container.append(chips.join(' '));
     }
 
@@ -242,7 +233,7 @@
               <td colspan="8" style="cursor:pointer">
                 <span class="me-2 header-icon">${icon}</span>
                 <strong>${$('<div/>').text(key).html()}</strong>
-                <span class="text-muted">(${count} item${count>1?'s':''})</span>
+                  <span class="text-muted">(${count} ${count === 1 ? "item" : "items"})</span>
               </td>
             `);
         }
@@ -333,7 +324,7 @@
     $("#clear").on("click", function() {
       $("#kw").val('');
       $("#timeframe").val([]);
-      $("#adapt-strategies").val([]);
+     // $("#adapt-strategies").val([]);
       table.ajax.reload();
     });
 

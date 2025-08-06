@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-05 22:27+0300\n"
+"POT-Creation-Date: 2025-08-06 22:57+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -23,6 +23,7 @@ msgid "Climate Risk & Vulnerability"
 msgstr "Risco Climático e Vulnerabilidade"
 
 #: .\WebApp\views.py:45 .\templates\WebApp\hazard_map.html:155
+#: .\templates\WebApp\implementation_strategies.html:10
 msgid "Adaptation Strategies"
 msgstr "Estratégias de Adaptação"
 
@@ -212,6 +213,8 @@ msgstr "Impacto"
 
 #: .\templates\WebApp\adaptation_map.html:318
 #: .\templates\WebApp\hazard_map.html:206
+#: .\templates\WebApp\implementation_strategies.html:50
+#: .\templates\WebApp\implementation_strategies.html:68
 msgid "Adaptation Strategy"
 msgstr "Estratégia de Adaptação"
 
@@ -259,7 +262,6 @@ msgstr "Visualizador de Mapa de Riscos"
 msgid "Click to view data"
 msgstr "Clique para ver os dados"
 
-
 #: .\templates\WebApp\hazard_map.html:151
 msgid "Explore data for selected hazard and province."
 msgstr "Explore os dados para o risco e a província selecionados."
@@ -275,7 +277,6 @@ msgstr "Gráfico de Séries Temporais"
 #: .\templates\WebApp\hazard_map.html:164
 msgid "Select Dataset"
 msgstr "Selecionar Conjunto de Dados"
-
 
 #: .\templates\WebApp\hazard_map.html:327
 msgid "Hazard Type"
@@ -304,7 +305,6 @@ msgstr "Clique numa província no mapa"
 #: .\templates\WebApp\hazard_map.html:336
 msgid "Explore strategies or time series"
 msgstr "Explore estratégias ou séries temporais"
-
 
 #: .\templates\WebApp\hazard_map.html:351
 msgid "Adaptation Strategies & Time Series"
@@ -415,6 +415,94 @@ msgstr ""
 "apoiando iniciativas de agricultura inteligente em relação ao clima e "
 "segurança alimentar em Moçambique."
 
+#: .\templates\WebApp\implementation_strategies.html:22
+msgid "Keyword"
+msgstr "Palavra-chave"
+
+#: .\templates\WebApp\implementation_strategies.html:24
+msgid "Search strategy, activities, implementers, outcomes…"
+msgstr "Pesquisar estratégia, atividades, implementadores, resultados…"
+
+#: .\templates\WebApp\implementation_strategies.html:25
+#: .\templates\WebApp\implementation_strategies.html:35
+msgid "Clear"
+msgstr "Limpar"
+
+#: .\templates\WebApp\implementation_strategies.html:27
+msgid ""
+"Search across strategy titles, activities, implementers, outcomes, and "
+"related content."
+msgstr "Pesquisar em títulos de estratégias, atividades, implementadores, resultados e conteúdo relacionado."
+
+#: .\templates\WebApp\implementation_strategies.html:32
+msgid "Actions"
+msgstr "Ações"
+
+#: .\templates\WebApp\implementation_strategies.html:34
+msgid "Apply"
+msgstr "Aplicar"
+
+#: .\templates\WebApp\implementation_strategies.html:48
+msgid "Group by"
+msgstr "Agrupar por"
+
+#: .\templates\WebApp\implementation_strategies.html:51
+#: .\templates\WebApp\implementation_strategies.html:69
+msgid "Timeframe"
+msgstr "Período"
+
+#: .\templates\WebApp\implementation_strategies.html:56
+msgid "Collapse all"
+msgstr "Recolher tudo"
+
+#: .\templates\WebApp\implementation_strategies.html:57
+msgid "Expand all"
+msgstr "Expandir tudo"
+
+#: .\templates\WebApp\implementation_strategies.html:70
+msgid "Proposed Activities"
+msgstr "Atividades Propostas"
+
+#: .\templates\WebApp\implementation_strategies.html:71
+msgid "Implementers"
+msgstr "Implementadores"
+
+#: .\templates\WebApp\implementation_strategies.html:72
+msgid "Resources / Investments Needed"
+msgstr "Recursos / Investimentos Necessários"
+
+#: .\templates\WebApp\implementation_strategies.html:73
+msgid "Expected Outcomes"
+msgstr "Resultados Esperados"
+
+#: .\templates\WebApp\implementation_strategies.html:74
+msgid "Beneficiaries"
+msgstr "Beneficiários"
+
+#: .\templates\WebApp\implementation_strategies.html:159
+msgid "No filters applied."
+msgstr "Nenhum filtro aplicado."
+
+#: .\templates\WebApp\implementation_strategies.html:236
+#, python-format
+msgid ""
+"\n"
+"                  (%(counter)s item)\n"
+"                "
+msgid_plural ""
+"\n"
+"                  (%(counter)s items)\n"
+"                "
+msgstr[0] ""
+"\n"
+"                  (%(counter)s item)\n"
+"                "
+msgstr[1] ""
+"\n"
+"                  (%(counter)s itens)\n"
+"                "
+
+
 #~ msgid "Agro-Weather Advisory"
 #~ msgstr "Boletim Agroclimático"
 
@@ -423,6 +511,3 @@ msgstr ""
 
 #~ msgid "Market Information"
 #~ msgstr "Informações de Mercado"
-
-#~ msgid "Expand a value chain"
-#~ msgstr "Expanda uma cadeia de valor"
