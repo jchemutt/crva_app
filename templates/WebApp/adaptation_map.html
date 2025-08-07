@@ -228,11 +228,14 @@ document.addEventListener("DOMContentLoaded", () => {
             });
             html += "<hr class='my-1'>";
           });
-
+         const legendWidth = 280 + 20 + 20;
           layer.bindPopup(html, {
           maxWidth: 600,
           minWidth: 500,
-          className: 'wide-popup'
+          className: 'wide-popup',
+          autoPan: true,
+          autoPanPaddingTopLeft: [20, 20],
+          autoPanPaddingBottomRight: [legendWidth, 20]
         });
           const center = layer.getBounds().getCenter();
           const vcLabel = L.divIcon({
