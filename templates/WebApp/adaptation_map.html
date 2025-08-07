@@ -73,6 +73,13 @@
     gap: 5px;
     margin-bottom: 4px;
   }
+  .leaflet-popup-content.wide-popup {
+  font-size: 0.95rem;
+}
+
+.leaflet-popup-content-wrapper.wide-popup {
+  max-width: 600px; /* enforce wrapper size */
+}
 </style>
 
 <script src="https://unpkg.com/leaflet@1.9.2/dist/leaflet.js"></script>
@@ -222,7 +229,11 @@ document.addEventListener("DOMContentLoaded", () => {
             html += "<hr class='my-1'>";
           });
 
-          layer.bindPopup(html);
+          layer.bindPopup(html, {
+          maxWidth: 600,
+          minWidth: 500,
+          className: 'wide-popup'
+        });
           const center = layer.getBounds().getCenter();
           const vcLabel = L.divIcon({
             className: 'vc-label',
