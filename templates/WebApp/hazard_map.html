@@ -9,9 +9,8 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet-loading@0.1.23/src/Control.Loading.css" />
 <style>
   #map { height: 80vh; border-radius: 8px; }
-  .leaflet-top.leaflet-left {
-    top: 10px !important;
-  }
+  .leaflet-top.leaflet-left { top: 10px !important; }
+
   .control-panel {
     position: absolute;
     top: 120px; left: 20px; z-index: 999;
@@ -19,6 +18,7 @@
     border-radius: 8px; box-shadow: 0 0 8px rgba(0,0,0,0.2);
     width: 320px;
   }
+
   .instructions-panel {
     position: absolute;
     top: 80px; right: 20px; z-index: 999;
@@ -26,12 +26,52 @@
     border-radius: 8px; box-shadow: 0 0 8px rgba(0,0,0,0.2);
     width: 300px; font-size: 0.9rem;
   }
+
   .badge-stage { margin: 2px; }
-  #ts-chart {
-  width: 100%;
-  height: 300px;
-}
+  #ts-chart { width: 100%; height: 300px; }
+
+  /* --- Floating legend styles (bottom-right) --- */
+  .leaflet-bottom.leaflet-right { right: 10px; bottom: 10px; }
+  .legend-control {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,.15);
+    overflow: hidden;
+    width: 260px;
+    max-height: 320px;
+    display: none; /* hidden until a layer is chosen */
+  }
+  .legend-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 10px;
+    background: #198754;
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+  .legend-body {
+    padding: 8px 10px;
+    max-height: 270px;
+    overflow: auto;
+  }
+  .legend-body img {
+    width: 85%;
+    height: auto;
+    display: block;
+  }
+  .legend-toggle {
+    background: transparent;
+    border: 0;
+    color: #fff;
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+  }
 </style>
+
 <script src="https://unpkg.com/leaflet@1.9.2/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://unpkg.com/leaflet-loading@0.1.23/src/Control.Loading.js"></script>
@@ -41,12 +81,46 @@ let map, rasterLayer, currentHazardId = null;
 let hazardTypeMap = {}, currentHazardType = '';
 let strategyDataByVC = {}, timeseriesGroups = {};
 let selectedProvince = '', defaultGroup = "";
+let legendControl; // handle to floating legend
+
+// --- Floating legend control definition ---
+const LegendControl = L.Control.extend({
+  onAdd: function() {
+    const div = L.DomUtil.create("div", "legend-control");
+    div.innerHTML = `
+      <div class="legend-header">
+        <span>Legend</span>
+        <button class="legend-toggle" title="Collapse/Expand" aria-label="Collapse/Expand">–</button>
+      </div>
+      <div class="legend-body">
+        <img id="legend-image" alt="Legend">
+      </div>
+    `;
+    // prevent map drag/zoom when interacting with legend
+    L.DomEvent.disableClickPropagation(div);
+
+    // collapse/expand
+    const toggleBtn = div.querySelector(".legend-toggle");
+    const body = div.querySelector(".legend-body");
+    toggleBtn.addEventListener("click", () => {
+      const isHidden = body.style.display === "none";
+      body.style.display = isHidden ? "" : "none";
+      toggleBtn.textContent = isHidden ? "–" : "+";
+    });
+
+    return div;
+  }
+});
 
 document.addEventListener("DOMContentLoaded", () => {
   map = L.map("map").setView([-20.6, 36.5], 5);
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
   map.addControl(new L.Control.Loading());
 
+  // add the floating legend (hidden by default)
+  legendControl = new LegendControl({ position: "bottomright" }).addTo(map);
+
+  // load hazards → populate selects
   fetch("/api/hazards/")
     .then(res => res.json())
     .then(data => {
@@ -66,9 +140,10 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
 
+  // hazard type changed → fill layer list
   document.getElementById("hazard-type-select").addEventListener("change", e => {
     const layerSelect = document.getElementById("hazard-layer-select");
-    layerSelect.innerHTML = `<option value="">-- Select layer --</option>`;
+    layerSelect.innerHTML = `<option value="">{% trans "-- Select layer --" %}</option>`;
     currentHazardType = e.target.value;
     (hazardTypeMap[e.target.value] || []).forEach(item => {
       const option = document.createElement("option");
@@ -79,13 +154,15 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  // layer changed → add WMS + update legend
   document.getElementById("hazard-layer-select").addEventListener("change", e => {
     const selectedOption = e.target.selectedOptions[0];
-    currentHazardId = selectedOption.dataset.id;
+    currentHazardId = selectedOption?.dataset?.id || null;
     const layerName = e.target.value;
     defaultGroup = layerName;
 
     if (rasterLayer) map.removeLayer(rasterLayer);
+
     if (layerName) {
       map.fire("dataloading");
       rasterLayer = L.tileLayer.wms("https://crva.jcdevops.com/geoserver/wms", {
@@ -98,9 +175,30 @@ document.addEventListener("DOMContentLoaded", () => {
       .on("tileloadstart", () => map.fire("dataloading"))
       .on("tileload", () => map.fire("dataload"))
       .addTo(map);
+
+   // Build legend URL (tweak LEGEND_OPTIONS if you want bigger fonts, etc.)
+    const legendUrl = `https://crva.jcdevops.com/geoserver/wms` +
+  `?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png` +
+  `&TRANSPARENT=true&LAYER=${encodeURIComponent(layerName)}` +
+  `&LEGEND_OPTIONS=fontName:Arial;fontSize:14;fontAntiAliasing:true;forceLabels:on` +
+  `&_ts=${Date.now()}`;
+
+    
+
+
+
+      // Show & update floating legend
+      const legendEl = legendControl.getContainer();
+      legendEl.style.display = "block";
+      legendEl.querySelector("#legend-image").src = legendUrl;
+    } else {
+      // Hide legend when nothing is selected
+      const legendEl = legendControl.getContainer();
+      legendEl.style.display = "none";
     }
   });
 
+  // provinces overlay
   map.fire("dataloading");
   fetch("/api/provinces/")
     .then(res => res.json())
@@ -114,7 +212,7 @@ document.addEventListener("DOMContentLoaded", () => {
               selectedProvince = props.name;
               showHazardPopup(currentHazardId, currentHazardType, selectedProvince);
             } else {
-              alert(gettext("Please select a hazard layer first."));
+              alert(gettext ? gettext("Please select a hazard layer first.") : "Please select a hazard layer first.");
             }
           });
         },
@@ -147,7 +245,7 @@ function showHazardPopup(hazardId, hazardType, provinceName) {
     let html = `
       <div class="d-flex justify-content-between mb-3">
         <div>
-          <h5 class="mb-1">${hazardType} in ${provinceName}</h5>
+          <h5 class="mb-1">${hazardType} {% trans "in" %} ${provinceName}</h5>
           <small class="text-muted">{% trans "Explore data for selected hazard and province." %}</small>
         </div>
         <div class="btn-group" role="group">
@@ -194,9 +292,9 @@ function showHazardPopup(hazardId, hazardType, provinceName) {
             return `
               <div class="tab-pane fade ${idx === 0 ? "show active" : ""}" id="tab-${idx}">
                 <div class="mb-2">
-                  <strong>Province:</strong> ${provinceName}, 
-                  <strong>Hazard:</strong> ${hazardType}, 
-                  <strong>Value Chain:</strong> ${vc}
+                  <strong>{% trans "Province" %}:</strong> ${provinceName},
+                  <strong>{% trans "Hazard" %}:</strong> ${hazardType},
+                  <strong>{% trans "Value Chain" %}:</strong> ${vc}
                 </div>
                 <table class="table table-sm table-bordered">
                   <thead>
@@ -238,10 +336,6 @@ function showHazardPopup(hazardId, hazardType, provinceName) {
   });
 }
 
-
-
-
-
 function toggleView(view) {
   document.getElementById("view-timeseries").style.display = view === "timeseries" ? "" : "none";
   document.getElementById("view-strategies").style.display = view === "strategies" ? "" : "none";
@@ -274,33 +368,17 @@ function renderTimeseriesChart(group) {
     plugins: {
       tooltip: { mode: 'index', intersect: false },
       legend: { display: false },
-      title: {
-        display: false
-      }
+      title: { display: false }
     },
     scales: {
-      x: {
-        title: {
-          display: true,
-          text: "Year",
-          font: { size: 12 }
-        }
-      },
-      y: {
-        title: {
-          display: true,
-          text: "Value",
-          font: { size: 12 }
-        }
-      }
+      x: { title: { display: true, text: "{% trans 'Year' %}", font: { size: 12 } } },
+      y: { title: { display: true, text: "{% trans 'Value' %}", font: { size: 12 } } }
     }
   };
 
   if (window.tsChart) window.tsChart.destroy();
   window.tsChart = new Chart(ctx, { type: "line", data: chartData, options: chartOptions });
 }
-
-
 
 function groupBy(array, key) {
   return array.reduce((acc, item) => {
@@ -323,18 +401,25 @@ function groupBy(array, key) {
         </div>
         <div class="card-body position-relative">
           <div id="map" class="mb-3"></div>
+
           <div class="control-panel">
             <label for="hazard-type-select" class="form-label fw-bold">{% trans "Hazard Type" %}</label>
-            <select id="hazard-type-select" class="form-select form-select-sm mb-2"><option value="">{% trans "-- Select type --" %}</option></select>
+            <select id="hazard-type-select" class="form-select form-select-sm mb-2">
+              <option value="">{% trans "-- Select type --" %}</option>
+            </select>
+
             <label for="hazard-layer-select" class="form-label fw-bold">{% trans "Layer" %}</label>
-            <select id="hazard-layer-select" class="form-select form-select-sm"><option value="">{% trans "-- Select layer --" %}</option></select>
+            <select id="hazard-layer-select" class="form-select form-select-sm">
+              <option value="">{% trans "-- Select layer --" %}</option>
+            </select>
           </div>
+
           <div class="instructions-panel">
             <h6><i class="fas fa-info-circle me-1"></i>{% trans "Instructions" %}</h6>
-            <li>{% trans "Select a hazard type and layer" %}</li>
-            <li>{% trans "Click on a province on the map" %}</li>
-            <li>{% trans "Explore strategies or time series" %}</li>
-
+            <ul class="mb-0 ps-3">
+              <li>{% trans "Select a hazard type and layer" %}</li>
+              <li>{% trans "Click on a province on the map" %}</li>
+              <li>{% trans "Explore strategies or time series" %}</li>
             </ul>
           </div>
         </div>
