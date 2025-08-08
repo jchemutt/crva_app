@@ -50,8 +50,10 @@
     box-shadow: 0 4px 12px rgba(0,0,0,.15);
     overflow: hidden;
     width: 320px;
-    max-height: 360px;
     display: block;
+    display: flex;              /* NEW */
+  flex-direction: column;     /* NEW */
+  max-height: 70vh; 
   }
   .layer-tree-header {
     display: flex; align-items: center; justify-content: space-between;
@@ -64,7 +66,12 @@
     padding: 4px 8px; border-radius: 6px; cursor: pointer;
   }
   .layer-tree-tools button:hover { background: rgba(255,255,255,.3); }
-  .layer-tree-body { padding: 8px 10px; max-height: 300px; overflow: auto; }
+  .layer-tree-body { padding: 8px 10px; overflow: auto;
+    display: flex;              /* NEW */
+  flex-direction: column;     /* NEW */
+  max-height: 70vh; 
+  
+  }
   .layer-tree-search { width: 100%; margin-bottom: 8px; }
   .layer-tree-search input {
     width: 100%; padding: 6px 8px; border: 1px solid #dee2e6; border-radius: 6px; font-size: .9rem;
@@ -80,15 +87,30 @@
   .tree-item { display: flex; align-items: center; gap: 8px; padding: 2px 0; font-size: .92rem; }
   .tree-item input[type="radio"] { accent-color: #0d6efd; }
   .tree-item .layer-name { flex: 1; }
-  .layer-tree-footer {
-    display: flex; gap: 8px; justify-content: flex-end;
-    border-top: 1px solid #f1f3f5; padding: 8px 10px;
-  }
-  .layer-tree-footer button {
-    background: #198754; color: #fff; border: 0; padding: 6px 10px;
-    border-radius: 6px; font-size: .85rem; cursor: pointer;
-  }
-  .layer-tree-footer button.secondary { background: #6c757d; }
+.layer-tree-footer {
+  display: flex;
+  gap: 6px;                  /* small space between buttons */
+  padding-top: 8px;
+  background: white;
+  flex: 0 0 auto;
+  justify-content: flex-end; /* put them together on the right */
+}
+
+.layer-tree-footer button {
+  flex: 1;                   /* same width for both */
+  background: #198754;
+  color: #fff;
+  border: 0;
+  padding: 6px 16px;
+  border-radius: 6px;
+  font-size: .85rem;
+  cursor: pointer;
+}
+
+.layer-tree-footer button.secondary {
+  background: #6c757d;
+}
+
 
 </style>
 
