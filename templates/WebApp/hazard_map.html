@@ -23,7 +23,7 @@
     width: 300px; font-size: 0.9rem;
   }
 
-  /* --- Floating legend styles (bottom-right) --- */
+  /* --- Floating legends (bottom-right) --- */
   .leaflet-bottom.leaflet-right { right: 10px; bottom: 10px; }
   .legend-control {
     background: #fff;
@@ -32,15 +32,16 @@
     overflow: hidden;
     width: 260px;
     max-height: 320px;
-    display: none; /* hidden until a layer is chosen */
+    margin-top: 8px;         /* stack nicely if two legends */
   }
+  .legend-control.hidden { display: none; } /* JS toggles this */
   .legend-header {
     display: flex; align-items: center; justify-content: space-between; gap: 8px;
     padding: 8px 10px; background: #198754; color: #fff;
     font-weight: 600; font-size: 0.95rem;
   }
   .legend-body { padding: 8px 10px; max-height: 270px; overflow: auto; }
-  .legend-body img { width: 85%; height: auto; display: block; }
+  .legend-body img { width: 30%; height: auto; display: block; } /* was 30%, now full */
   .legend-toggle { background: transparent; border: 0; color: #fff; font-size: 16px; line-height: 1; cursor: pointer; }
 
   /* --- Floating Layers Tree (top-left) --- */
@@ -50,10 +51,9 @@
     box-shadow: 0 4px 12px rgba(0,0,0,.15);
     overflow: hidden;
     width: 320px;
-    display: block;
-    display: flex;              /* NEW */
-  flex-direction: column;     /* NEW */
-  max-height: 70vh; 
+    display: flex;
+    flex-direction: column;
+    max-height: 70vh;
   }
   .layer-tree-header {
     display: flex; align-items: center; justify-content: space-between;
@@ -66,12 +66,7 @@
     padding: 4px 8px; border-radius: 6px; cursor: pointer;
   }
   .layer-tree-tools button:hover { background: rgba(255,255,255,.3); }
-  .layer-tree-body { padding: 8px 10px; overflow: auto;
-    display: flex;              /* NEW */
-  flex-direction: column;     /* NEW */
-  max-height: 50vh; 
-  
-  }
+  .layer-tree-body { padding: 8px 10px; overflow: auto; display: flex; flex-direction: column; max-height: 50vh; }
   .layer-tree-search { width: 100%; margin-bottom: 8px; }
   .layer-tree-search input {
     width: 100%; padding: 6px 8px; border: 1px solid #dee2e6; border-radius: 6px; font-size: .9rem;
@@ -87,31 +82,13 @@
   .tree-item { display: flex; align-items: center; gap: 8px; padding: 2px 0; font-size: .92rem; }
   .tree-item input[type="radio"] { accent-color: #0d6efd; }
   .tree-item .layer-name { flex: 1; }
-.layer-tree-footer {
-  display: flex;
-  gap: 6px;                  /* small space between buttons */
-  padding-top: 8px;
-  background: white;
-  flex: 0 0 auto;
-  justify-content: flex-end; /* put them together on the right */
-}
-
-.layer-tree-footer button {
-  flex: 1;                   /* same width for both */
-  background: #198754;
-  color: #fff;
-  border: 0;
-  padding: 6px 16px;
-  border-radius: 6px;
-  font-size: .85rem;
-  cursor: pointer;
-}
-
-.layer-tree-footer button.secondary {
-  background: #6c757d;
-}
-
-
+  .layer-tree-footer {
+    display: flex; gap: 6px; padding-top: 8px; background: white; flex: 0 0 auto; justify-content: flex-end;
+  }
+  .layer-tree-footer button {
+    flex: 1; background: #198754; color: #fff; border: 0; padding: 6px 16px; border-radius: 6px; font-size: .85rem; cursor: pointer;
+  }
+  .layer-tree-footer button.secondary { background: #6c757d; }
 </style>
 
 <script src="https://unpkg.com/leaflet@1.9.2/dist/leaflet.js"></script>
@@ -123,73 +100,98 @@ let map, rasterLayer, currentHazardId = null;
 let hazardTypeMap = {}, currentHazardType = '';
 let strategyDataByVC = {}, timeseriesGroups = {};
 let selectedProvince = '', defaultGroup = "";
-let legendControl, layerTreeControl;
+let hazardLegendControl, boundaryLegendControl, layerTreeControl;
+let boundariesWms;
 
-/* ---------- Legend Control ---------- */
-const LegendControl = L.Control.extend({
-  onAdd: function() {
-    const div = L.DomUtil.create("div", "legend-control");
-    div.innerHTML = `
-      <div class="legend-header">
-        <span>Legend</span>
-        <button class="legend-toggle" title="Collapse/Expand" aria-label="Collapse/Expand">–</button>
-      </div>
-      <div class="legend-body">
-        <img id="legend-image" alt="Legend">
-      </div>
-    `;
-    L.DomEvent.disableClickPropagation(div);
-    const toggleBtn = div.querySelector(".legend-toggle");
-    const body = div.querySelector(".legend-body");
-    toggleBtn.addEventListener("click", () => {
-      const isHidden = body.style.display === "none";
-      body.style.display = isHidden ? "" : "none";
-      toggleBtn.textContent = isHidden ? "–" : "+";
-    });
-    return div;
-  }
-});
+/* ---- GeoServer config ---- */
+const GEOSERVER_WMS = "https://crva.jcdevops.com/geoserver/wms";
+const PROV_LAYER     = "crva:provinces";  // your provinces layer name
+const PROV_STYLE     = "province_boundaries";                 // optional named style ('' keeps default)
 
-/* ---------- Helper to load WMS + update legend ---------- */
+/* ---------- Legend Control (generic) ---------- */
+function createLegendControl(titleText, imgId) {
+  return L.Control.extend({
+    options: { position: "bottomright" },
+    onAdd: function() {
+      const div = L.DomUtil.create("div", "legend-control");
+      div.innerHTML = `
+        <div class="legend-header">
+          <span>${titleText}</span>
+          <button class="legend-toggle" title="{% trans 'Collapse/Expand' %}" aria-label="{% trans 'Collapse/Expand' %}">–</button>
+        </div>
+        <div class="legend-body">
+          <img id="${imgId}" alt="Legend">
+        </div>
+      `;
+      L.DomEvent.disableClickPropagation(div);
+      const toggleBtn = div.querySelector(".legend-toggle");
+      const body = div.querySelector(".legend-body");
+      toggleBtn.addEventListener("click", () => {
+        const isHidden = body.style.display === "none";
+        body.style.display = isHidden ? "" : "none";
+        toggleBtn.textContent = isHidden ? "–" : "+";
+      });
+      return div;
+    }
+  });
+}
+
+function setLegendImage(imgElementId, layerName, styleName) {
+  const params = new URLSearchParams({
+    REQUEST: "GetLegendGraphic",
+    VERSION: "1.0.0",
+    FORMAT: "image/png",
+    TRANSPARENT: "true",
+    LAYER: layerName,
+    LEGEND_OPTIONS: "fontName:Arial;fontSize:12;fontAntiAliasing:true;forceLabels:on",
+    _ts: Date.now().toString()
+  });
+  if (styleName) params.set("STYLE", styleName);
+  const url = `${GEOSERVER_WMS}?${params.toString()}`;
+  const img = document.getElementById(imgElementId);
+  if (img) img.src = url;
+}
+
+/* ---------- Load hazard WMS + update hazard legend ---------- */
 function selectLayer(layerName, hazardId) {
   currentHazardId = hazardId || null;
   defaultGroup = layerName;
 
   if (rasterLayer) map.removeLayer(rasterLayer);
-  if (!layerName) return;
+  if (!layerName) {
+    const el = hazardLegendControl.getContainer();
+    el.classList.add("hidden");
+    const img = document.getElementById("hazard-legend-img");
+    if (img) img.src = "";
+    return;
+  }
 
   map.fire("dataloading");
-  rasterLayer = L.tileLayer.wms("https://crva.jcdevops.com/geoserver/wms", {
+  rasterLayer = L.tileLayer.wms(GEOSERVER_WMS, {
     layers: layerName,
     format: "image/png",
     transparent: true,
-    version: "1.1.1"
+    version: "1.1.1",
+     zIndex: 100   
   })
   .on("load", () => map.fire("dataload"))
   .on("tileloadstart", () => map.fire("dataloading"))
   .on("tileload", () => map.fire("dataload"))
   .addTo(map);
 
-  // Legend (keeps bars reasonable + slightly smaller font)
-  const legendUrl =
-    `https://crva.jcdevops.com/geoserver/wms` +
-    `?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png` +
-    `&TRANSPARENT=true&LAYER=${encodeURIComponent(layerName)}` +
-    `&LEGEND_OPTIONS=fontName:Arial;fontSize:9;fontAntiAliasing:true;forceLabels:on` +
-    `&_ts=${Date.now()}`;
+  if (typeof boundariesWms !== "undefined") {
+  boundariesWms.bringToFront();
+}
 
-  const legendEl = legendControl.getContainer();
-  legendEl.style.display = "block";
-  legendEl.querySelector("#legend-image").src = legendUrl;
+  // Show/update legend for selected hazard
+  setLegendImage("hazard-legend-img", layerName, "");
+  hazardLegendControl.getContainer().classList.remove("hidden");
 }
 
 /* ---------- Layer Tree Control (collapsible categories) ---------- */
 const LayerTreeControl = L.Control.extend({
   options: { position: "topleft" },
-  setData(data) {
-    this._data = data || {};
-    this._renderTree();
-  },
+  setData(data) { this._data = data || {}; this._renderTree(); },
   onAdd() {
     const div = L.DomUtil.create("div", "layer-tree-control");
     div.innerHTML = `
@@ -220,9 +222,6 @@ const LayerTreeControl = L.Control.extend({
       const checked = div.querySelector('input[name="layer-radio"]:checked');
       if (checked) checked.checked = false;
       selectLayer(null, null);
-      // Hide legend when cleared
-      const legendEl = legendControl.getContainer();
-      legendEl.style.display = "none";
     });
 
     div.querySelector('#btn-apply-layer').addEventListener('click', () => {
@@ -243,55 +242,52 @@ const LayerTreeControl = L.Control.extend({
     return div;
   },
   _renderTree() {
-  const groups = Object.keys(this._data).sort((a, b) => a.localeCompare(b));
-
-  this._treeEl.innerHTML = groups.map((grp) => {
-    const items = this._data[grp] || [];
-
-    const itemsHtml = items.map(it => `
-      <div class="tree-item">
-        <input type="radio" name="layer-radio" id="lyr-${it.id}" value="${it.layerName}" data-id="${it.id}">
-        <label class="layer-name" for="lyr-${it.id}">
-          ${it.label}
-        </label>
-      </div>
-    `).join("");
-
-    return `
-      <div class="tree-group" data-group="${grp}">
-        <div class="tree-group-header">
-          <span class="caret"><i class="fas fa-caret-down"></i></span>
-          <span class="group-name"><i class="fas fa-folder-open me-1 text-warning"></i>${grp}</span>
+    const groups = Object.keys(this._data).sort((a, b) => a.localeCompare(b));
+    this._treeEl.innerHTML = groups.map((grp) => {
+      const items = this._data[grp] || [];
+      const itemsHtml = items.map(it => `
+        <div class="tree-item">
+          <input type="radio" name="layer-radio" id="lyr-${it.id}" value="${it.layerName}" data-id="${it.id}">
+          <label class="layer-name" for="lyr-${it.id}">
+            ${it.label}
+          </label>
         </div>
-        <div class="tree-items">
-          ${itemsHtml}
-        </div>
-      </div>
-    `;
-  }).join("");
+      `).join("");
 
-  // expand/collapse per group
-  this._treeEl.querySelectorAll('.tree-group-header').forEach(h => {
-    h.addEventListener('click', () => {
-      const group = h.parentElement;
-      const icon = h.querySelector('.caret i');
-      const collapsed = group.classList.toggle('collapsed');
-      icon.classList.toggle('fa-caret-right', collapsed);
-      icon.classList.toggle('fa-caret-down', !collapsed);
-      const folder = h.querySelector('.group-name i');
-      folder.classList.toggle('fa-folder', collapsed);
-      folder.classList.toggle('fa-folder-open', !collapsed);
+      return `
+        <div class="tree-group" data-group="${grp}">
+          <div class="tree-group-header">
+            <span class="caret"><i class="fas fa-caret-down"></i></span>
+            <span class="group-name"><i class="fas fa-folder-open me-1 text-warning"></i>${grp}</span>
+          </div>
+          <div class="tree-items">
+            ${itemsHtml}
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    // expand/collapse per group
+    this._treeEl.querySelectorAll('.tree-group-header').forEach(h => {
+      h.addEventListener('click', () => {
+        const group = h.parentElement;
+        const icon = h.querySelector('.caret i');
+        const collapsed = group.classList.toggle('collapsed');
+        icon.classList.toggle('fa-caret-right', collapsed);
+        icon.classList.toggle('fa-caret-down', !collapsed);
+        const folder = h.querySelector('.group-name i');
+        folder.classList.toggle('fa-folder', collapsed);
+        folder.classList.toggle('fa-folder-open', !collapsed);
+      });
     });
-  });
 
-  // OPTIONAL: auto-apply when a layer is clicked
-   this._treeEl.querySelectorAll('input[name="layer-radio"]').forEach(r => {
-     r.addEventListener('change', (e) => {
-       selectLayer(e.target.value, e.target.dataset.id || null);
-     });
-   });
-}
-,
+    // OPTIONAL: auto-apply when a layer is clicked
+    this._treeEl.querySelectorAll('input[name="layer-radio"]').forEach(r => {
+      r.addEventListener('change', (e) => {
+        selectLayer(e.target.value, e.target.dataset.id || null);
+      });
+    });
+  },
   _setAllCollapsed(state) {
     this._treeEl.querySelectorAll('.tree-group').forEach(g => {
       const headerIcon = g.querySelector('.caret i');
@@ -316,9 +312,7 @@ const LayerTreeControl = L.Control.extend({
         anyVisible = anyVisible || visible;
       });
       g.style.display = anyVisible || !q ? '' : 'none';
-      // auto-expand when searching
-      const collapsed = g.classList.contains('collapsed');
-      if (q && collapsed) {
+      if (q && g.classList.contains('collapsed')) {
         g.classList.remove('collapsed');
         const icon = g.querySelector('.caret i');
         icon.classList.remove('fa-caret-right'); icon.classList.add('fa-caret-down');
@@ -329,15 +323,9 @@ const LayerTreeControl = L.Control.extend({
   }
 });
 
-/* ---------- Timeseries/Strategies popup/modal (unchanged logic) ---------- */
+/* ---------- Timeseries/Strategies popup/modal ---------- */
 function showHazardPopup(hazardId, hazardType, provinceName) {
-  const stageOrder = [
-    "Provision of inputs",
-    "On farm production",
-    "Post harvest and local processing",
-    "Product marketing",
-    "Consumption"
-  ];
+  const stageOrder = ["Provision of inputs","On farm production","Post harvest and local processing","Product marketing","Consumption"];
 
   Promise.all([
     fetch(`/api/strategies-by-hazard/?hazard=${hazardId}&province=${provinceName}`).then(res => res.json()),
@@ -485,13 +473,95 @@ function groupBy(array, key) {
   }, {});
 }
 
+/* ---------- WMS GetFeatureInfo to pick province name ---------- */
+async function identifyProvince(e) {
+  if (!currentHazardId || !defaultGroup) {
+    alert("{% trans 'Please select a hazard layer first.' %}");
+    return;
+  }
+
+  // Use map's CRS (Leaflet default = EPSG:3857) for GetFeatureInfo
+  const crs = L.CRS.EPSG3857;
+  const size = map.getSize();
+  const b = map.getBounds();
+  const sw = crs.project(b.getSouthWest());
+  const ne = crs.project(b.getNorthEast());
+
+  const params = new URLSearchParams({
+    SERVICE: "WMS",
+    VERSION: "1.1.1",
+    REQUEST: "GetFeatureInfo",
+    LAYERS: PROV_LAYER,
+    QUERY_LAYERS: PROV_LAYER,
+    STYLES: PROV_STYLE || "",
+    BBOX: `${sw.x},${sw.y},${ne.x},${ne.y}`,
+    FEATURE_COUNT: "1",
+    HEIGHT: size.y.toString(),
+    WIDTH: size.x.toString(),
+    FORMAT: "image/png",
+    INFO_FORMAT: "application/json",
+    SRS: "EPSG:3857",
+    X: Math.round(e.containerPoint.x).toString(),
+    Y: Math.round(e.containerPoint.y).toString(),
+
+    // GeoServer vendor tolerances help a LOT for thin strokes/lines
+    FI_POINT_TOLERANCE: "10",
+    FI_LINE_TOLERANCE: "10",
+    FI_POLYGON_TOLERANCE: "5"
+  });
+
+  try {
+    const url = `${GEOSERVER_WMS}?${params.toString()}`;
+    const json = await fetch(url).then(r => r.json());
+    const feat = (json.features || [])[0];
+    if (!feat) return;
+
+    // adjust attribute keys to your schema
+    const p = feat.properties || {};
+    const provinceName = p.NAME_1 || p.NOME || p.province || p.name || "";
+    if (!provinceName) {
+      console.warn("No province name attribute found in GetFeatureInfo:", p);
+      return;
+    }
+
+    currentHazardType = Object.keys(hazardTypeMap).find(h =>
+      (hazardTypeMap[h] || []).some(x => x.layerName === defaultGroup)
+    ) || "";
+
+    showHazardPopup(currentHazardId, currentHazardType, provinceName);
+  } catch (err) {
+    console.error("GetFeatureInfo error:", err);
+  }
+}
+
+
 /* ---------- Init ---------- */
 document.addEventListener("DOMContentLoaded", () => {
   map = L.map("map").setView([-20.6, 36.5], 5);
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
   map.addControl(new L.Control.Loading());
 
-  legendControl = new LegendControl({ position: "bottomright" }).addTo(map);
+  // Provinces WMS (no client GeoJSON)
+  boundariesWms = L.tileLayer.wms(GEOSERVER_WMS, {
+    layers: PROV_LAYER,
+    styles: PROV_STYLE || undefined,
+    format: "image/png",
+    transparent: true,
+    version: "1.1.1",
+    tiled: true,
+    zIndex: 500  
+  }).addTo(map);
+
+  // Legends: Provinces (always visible) + Hazard (hidden until selected)
+  const BoundaryLegend = createLegendControl("{% trans 'Provinces' %}", "boundary-legend-img");
+  boundaryLegendControl = new BoundaryLegend({ position: "bottomright" }).addTo(map);
+  setLegendImage("boundary-legend-img", PROV_LAYER, PROV_STYLE || "");
+
+  const HazardLegend = createLegendControl("{% trans 'Legend' %}", "hazard-legend-img");
+  hazardLegendControl = new HazardLegend({ position: "bottomright" }).addTo(map);
+  hazardLegendControl.getContainer().classList.add("hidden");
+
+  // Layer tree
   layerTreeControl = new LayerTreeControl({ position: "topleft" }).addTo(map);
 
   // Load hazards and fill the tree
@@ -508,32 +578,8 @@ document.addEventListener("DOMContentLoaded", () => {
       layerTreeControl.setData(hazardTypeMap);
     });
 
-  // Provinces overlay (click to open modal only after a layer is chosen)
-  map.fire("dataloading");
-  fetch("/api/provinces/")
-    .then(res => res.json())
-    .then(data => {
-      const provinceLayer = L.geoJSON(data, {
-        onEachFeature: (feature, layer) => {
-          const props = feature.properties;
-          layer.bindPopup(`<strong>${props.name}</strong><br><i>Click to view data</i>`);
-          layer.on("click", () => {
-            if (currentHazardId && defaultGroup) {
-              selectedProvince = props.name;
-              currentHazardType = Object.keys(hazardTypeMap).find(h =>
-                (hazardTypeMap[h] || []).some(x => x.layerName === defaultGroup)
-              ) || "";
-              showHazardPopup(currentHazardId, currentHazardType, selectedProvince);
-            } else {
-              alert("Please select a hazard layer first.");
-            }
-          });
-        },
-        style: { color: "#000", fillOpacity: 0.0, weight: 1.5 }
-      });
-      provinceLayer.addTo(map);
-      map.fire("dataload");
-    });
+  // Identify province from WMS on click
+  map.on("click", identifyProvince);
 });
 </script>
 {% endblock %}

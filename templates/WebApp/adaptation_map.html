@@ -15,18 +15,18 @@
     border-radius: 8px;
   }
 
- .legend-box {
-  position: absolute;
-  top: 90px;
-  right: 20px;
-  z-index: 999;
-  background: white;
-  padding: 12px 15px;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
-  font-size: 0.9rem;
-  max-width: 280px;
-}
+  .legend-box {
+    position: absolute;
+    top: 90px;
+    right: 20px;
+    z-index: 999;
+    background: white;
+    padding: 12px 15px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
+    font-size: 0.9rem;
+    max-width: 280px;
+  }
 
   .leaflet-top.leaflet-left {
     top: 15px !important;
@@ -73,13 +73,51 @@
     gap: 5px;
     margin-bottom: 4px;
   }
-  .leaflet-popup-content.wide-popup {
-  font-size: 0.95rem;
-}
 
-.leaflet-popup-content-wrapper.wide-popup {
-  max-width: 600px; /* enforce wrapper size */
-}
+  .leaflet-popup-content.wide-popup { font-size: 0.95rem; }
+  .leaflet-popup-content-wrapper.wide-popup { max-width: 600px; }
+
+  /* Always-on, non-interactive VC chips overlay */
+  .vc-stack {
+    display: inline-flex;
+    gap: 6px;
+    padding: 6px 8px;
+    background: rgba(255,255,255,0.9);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.15);
+    align-items: center;
+    border: 1px solid rgba(0,0,0,.06);
+    pointer-events: none;           /* non-interactive overlay */
+    backdrop-filter: blur(2px);
+    font-size: 13px;
+    line-height: 1.2;
+  }
+  .vc-stack .vc-name { font-weight: 600; color: #2b2b2b; margin-right: 2px; }
+  .vc-stack .vc-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 6px;
+    border-radius: 999px;
+    background: #f1f3f5;
+    border: 1px solid #e9ecef;
+    white-space: nowrap;
+  }
+  .vc-stack .vc-chip i { font-size: 13px; }
+
+  /* --- Floating legend (bottom-right), same feel as hazard map --- */
+  .leaflet-bottom.leaflet-right { right: 10px; bottom: 10px; }
+  .legend-control {
+    background: #fff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,.15);
+    overflow: hidden; width: 260px; max-height: 320px; display: none;
+  }
+  .legend-header {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    padding: 8px 10px; background: #198754; color: #fff; font-weight: 600; font-size: 0.95rem;
+  }
+  .legend-body { padding: 8px 10px; max-height: 270px; overflow: auto; }
+  .legend-body img { width: 100%; height: auto; display: block; }
+  .legend-toggle { background: transparent; border: 0; color: #fff; font-size: 16px; line-height: 1; cursor: pointer; }
 </style>
 
 <script src="https://unpkg.com/leaflet@1.9.2/dist/leaflet.js"></script>
@@ -88,6 +126,8 @@
 
 <script>
 let map, currentStrategyData = [], currentProvinceId, currentValueChain, currentHazard;
+
+// --- icons for VCs
 const vcIcons = {
   "Groundnuts": "<i class='fas fa-seedling text-success vc-icon'></i>",
   "Cassava": "<i class='fas fa-leaf text-primary vc-icon'></i>",
@@ -100,6 +140,64 @@ const vcIcons = {
   "Sugarcane": "<i class='fas fa-industry text-purple vc-icon'></i>"
 };
 
+// --- GeoServer WMS provinces (geometry stays server-side)
+const PROV_WMS_URL = "https://crva.jcdevops.com/geoserver/wms";
+const PROV_LAYER   = "crva:provinces";
+const PROV_STYLE   = "province_boundaries";  
+
+// --- Lightweight summaries (no geometry)
+// Expected: [{ id,name,centroid:{lat,lng}, value_chains:[...], hazards:[...] }, ...]
+const PROV_SUMMARY_URL = "/api/province-summaries/";
+
+const provinceSummariesById = new Map(); // id -> summary
+let vcOverlayMarkers = [];
+let vcCountMarkers = [];
+
+/* ---------- Legend Control ---------- */
+const LegendControl = L.Control.extend({
+  onAdd: function() {
+    const div = L.DomUtil.create("div", "legend-control");
+    div.innerHTML = `
+      <div class="legend-header">
+        <span>{% trans "Legend" %}</span>
+        <button class="legend-toggle" title="{% trans 'Collapse/Expand' %}" aria-label="{% trans 'Collapse/Expand' %}">–</button>
+      </div>
+      <div class="legend-body">
+        <img id="legend-image" alt="Legend">
+      </div>
+    `;
+    L.DomEvent.disableClickPropagation(div);
+    const toggleBtn = div.querySelector(".legend-toggle");
+    const body = div.querySelector(".legend-body");
+    toggleBtn.addEventListener("click", () => {
+      const isHidden = body.style.display === "none";
+      body.style.display = isHidden ? "" : "none";
+      toggleBtn.textContent = isHidden ? "–" : "+";
+    });
+    return div;
+  }
+});
+
+// Set the legend image to the provinces layer GetLegendGraphic
+function setBoundaryLegend() {
+  const params = new URLSearchParams({
+    REQUEST: "GetLegendGraphic",
+    VERSION: "1.0.0",
+    FORMAT: "image/png",
+    TRANSPARENT: "true",
+    LAYER: PROV_LAYER,
+    LEGEND_OPTIONS: "fontName:Arial;fontSize:12;fontAntiAliasing:true;forceLabels:on",
+    _ts: Date.now().toString()
+  });
+  if (PROV_STYLE) params.set("STYLE", PROV_STYLE);
+
+  const legendUrl = `${PROV_WMS_URL}?${params.toString()}`;
+  const el = legendControl.getContainer();
+  el.style.display = "block";
+  el.querySelector("#legend-image").src = legendUrl;
+}
+
+// CSV export
 function exportToCSV() {
   let csv = "Stage,Impact,Adaptation Strategy\n";
   currentStrategyData.forEach(r => {
@@ -112,6 +210,7 @@ function exportToCSV() {
   a.click();
 }
 
+// DataTable
 function populateStrategyTable(data) {
   const stageOrder = [
     "Provision of inputs",
@@ -120,21 +219,16 @@ function populateStrategyTable(data) {
     "Product marketing",
     "Consumption"
   ];
-
-  const orderedData = [...data].sort((a, b) =>
-    stageOrder.indexOf(a.stage) - stageOrder.indexOf(b.stage)
-  );
-
+  const orderedData = [...data].sort((a, b) => stageOrder.indexOf(a.stage) - stageOrder.indexOf(b.stage));
 
   if ($.fn.DataTable.isDataTable("#strategy-table")) {
     $("#strategy-table").DataTable().clear().destroy();
   }
 
-  let tableBody = document.getElementById("strategy-table-body");
-  tableBody.innerHTML = "";
-
+  const tbody = document.getElementById("strategy-table-body");
+  tbody.innerHTML = "";
   orderedData.forEach(r => {
-    tableBody.innerHTML += `
+    tbody.innerHTML += `
       <tr>
         <td style="width: 15%;"><span class="badge bg-info text-dark">${r.stage}</span></td>
         <td style="width: 42%;">${r.risk}</td>
@@ -142,118 +236,162 @@ function populateStrategyTable(data) {
       </tr>`;
   });
 
- 
-  $("#strategy-table").DataTable({
-    order: [],
-    autoWidth: false,
-    destroy: true // ensures no duplication
-  });
+  $("#strategy-table").DataTable({ order: [], autoWidth: false, destroy: true });
 }
 
-
-
-
+// Modal open
 function showStrategyModal(provinceId, valueChain, hazard) {
-
   currentValueChain = decodeURIComponent(valueChain);
   currentHazard = decodeURIComponent(hazard);
   currentProvinceId = provinceId;
 
-  // Fetch name of the province (already available from popup in most cases)
-  const provinceName = map._layers
-    ? Object.values(map._layers)
-        .find(l => l.feature && l.feature.properties.id === provinceId)?.feature.properties.name
-    : gettext("Unknown");
+  // Province name from summaries cache (no GeoJSON now)
+  const provinceSummary = provinceSummariesById.get(provinceId);
+  const provinceName = provinceSummary?.name || gettext("Unknown");
 
-
-  // Update modal context badges
+  // badges
   document.getElementById("selected-province").innerText = provinceName;
   document.getElementById("selected-vc").innerText = currentValueChain;
   document.getElementById("selected-hazard").innerText = currentHazard;
 
   const apiUrl = `/api/strategies/?province=${provinceId}` +
-    `&value_chain=${encodeURIComponent(currentValueChain)}` +
-    `&hazard=${encodeURIComponent(currentHazard)}` +
-    `&_=${Date.now()}`;
+                 `&value_chain=${encodeURIComponent(currentValueChain)}` +
+                 `&hazard=${encodeURIComponent(currentHazard)}` +
+                 `&_=${Date.now()}`;
 
-
-
-  // fetch strategies
   fetch(apiUrl, { cache: "no-store" })
-    .then(res => {
-      return res.json();
-    })
+    .then(res => res.json())
     .then(data => {
-    
-
       currentStrategyData = data;
       populateStrategyTable(data);
 
-      // highlight selected hazard badge
+      // highlight selected hazard chip in popup (if present)
       document.querySelectorAll(".hazard-badge").forEach(b => b.classList.remove("active"));
-      document.querySelectorAll(`.hazard-badge[data-vc='${encodeURIComponent(currentValueChain)}'][data-hz='${encodeURIComponent(currentHazard)}']`)
-        .forEach(el => el.classList.add("active"));
+      document.querySelectorAll(
+        `.hazard-badge[data-vc='${encodeURIComponent(currentValueChain)}'][data-hz='${encodeURIComponent(currentHazard)}']`
+      ).forEach(el => el.classList.add("active"));
 
-      // open modal
       new bootstrap.Modal(document.getElementById('strategyModal')).show();
     })
-    .catch(err => {
-      console.error("Error fetching strategies:", err);
-    });
+    .catch(err => console.error("Error fetching strategies:", err));
 }
 
+// Build always-on VC overlay HTML (name + chips)
+function overlayHtmlFor(summary) {
+  const vcs = summary.value_chains || [];
+  if (!vcs.length) return ""; // nothing to show
+  const chips = vcs.map(vc => {
+    const icon = vcIcons[vc] || "<i class='fas fa-leaf vc-icon'></i>";
+    return `<span class="vc-chip">${icon}<span>${vc}</span></span>`;
+  }).join("");
+  return `<div class="vc-stack"><span class="vc-name">${summary.name}</span>${chips}</div>`;
+}
 
+// Build popup (opened when user clicks numeric circle); shows VC + hazards (badges clickable)
+function popupHtmlFor(summary) {
+  const vcs = summary.value_chains || [];
+  if (!vcs.length) {
+    return `<h6><i class='fas fa-map-marker-alt text-success me-1'></i>${summary.name}</h6>
+            <hr class='my-1'>
+            <div class="text-muted">No value-chain data available yet.</div>`;
+  }
+  let html = `<h6><i class='fas fa-map-marker-alt text-success me-1'></i>${summary.name}</h6><hr class='my-1'>`;
+  vcs.forEach(vc => {
+    const icon = vcIcons[vc] || "<i class='fas fa-leaf vc-icon'></i>";
+    html += `<strong>${icon}${vc}</strong><br>`;
+    (summary.hazards || []).forEach(hz => {
+      html += `<span class='badge bg-info text-dark hazard-badge'
+                 onclick="showStrategyModal(${summary.id}, '${encodeURIComponent(vc)}', '${encodeURIComponent(hz)}')"
+                 data-vc='${encodeURIComponent(vc)}' data-hz='${encodeURIComponent(hz)}'>${hz}</span> `;
+    });
+    html += "<hr class='my-1'>";
+  });
+  return html;
+}
+
+// Render overlays (chips) + numeric count circles
+async function renderProvinceOverlays() {
+  map.fire("dataloading");
+  try {
+    const summaries = await fetch(PROV_SUMMARY_URL, { cache: "no-store" }).then(r => r.json());
+
+    provinceSummariesById.clear();
+    vcOverlayMarkers.forEach(m => map.removeLayer(m));
+    vcCountMarkers.forEach(m => map.removeLayer(m));
+    vcOverlayMarkers = [];
+    vcCountMarkers = [];
+
+    summaries.forEach(s => {
+      provinceSummariesById.set(s.id, s);
+      if (!s?.centroid) return;
+
+      const count = (s.value_chains || []).length;
+
+      // Skip provinces with no VC data (keeps map clean)
+      if (count === 0) return;
+
+      // Overlay chips
+      const html = overlayHtmlFor(s);
+      if (html) {
+        const overlayIcon = L.divIcon({ className: "", html, iconSize: null, iconAnchor: [0, 0] });
+        const overlayMarker = L.marker([s.centroid.lat, s.centroid.lng], { icon: overlayIcon, interactive: false }).addTo(map);
+        vcOverlayMarkers.push(overlayMarker);
+      }
+
+      // Count circle (clickable)
+      const circleIcon = L.divIcon({ className: 'vc-label', html: count, iconSize: [30, 30], iconAnchor: [15, 15] });
+      const circleMarker = L.marker([s.centroid.lat, s.centroid.lng], { icon: circleIcon })
+        .on("click", () => {
+          const html = popupHtmlFor(s);
+          const legendWidth = 280 + 20 + 20;
+          L.popup({
+            maxWidth: 600, minWidth: 500, className: 'wide-popup',
+            autoPan: true, autoPanPaddingTopLeft: [20, 20], autoPanPaddingBottomRight: [legendWidth, 20]
+          })
+          .setLatLng([s.centroid.lat, s.centroid.lng])
+          .setContent(html)
+          .openOn(map);
+        })
+        .addTo(map);
+      vcCountMarkers.push(circleMarker);
+    });
+  } finally {
+    map.fire("dataload");
+  }
+}
 
 document.addEventListener("DOMContentLoaded", () => {
   map = L.map('map', { loadingControl: true }).setView([-17.6, 36.9], 6);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-  map.fire('dataloading');
 
-  fetch('/api/provinces/')
-    .then(res => res.json())
-    .then(data => {
-      L.geoJSON(data, {
-        onEachFeature: (feature, layer) => {
-          const props = feature.properties;
-          const vcCount = props.value_chains.length;
-          let html = `<h6><i class='fas fa-map-marker-alt text-success me-1'></i>${props.name}</h6><hr class='my-1'>`;
+  // Provinces as WMS (no client geometry)
+  L.tileLayer.wms(PROV_WMS_URL, {
+    layers: PROV_LAYER,
+    styles: PROV_STYLE || undefined,
+    format: "image/png",
+    transparent: true,
+    version: "1.1.1",
+    tiled: true
+  }).addTo(map);
 
-          props.value_chains.forEach(vc => {
-            const icon = vcIcons[vc] || "<i class='fas fa-leaf vc-icon'></i>";
-            html += `<strong>${icon}${vc}</strong><br>`;
-            props.hazards.forEach(hz => {
-              html += `<span class='badge bg-info text-dark hazard-badge'
-                         onclick="showStrategyModal(${props.id}, '${encodeURIComponent(vc)}', '${encodeURIComponent(hz)}')"
-                         data-vc='${encodeURIComponent(vc)}' data-hz='${encodeURIComponent(hz)}'>${hz}</span> `;
-            });
-            html += "<hr class='my-1'>";
-          });
-         const legendWidth = 280 + 20 + 20;
-          layer.bindPopup(html, {
-          maxWidth: 600,
-          minWidth: 500,
-          className: 'wide-popup',
-          autoPan: true,
-          autoPanPaddingTopLeft: [20, 20],
-          autoPanPaddingBottomRight: [legendWidth, 20]
-        });
-          const center = layer.getBounds().getCenter();
-          const vcLabel = L.divIcon({
-            className: 'vc-label',
-            html: vcCount,
-            iconSize: [30, 30],
-            iconAnchor: [15, 15]
-          });
-          L.marker(center, { icon: vcLabel }).on("click", () => {
-            layer.openPopup(center);
-            setTimeout(() => layer.openPopup(center), 100);
-          }).addTo(map);
-        },
-        style: { color: '#007847', fillOpacity: 0.2, weight: 1 }
-      }).addTo(map);
-      map.fire('dataload');
-    })
-    .catch(() => map.fire('dataload'));
+  
+  // Add and set legend for province boundaries
+  legendControl = new LegendControl({ position: "bottomright" }).addTo(map);
+  setBoundaryLegend();
+
+  renderProvinceOverlays();
+
+  // Optional declutter: hide chip text at low zooms (keep icons)
+  map.on("zoomend", () => {
+    const showText = map.getZoom() >= 6; // tweak threshold
+    vcOverlayMarkers.forEach(m => {
+      const el = m.getElement();
+      if (!el) return;
+      el.querySelectorAll(".vc-chip span").forEach(span => {
+        span.style.display = showText ? "" : "none";
+      });
+    });
+  });
 
   const modal = document.getElementById('strategyModal');
   modal.addEventListener('hidden.bs.modal', () => {
@@ -275,7 +413,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="card-body position-relative">
           <div id="map" class="mb-3"></div>
 
-          <!-- INSTRUCTIONS + LEGEND -->
+        <!-- INSTRUCTIONS + LEGEND -->
           <div class="legend-box">
             <strong><i class="fas fa-circle text-success"></i> {% trans "Instructions" %}</strong>
             <ul class="mb-2 ps-3">
@@ -284,13 +422,6 @@ document.addEventListener("DOMContentLoaded", () => {
               <li>{% trans "Download table as CSV from modal" %}</li>
             </ul>
 
-           <!-- <div class="legend-section">
-              <strong class="d-block mb-1">{% trans "Value Chains" %}</strong>
-              <div class="legend-item"><i class="fas fa-seedling text-success"></i> Groundnuts</div>
-              <div class="legend-item"><i class="fas fa-leaf text-primary"></i> Cassava</div>
-              <div class="legend-item"><i class="fas fa-tractor text-warning"></i> Maize</div>
-            </div>-->
-          </div>
         </div>
       </div>
     </div>
@@ -298,7 +429,6 @@ document.addEventListener("DOMContentLoaded", () => {
 </div>
 
 <!-- Strategy Modal -->
-<!-- Modal -->
 <div class="modal fade" id="strategyModal" tabindex="-1">
   <div class="modal-dialog modal-xl modal-dialog-scrollable">
     <div class="modal-content">
@@ -340,5 +470,4 @@ document.addEventListener("DOMContentLoaded", () => {
     </div>
   </div>
 </div>
-
 {% endblock %}

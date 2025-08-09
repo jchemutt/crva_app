@@ -12,4 +12,5 @@ urlpatterns = [
     path('api/value-chains/', views.value_chains_api, name='api_value_chains'),
     #path('api/hazards/', views.hazards_api, name='api_hazards'),
     path('api/risk-adaptations/', views.risk_adaptations_api, name='api_risk_adaptations'),
+    path("api/province-summaries/", views.province_summaries, name="province_summaries"),
 ]

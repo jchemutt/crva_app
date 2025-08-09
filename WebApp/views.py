@@ -26,6 +26,19 @@ from rest_framework.response import Response
 from collections import defaultdict
 
 from django.db.models import Prefetch, Q  # for filtering
+from django.views.decorators.http import require_GET
+from django.contrib.postgres.aggregates import ArrayAgg
+
+import json
+from collections import defaultdict
+from django.http import JsonResponse
+from django.contrib.gis.db.models.functions import PointOnSurface, Transform, AsGeoJSON
+
+from django.db.models import Value, CharField
+from django.db.models.functions import Concat
+
+
+
 
 
 
@@ -119,6 +132,100 @@ def province_geojson(request):
             })
 
     return JsonResponse({"type": "FeatureCollection", "features": features})
+
+
+
+
+
+# views.py
+
+
+
+@require_GET
+def province_summaries(request):
+    """
+    Geometry-free summaries for the map overlay.
+    Returns: [
+      {
+        id, name,
+        centroid: {lat, lng},
+        value_chains: [..],
+        hazards: [..],
+        hazards_by_vc: { "<VC>": ["Hazard1", ...], ... }
+      }, ...
+    ]
+    """
+
+    # Build distinct arrays:
+    #  - value_chains_arr
+    #  - hazards_arr
+    #  - vc_hz_pairs as "VC|||HZ" strings (since JSONObject isn't available)
+    qs = (
+        Province.objects
+        .filter(boundary__isnull=False)
+        .annotate(_pt=PointOnSurface('boundary'))
+        .annotate(_pt4326=Transform('_pt', 4326))
+        .annotate(ptjson=AsGeoJSON('_pt4326'))
+        .annotate(
+            value_chains_arr=ArrayAgg(
+                'adaptations__vc_hazard__value_chain__name',
+                distinct=True
+            ),
+            hazards_arr=ArrayAgg(
+                'adaptations__vc_hazard__hazard__name',
+                distinct=True
+            ),
+            vc_hz_pairs=ArrayAgg(
+                Concat(
+                    'adaptations__vc_hazard__value_chain__name',
+                    Value('|||'),
+                    'adaptations__vc_hazard__hazard__name',
+                    output_field=CharField()
+                ),
+                distinct=True
+            ),
+        )
+        .values('id', 'name', 'ptjson', 'value_chains_arr', 'hazards_arr', 'vc_hz_pairs')
+    )
+
+    out = []
+    for r in qs:
+        # Extract centroid from GeoJSON (coordinates = [lng, lat])
+        lat = lng = None
+        if r['ptjson']:
+            try:
+                coords = json.loads(r['ptjson']).get('coordinates')  # [lng, lat]
+                if isinstance(coords, (list, tuple)) and len(coords) == 2:
+                    lng, lat = float(coords[0]), float(coords[1])
+            except Exception:
+                pass
+
+        vc_list = [v for v in (r['value_chains_arr'] or []) if v]
+        hz_list = [h for h in (r['hazards_arr'] or []) if h]
+
+        # Build hazards_by_vc from "VC|||HZ" pairs
+        hazards_by_vc = defaultdict(list)
+        for s in (r['vc_hz_pairs'] or []):
+            if not s:
+                continue
+            try:
+                vc, hz = s.split('|||', 1)
+            except ValueError:
+                continue
+            if vc and hz and hz not in hazards_by_vc[vc]:
+                hazards_by_vc[vc].append(hz)
+
+        out.append({
+            "id": r["id"],
+            "name": r["name"],
+            "centroid": {"lat": lat, "lng": lng},
+            "value_chains": vc_list,
+            "hazards": hz_list,
+            "hazards_by_vc": dict(hazards_by_vc),
+        })
+
+    return JsonResponse(out, safe=False)
+
 
 
 
