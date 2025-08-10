@@ -405,8 +405,8 @@ function showHazardPopup(hazardId, hazardType, provinceName) {
     strategyDataByVC = groupBy(strategyData, "value_chain");
     timeseriesGroups = timeseriesData;
 
-    console.debug('[selectedLayerFull]', window.selectedLayerFull);
-   console.debug('[selectedLayerLocal]', window.selectedLayerLocal);
+    console.log('[selectedLayerFull]', window.selectedLayerFull);
+   console.log('[selectedLayerLocal]', window.selectedLayerLocal);
 
     const groupNames = Object.keys(timeseriesGroups);
    const selectedGroup =
