@@ -553,9 +553,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }).addTo(map);
 
   // Legends: Provinces (always visible) + Hazard (hidden until selected)
-  const BoundaryLegend = createLegendControl("{% trans 'Provinces' %}", "boundary-legend-img");
+  /*const BoundaryLegend = createLegendControl("{% trans 'Provinces' %}", "boundary-legend-img");
   boundaryLegendControl = new BoundaryLegend({ position: "bottomright" }).addTo(map);
-  setLegendImage("boundary-legend-img", PROV_LAYER, PROV_STYLE || "");
+  setLegendImage("boundary-legend-img", PROV_LAYER, PROV_STYLE || "");*/
 
   const HazardLegend = createLegendControl("{% trans 'Legend' %}", "hazard-legend-img");
   hazardLegendControl = new HazardLegend({ position: "bottomright" }).addTo(map);
