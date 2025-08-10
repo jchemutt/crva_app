@@ -559,15 +559,14 @@ async function identifyProvince(e) {
     STYLES: PROV_STYLE || "",
     BBOX: `${sw.x},${sw.y},${ne.x},${ne.y}`,
     FEATURE_COUNT: "1",
-    HEIGHT: size.y.toString(),
-    WIDTH: size.x.toString(),
+    HEIGHT: String(size.y),
+    WIDTH: String(size.x),
     FORMAT: "image/png",
     INFO_FORMAT: "application/json",
     SRS: "EPSG:3857",
-    X: Math.round(e.containerPoint.x).toString(),
-    Y: Math.round(e.containerPoint.y).toString(),
-
-    // GeoServer vendor tolerances help a LOT for thin strokes/lines
+    X: String(Math.round(e.containerPoint.x)),
+    Y: String(Math.round(e.containerPoint.y)),
+    // Vendor tolerances help hit thin boundaries
     FI_POINT_TOLERANCE: "10",
     FI_LINE_TOLERANCE: "10",
     FI_POLYGON_TOLERANCE: "5"
@@ -579,22 +578,37 @@ async function identifyProvince(e) {
     const feat = (json.features || [])[0];
     if (!feat) return;
 
-    // adjust attribute keys to your schema
+    // Adjust these keys to your province schema
     const p = feat.properties || {};
-    const provinceName = p.NAME_1 || p.NOME || p.province || p.name || "";
+    const provinceName =
+      p.NAME_1 || p.NOME || p.province || p.name || p.NAME || "";
     if (!provinceName) {
       console.warn("No province name attribute found in GetFeatureInfo:", p);
       return;
     }
 
-    currentHazardType = Object.keys(hazardTypeMap).find(h =>
-      (hazardTypeMap[h] || []).some(x => x.layerName === defaultGroup)
-    ) || "";
+    // We already set currentHazardType when selecting the radio (data-theme).
+    // If for some reason it's empty, try a safe fallback lookup:
+    if (!currentHazardType) {
+      currentHazardType = findThemeByLayerName(hazardTypeMap, defaultGroup) || "";
+    }
 
     showHazardPopup(currentHazardId, currentHazardType, provinceName);
   } catch (err) {
     console.error("GetFeatureInfo error:", err);
   }
+}
+
+// Optional: fallback resolver for theme from nested (Component -> Theme -> items[]) structure
+function findThemeByLayerName(tree, layerName) {
+  for (const comp of Object.keys(tree || {})) {
+    const themes = tree[comp] || {};
+    for (const theme of Object.keys(themes)) {
+      const items = themes[theme] || [];
+      if (items.some(x => x.layerName === layerName)) return theme;
+    }
+  }
+  return "";
 }
 
 
