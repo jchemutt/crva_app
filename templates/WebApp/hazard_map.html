@@ -156,8 +156,10 @@ function setLegendImage(imgElementId, layerName, styleName) {
 /* ---------- Load hazard WMS + update hazard legend ---------- */
 function selectLayer(layerName, hazardId) {
   currentHazardId = hazardId || null;
-  defaultGroup = layerName;
-
+  defaultGroup = layerName.includes(":")
+    ? layerName.split(":")[1]
+    : layerName;
+    
   if (rasterLayer) map.removeLayer(rasterLayer);
   if (!layerName) {
     const el = hazardLegendControl.getContainer();
@@ -238,7 +240,7 @@ const LayerTreeControl = L.Control.extend({
       const hazardId  = sel.dataset.hazardId || null; 
       // We’ll treat the “hazard type” label as the Theme (2nd level)
       currentHazardType = sel.dataset.theme || "";
-      selectLayer(layerName, indicatorId);
+      selectLayer(layerName, hazardId);
     });
 
     div.querySelector('#layer-search').addEventListener('input', (e) => {
