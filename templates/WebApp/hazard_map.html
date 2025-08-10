@@ -152,14 +152,19 @@ function setLegendImage(imgElementId, layerName, styleName) {
   const img = document.getElementById(imgElementId);
   if (img) img.src = url;
 }
+function localName(s){ return (s || "").trim().split(":").pop(); }
+function norm(s){ return (s || "").trim().toLowerCase(); }
+
 
 /* ---------- Load hazard WMS + update hazard legend ---------- */
 function selectLayer(layerName, hazardId) {
   currentHazardId = hazardId || null;
-  defaultGroup = layerName.includes(":")
-    ? layerName.split(":")[1]
-    : layerName;
-    
+ // store both names
+  window.selectedLayerFull  = layerName;             
+  window.selectedLayerLocal = localName(layerName);  
+  defaultGroup = window.selectedLayerLocal;        
+
+
   if (rasterLayer) map.removeLayer(rasterLayer);
   if (!layerName) {
     const el = hazardLegendControl.getContainer();
@@ -272,7 +277,7 @@ const LayerTreeControl = L.Control.extend({
               data-hazard-id="${it.hazardId}"
               data-theme="${themeName}"
             >
-            <label class="layer-name" for="lyr-${it.id}">${it.label}</label>
+            <label class="layer-name" for="lyr-${it.indicatorId}">${it.label}</label>
           </div>
         `).join("");
 
@@ -388,6 +393,7 @@ const LayerTreeControl = L.Control.extend({
   }
 });
 
+
 /* ---------- Timeseries/Strategies popup/modal ---------- */
 function showHazardPopup(hazardId, hazardType, provinceName) {
   const stageOrder = ["Provision of inputs","On farm production","Post harvest and local processing","Product marketing","Consumption"];
@@ -399,9 +405,15 @@ function showHazardPopup(hazardId, hazardType, provinceName) {
     strategyDataByVC = groupBy(strategyData, "value_chain");
     timeseriesGroups = timeseriesData;
 
-    const groupNames = Object.keys(timeseriesGroups);
-    const selectedGroup = groupNames.find(g => timeseriesGroups[g].layer_name === defaultGroup) || groupNames[0];
+    console.debug('[selectedLayerFull]', window.selectedLayerFull);
+   console.debug('[selectedLayerLocal]', window.selectedLayerLocal);
 
+    const groupNames = Object.keys(timeseriesGroups);
+   const selectedGroup =
+      groupNames.find(g => norm(timeseriesGroups[g].layer_name) === norm(window.selectedLayerFull)) ||
+      groupNames.find(g => localName(timeseriesGroups[g].layer_name) === window.selectedLayerLocal) ||
+      groupNames[0];
+      
     let html = `
       <div class="d-flex justify-content-between mb-3">
         <div>
