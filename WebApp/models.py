@@ -18,8 +18,28 @@ class ValueChain(models.Model):
     def __str__(self):
         return self.name
 
+
+class Component(models.Model):
+    key = models.SlugField(max_length=40, unique=True)   # e.g., 'hazard', 'exposure'
+    label = models.CharField(max_length=80)              # e.g., 'Hazard', 'Exposure'
+
+    class Meta:
+        ordering = ["key"]
+
+    def __str__(self):
+        return self.label or self.key
+
+
 class Hazard(models.Model):
-    name = models.CharField(max_length=100, unique=True)
+    component = models.ForeignKey(
+        Component, on_delete=models.PROTECT, related_name='hazards',
+        null=True, blank=True  # make non-nullable after data migration, if desired
+    )
+    name = models.CharField(max_length=100)  # theme name (no global unique)
+
+    class Meta:
+        ordering = ["name"]
+        unique_together = ("component", "name")  # same theme allowed under different components
 
     def __str__(self):
         return self.name
