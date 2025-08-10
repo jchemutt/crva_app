@@ -78,6 +78,7 @@
   }
   .tree-group-header .caret { width: 16px; text-align: center; }
   .tree-group.collapsed .tree-items { display: none; }
+  .tree-subgroup.collapsed .tree-items { display: none; }
   .tree-items { margin-left: 22px; margin-top: 6px; }
   .tree-item { display: flex; align-items: center; gap: 8px; padding: 2px 0; font-size: .92rem; }
   .tree-item input[type="radio"] { accent-color: #0d6efd; }
@@ -191,7 +192,12 @@ function selectLayer(layerName, hazardId) {
 /* ---------- Layer Tree Control (collapsible categories) ---------- */
 const LayerTreeControl = L.Control.extend({
   options: { position: "topleft" },
-  setData(data) { this._data = data || {}; this._renderTree(); },
+
+  setData(data) {
+    this._data = data || {};
+    this._renderTree();
+  },
+
   onAdd() {
     const div = L.DomUtil.create("div", "layer-tree-control");
     div.innerHTML = `
@@ -228,8 +234,11 @@ const LayerTreeControl = L.Control.extend({
       const sel = div.querySelector('input[name="layer-radio"]:checked');
       if (!sel) return;
       const layerName = sel.value;
-      const hazardId  = sel.dataset.id || null;
-      selectLayer(layerName, hazardId);
+      const indicatorId = sel.dataset.indicatorId || null;
+      const hazardId  = sel.dataset.hazardId || null; 
+      // We’ll treat the “hazard type” label as the Theme (2nd level)
+      currentHazardType = sel.dataset.theme || "";
+      selectLayer(layerName, indicatorId);
     });
 
     div.querySelector('#layer-search').addEventListener('input', (e) => {
@@ -241,55 +250,87 @@ const LayerTreeControl = L.Control.extend({
     this._data = {};
     return div;
   },
+
   _renderTree() {
-    const groups = Object.keys(this._data).sort((a, b) => a.localeCompare(b));
-    this._treeEl.innerHTML = groups.map((grp) => {
-      const items = this._data[grp] || [];
-      const itemsHtml = items.map(it => `
-        <div class="tree-item">
-          <input type="radio" name="layer-radio" id="lyr-${it.id}" value="${it.layerName}" data-id="${it.id}">
-          <label class="layer-name" for="lyr-${it.id}">
-            ${it.label}
-          </label>
-        </div>
-      `).join("");
+    // data shape: { ComponentLabel: { Theme: [ { id, label, layerName }, ... ] } }
+    const components = Object.keys(this._data).sort((a, b) => a.localeCompare(b));
+
+    this._treeEl.innerHTML = components.map((comp) => {
+      const themes = this._data[comp] || {};
+      const themeBlocks = Object.keys(themes).sort((a,b)=>a.localeCompare(b)).map(themeName => {
+        const items = themes[themeName] || [];
+        const itemsHtml = items.map(it => `
+          <div class="tree-item">
+            <input
+              type="radio"
+              name="layer-radio"
+              id="lyr-${it.indicatorId}"
+              value="${it.layerName}"
+              data-indicator-id="${it.indicatorId}"
+              data-hazard-id="${it.hazardId}"
+              data-theme="${themeName}"
+            >
+            <label class="layer-name" for="lyr-${it.id}">${it.label}</label>
+          </div>
+        `).join("");
+
+        return `
+          <div class="tree-subgroup" data-subgroup="${themeName}">
+            <div class="tree-group-header">
+              <span class="caret"><i class="fas fa-caret-down"></i></span>
+              <span class="group-name">
+                <i class="fas fa-folder-open me-1 text-warning"></i>${themeName}
+              </span>
+            </div>
+            <div class="tree-items">
+              ${itemsHtml}
+            </div>
+          </div>
+        `;
+      }).join("");
 
       return `
-        <div class="tree-group" data-group="${grp}">
+        <div class="tree-group" data-group="${comp}">
           <div class="tree-group-header">
             <span class="caret"><i class="fas fa-caret-down"></i></span>
-            <span class="group-name"><i class="fas fa-folder-open me-1 text-warning"></i>${grp}</span>
+            <span class="group-name">
+              <i class="fas fa-folder-open me-1"></i>${comp}
+            </span>
           </div>
           <div class="tree-items">
-            ${itemsHtml}
+            ${themeBlocks}
           </div>
         </div>
       `;
     }).join("");
 
-    // expand/collapse per group
+    // expand/collapse: both component and theme headers
     this._treeEl.querySelectorAll('.tree-group-header').forEach(h => {
       h.addEventListener('click', () => {
-        const group = h.parentElement;
+        const container = h.parentElement; // could be .tree-group or .tree-subgroup
         const icon = h.querySelector('.caret i');
-        const collapsed = group.classList.toggle('collapsed');
+        const folder = h.querySelector('.group-name i');
+        const collapsed = container.classList.toggle('collapsed');
         icon.classList.toggle('fa-caret-right', collapsed);
         icon.classList.toggle('fa-caret-down', !collapsed);
-        const folder = h.querySelector('.group-name i');
         folder.classList.toggle('fa-folder', collapsed);
         folder.classList.toggle('fa-folder-open', !collapsed);
       });
     });
 
-    // OPTIONAL: auto-apply when a layer is clicked
+    // auto-apply when a radio is clicked (optional; Apply button still works)
     this._treeEl.querySelectorAll('input[name="layer-radio"]').forEach(r => {
       r.addEventListener('change', (e) => {
-        selectLayer(e.target.value, e.target.dataset.id || null);
+        currentHazardType = e.target.dataset.theme || "";
+        const hazardId = e.target.dataset.hazardId || null;  // theme_id from API
+        selectLayer(e.target.value, hazardId);
       });
     });
+
   },
+
   _setAllCollapsed(state) {
-    this._treeEl.querySelectorAll('.tree-group').forEach(g => {
+    this._treeEl.querySelectorAll('.tree-group, .tree-subgroup').forEach(g => {
       const headerIcon = g.querySelector('.caret i');
       const folder = g.querySelector('.group-name i');
       g.classList.toggle('collapsed', state);
@@ -299,24 +340,46 @@ const LayerTreeControl = L.Control.extend({
       folder.classList.toggle('fa-folder-open', !state);
     });
   },
+
   _filterTree(q) {
-    const groups = this._treeEl.querySelectorAll('.tree-group');
-    groups.forEach(g => {
-      const groupName = g.dataset.group.toLowerCase();
-      const items = Array.from(g.querySelectorAll('.tree-item'));
-      let anyVisible = false;
-      items.forEach(it => {
-        const name = it.querySelector('.layer-name').textContent.toLowerCase();
-        const visible = !q || name.includes(q) || groupName.includes(q);
-        it.style.display = visible ? '' : 'none';
-        anyVisible = anyVisible || visible;
+    // Show/hide by matching: component name, theme name, or indicator label
+    const comps = this._treeEl.querySelectorAll('.tree-group');
+    comps.forEach(compEl => {
+      const compName = (compEl.dataset.group || "").toLowerCase();
+      let compVisible = false;
+
+      const themeEls = compEl.querySelectorAll('.tree-subgroup');
+      themeEls.forEach(themeEl => {
+        const themeName = (themeEl.dataset.subgroup || "").toLowerCase();
+        let themeVisible = false;
+
+        const items = Array.from(themeEl.querySelectorAll('.tree-item'));
+        items.forEach(it => {
+          const name = it.querySelector('.layer-name').textContent.toLowerCase();
+          const visible = !q || name.includes(q) || themeName.includes(q) || compName.includes(q);
+          it.style.display = visible ? '' : 'none';
+          themeVisible = themeVisible || visible;
+        });
+
+        themeEl.style.display = themeVisible || !q ? '' : 'none';
+        // expand matching themes
+        if (q && themeVisible && themeEl.classList.contains('collapsed')) {
+          themeEl.classList.remove('collapsed');
+          const icon = themeEl.querySelector('.caret i');
+          icon.classList.remove('fa-caret-right'); icon.classList.add('fa-caret-down');
+          const folder = themeEl.querySelector('.group-name i');
+          folder.classList.remove('fa-folder'); folder.classList.add('fa-folder-open');
+        }
+
+        compVisible = compVisible || themeVisible;
       });
-      g.style.display = anyVisible || !q ? '' : 'none';
-      if (q && g.classList.contains('collapsed')) {
-        g.classList.remove('collapsed');
-        const icon = g.querySelector('.caret i');
+
+      compEl.style.display = compVisible || !q ? '' : 'none';
+      if (q && compVisible && compEl.classList.contains('collapsed')) {
+        compEl.classList.remove('collapsed');
+        const icon = compEl.querySelector('.caret i');
         icon.classList.remove('fa-caret-right'); icon.classList.add('fa-caret-down');
-        const folder = g.querySelector('.group-name i');
+        const folder = compEl.querySelector('.group-name i');
         folder.classList.remove('fa-folder'); folder.classList.add('fa-folder-open');
       }
     });
@@ -565,18 +628,35 @@ document.addEventListener("DOMContentLoaded", () => {
   layerTreeControl = new LayerTreeControl({ position: "topleft" }).addTo(map);
 
   // Load hazards and fill the tree
-  fetch("/api/hazards/")
-    .then(res => res.json())
-    .then(data => {
-      hazardTypeMap = data.reduce((acc, item) => {
-        const hazardName = item.hazard;
-        const label = item.name;
-        if (!acc[hazardName]) acc[hazardName] = [];
-        acc[hazardName].push({ id: item.hazard_id, label, layerName: item.geoserver_layer_name });
-        return acc;
-      }, {});
-      layerTreeControl.setData(hazardTypeMap);
-    });
+fetch("/api/indicators/")
+  .then(res => res.json())
+  .then(data => {
+    // Build nested structure:
+    // treeData = {
+    //   "Hazard": {
+    //     "Human heat stress": [{ id, label, layerName }],
+    //     "Drought stress":    [{ ... }]
+    //   },
+    //   "Exposure": { ... },
+    //   ...
+    // }
+    const treeData = data.reduce((acc, item) => {
+      const componentLabel = item.component_label || "Other";
+      const theme = item.theme || "Untitled";
+      const node = {
+        indicatorId: item.id,
+        hazardId: item.theme_id, 
+        label: item.name,
+        layerName: item.geoserver_layer_name
+      };
+      if (!acc[componentLabel]) acc[componentLabel] = {};
+      if (!acc[componentLabel][theme]) acc[componentLabel][theme] = [];
+      acc[componentLabel][theme].push(node);
+      return acc;
+    }, {});
+    hazardTypeMap = treeData; // keep a global reference for later lookups
+    layerTreeControl.setData(treeData);
+  });
 
   // Identify province from WMS on click
   map.on("click", identifyProvince);
