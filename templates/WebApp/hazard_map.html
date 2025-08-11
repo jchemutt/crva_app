@@ -9,56 +9,58 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet-loading@0.1.23/src/Control.Loading.css" />
 
 <style>
+  /* Map size */
   #map { height: 80vh; border-radius: 8px; }
+  @media (max-width: 576px){
+    #map { height: 68vh; } /* a bit shorter on phones */
+  }
+
+  /* Move default Leaflet corner in a touch-safe way */
   .leaflet-top.leaflet-left { top: 10px !important; left: 10px !important; }
 
-  /* Hide the old select panel if it exists in your base */
+  /* If you had an old base panel */
   .control-panel { display: none !important; }
 
+  /* Instructions panel */
   .instructions-panel {
-    position: absolute;
-    top: 80px; right: 20px; z-index: 999;
-    background: #f8f9fa; padding: 12px 15px;
-    border-radius: 8px; box-shadow: 0 0 8px rgba(0,0,0,0.2);
-    width: 300px; font-size: 0.9rem;
+    position: absolute; top: 80px; right: 20px; z-index: 999;
+    background: #f8f9fa; padding: 12px 15px; border-radius: 8px;
+    box-shadow: 0 0 8px rgba(0,0,0,0.2); width: 300px; font-size: 0.9rem;
+  }
+  @media (max-width: 768px){
+    .instructions-panel { display: none; } /* hide on tablets/phones */
   }
 
-  /* --- Floating legends (bottom-right) --- */
+  /* Legends (bottom-right) */
   .leaflet-bottom.leaflet-right { right: 10px; bottom: 10px; }
   .legend-control {
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,.15);
-    overflow: hidden;
-    width: 260px;
-    max-height: 320px;
-    margin-top: 8px;         /* stack nicely if two legends */
+    background: #fff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,.15);
+    overflow: hidden; width: 260px; max-height: 320px; margin-top: 8px;
+    touch-action: pan-y; /* allow vertical scroll inside */
   }
-  .legend-control.hidden { display: none; } /* JS toggles this */
+  .legend-control.hidden { display: none; }
   .legend-header {
     display: flex; align-items: center; justify-content: space-between; gap: 8px;
-    padding: 8px 10px; background: #198754; color: #fff;
-    font-weight: 600; font-size: 0.95rem;
+    padding: 8px 10px; background: #198754; color: #fff; font-weight: 600; font-size: .95rem;
   }
   .legend-body { padding: 8px 10px; max-height: 270px; overflow: auto; }
-  .legend-body img { width: 100%; height: auto; display: block; } /* was 30%, now full */
+  .legend-body img { width: 100%; height: auto; display: block; }
   .legend-toggle { background: transparent; border: 0; color: #fff; font-size: 16px; line-height: 1; cursor: pointer; }
 
-  /* --- Floating Layers Tree (top-left) --- */
+  /* Legends on small screens: wider, taller */
+  @media (max-width: 576px){
+    .legend-control { width: 86vw; max-height: 40vh; }
+  }
+
+  /* Layer Tree (top-left) */
   .layer-tree-control {
-    background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 12px rgba(0,0,0,.15);
-    overflow: hidden;
-    width: 320px;
-    display: flex;
-    flex-direction: column;
-    max-height: 70vh;
+    background: #fff; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,.15);
+    overflow: hidden; width: 320px; display: flex; flex-direction: column; max-height: 70vh;
+    touch-action: pan-y; /* scroll inside without moving map */
   }
   .layer-tree-header {
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 8px; padding: 8px 10px; background: #0d6efd; color: #fff;
-    font-weight: 600; font-size: .95rem;
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    padding: 8px 10px; background: #0d6efd; color: #fff; font-weight: 600; font-size: .95rem;
   }
   .layer-tree-tools { display: flex; gap: 6px; }
   .layer-tree-tools button {
@@ -73,8 +75,7 @@
   }
   .tree-group { margin: 6px 0; }
   .tree-group-header {
-    display: flex; align-items: center; gap: 8px; cursor: pointer;
-    font-weight: 600; user-select: none; padding: 4px 2px;
+    display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600; user-select: none; padding: 4px 2px;
   }
   .tree-group-header .caret { width: 16px; text-align: center; }
   .tree-group.collapsed .tree-items { display: none; }
@@ -84,12 +85,21 @@
   .tree-item input[type="radio"] { accent-color: #0d6efd; }
   .tree-item .layer-name { flex: 1; }
   .layer-tree-footer {
-    display: flex; gap: 6px; padding-top: 8px; background: white; flex: 0 0 auto; justify-content: flex-end;
+    display: flex; gap: 6px; padding: 8px 10px; background: white; flex: 0 0 auto; justify-content: flex-end;
   }
   .layer-tree-footer button {
     flex: 1; background: #198754; color: #fff; border: 0; padding: 6px 16px; border-radius: 6px; font-size: .85rem; cursor: pointer;
   }
   .layer-tree-footer button.secondary { background: #6c757d; }
+
+  /* Layer tree on phones: make it a bottom drawer feel */
+  @media (max-width: 576px){
+    .layer-tree-control {
+      width: 94vw;
+      max-height: 50vh;
+    }
+    .leaflet-top.leaflet-left { top: auto !important; bottom: 10px !important; left: 50% !important; transform: translateX(-50%); }
+  }
 </style>
 
 <script src="https://unpkg.com/leaflet@1.9.2/dist/leaflet.js"></script>
@@ -101,18 +111,15 @@ let map, rasterLayer, currentHazardId = null;
 let hazardTypeMap = {}, currentHazardType = '';
 let strategyDataByVC = {}, timeseriesGroups = {};
 let selectedProvince = '', defaultGroup = "";
-let hazardLegendControl, boundaryLegendControl, layerTreeControl;
+let hazardLegendControl, layerTreeControl;
 let boundariesWms;
 
-const COMPONENT_PRIORITY = ["Hazard", "Adaptive Capacity","Exposure","Sensitivity"];
-
-
-/* ---- GeoServer config ---- */
+const COMPONENT_PRIORITY = ["Hazard", "Adaptive Capacity", "Exposure", "Sensitivity"];
 const GEOSERVER_WMS = "https://crva.jcdevops.com/geoserver/wms";
-const PROV_LAYER     = "crva:provinces";  // your provinces layer name
-const PROV_STYLE     = "province_boundaries";                 // optional named style ('' keeps default)
+const PROV_LAYER = "crva:provinces";
+const PROV_STYLE = "province_boundaries";
 
-/* ---------- Legend Control (generic) ---------- */
+/* Legend control */
 function createLegendControl(titleText, imgId) {
   return L.Control.extend({
     options: { position: "bottomright" },
@@ -123,11 +130,9 @@ function createLegendControl(titleText, imgId) {
           <span>${titleText}</span>
           <button class="legend-toggle" title="{% trans 'Collapse/Expand' %}" aria-label="{% trans 'Collapse/Expand' %}">–</button>
         </div>
-        <div class="legend-body">
-          <img id="${imgId}" alt="Legend">
-        </div>
-      `;
+        <div class="legend-body"><img id="${imgId}" alt="Legend"></div>`;
       L.DomEvent.disableClickPropagation(div);
+      L.DomEvent.disableScrollPropagation(div);
       const toggleBtn = div.querySelector(".legend-toggle");
       const body = div.querySelector(".legend-body");
       toggleBtn.addEventListener("click", () => {
@@ -139,14 +144,10 @@ function createLegendControl(titleText, imgId) {
     }
   });
 }
-
 function setLegendImage(imgElementId, layerName, styleName) {
   const params = new URLSearchParams({
-    REQUEST: "GetLegendGraphic",
-    VERSION: "1.0.0",
-    FORMAT: "image/png",
-    TRANSPARENT: "true",
-    LAYER: layerName,
+    REQUEST: "GetLegendGraphic", VERSION: "1.0.0", FORMAT: "image/png",
+    TRANSPARENT: "true", LAYER: layerName,
     LEGEND_OPTIONS: "fontName:Arial;fontSize:14;fontAntiAliasing:true;forceLabels:on",
     _ts: Date.now().toString()
   });
@@ -158,15 +159,12 @@ function setLegendImage(imgElementId, layerName, styleName) {
 function localName(s){ return (s || "").trim().split(":").pop(); }
 function norm(s){ return (s || "").trim().toLowerCase(); }
 
-
-/* ---------- Load hazard WMS + update hazard legend ---------- */
+/* Select layer */
 function selectLayer(layerName, hazardId) {
   currentHazardId = hazardId || null;
- // store both names
-  window.selectedLayerFull  = layerName;             
-  window.selectedLayerLocal = localName(layerName);  
-  defaultGroup = window.selectedLayerLocal;        
-
+  window.selectedLayerFull  = layerName;
+  window.selectedLayerLocal = localName(layerName);
+  defaultGroup = window.selectedLayerLocal;
 
   if (rasterLayer) map.removeLayer(rasterLayer);
   if (!layerName) {
@@ -179,154 +177,104 @@ function selectLayer(layerName, hazardId) {
 
   map.fire("dataloading");
   rasterLayer = L.tileLayer.wms(GEOSERVER_WMS, {
-    layers: layerName,
-    format: "image/png",
-    transparent: true,
-    version: "1.1.1",
-     zIndex: 100   
+    layers: layerName, format: "image/png", transparent: true, version: "1.1.1", zIndex: 100
   })
   .on("load", () => map.fire("dataload"))
   .on("tileloadstart", () => map.fire("dataloading"))
   .on("tileload", () => map.fire("dataload"))
   .addTo(map);
 
-  if (typeof boundariesWms !== "undefined") {
-  boundariesWms.bringToFront();
-}
+  if (typeof boundariesWms !== "undefined") boundariesWms.bringToFront();
 
-  // Show/update legend for selected hazard
   setLegendImage("hazard-legend-img", layerName, "");
   hazardLegendControl.getContainer().classList.remove("hidden");
 }
 
-/* ---------- Layer Tree Control (collapsible categories) ---------- */
+/* Layer Tree */
 const LayerTreeControl = L.Control.extend({
   options: { position: "topleft" },
-
-  setData(data) {
-    this._data = data || {};
-    this._renderTree();
-  },
-
+  setData(data) { this._data = data || {}; this._renderTree(); },
   onAdd() {
     const div = L.DomUtil.create("div", "layer-tree-control");
     div.innerHTML = `
       <div class="layer-tree-header">
-        <span><i class="fas fa-layer-group me-1"></i> Indicators</span>
+        <span><i class="fas fa-layer-group me-1"></i> {% trans "Indicators" %}</span>
         <div class="layer-tree-tools">
-          <button type="button" data-action="expand"><i class="fas fa-plus-square"></i> Expand</button>
-          <button type="button" data-action="collapse"><i class="fas fa-minus-square"></i> Collapse</button>
+          <button type="button" data-action="expand"><i class="fas fa-plus-square"></i> {% trans "Expand" %}</button>
+          <button type="button" data-action="collapse"><i class="fas fa-minus-square"></i> {% trans "Collapse" %}</button>
         </div>
       </div>
       <div class="layer-tree-body">
-        <div class="layer-tree-search">
-          <input type="text" id="layer-search" placeholder="Search Indicators...">
-        </div>
+        <div class="layer-tree-search"><input type="text" id="layer-search" placeholder="{% trans 'Search Indicators…' %}"></div>
         <div id="layer-tree"></div>
       </div>
       <div class="layer-tree-footer">
-        <button class="secondary" type="button" id="btn-clear-layer">Clear</button>
-        <button type="button" id="btn-apply-layer">Apply</button>
-      </div>
-    `;
+        <button class="secondary" type="button" id="btn-clear-layer">{% trans "Clear" %}</button>
+        <button type="button" id="btn-apply-layer">{% trans "Apply" %}</button>
+      </div>`;
     L.DomEvent.disableClickPropagation(div);
+    L.DomEvent.disableScrollPropagation(div);
 
     div.querySelector('[data-action="expand"]').addEventListener('click', () => this._setAllCollapsed(false));
     div.querySelector('[data-action="collapse"]').addEventListener('click', () => this._setAllCollapsed(true));
-
     div.querySelector('#btn-clear-layer').addEventListener('click', () => {
       const checked = div.querySelector('input[name="layer-radio"]:checked');
       if (checked) checked.checked = false;
       selectLayer(null, null);
     });
-
     div.querySelector('#btn-apply-layer').addEventListener('click', () => {
       const sel = div.querySelector('input[name="layer-radio"]:checked');
       if (!sel) return;
       const layerName = sel.value;
-      const indicatorId = sel.dataset.indicatorId || null;
-      const hazardId  = sel.dataset.hazardId || null; 
-      // We’ll treat the “hazard type” label as the Theme (2nd level)
+      const hazardId  = sel.dataset.hazardId || null;
       currentHazardType = sel.dataset.theme || "";
       selectLayer(layerName, hazardId);
     });
-
-    div.querySelector('#layer-search').addEventListener('input', (e) => {
-      this._filterTree(e.target.value.trim().toLowerCase());
-    });
+    div.querySelector('#layer-search').addEventListener('input', (e) => this._filterTree(e.target.value.trim().toLowerCase()));
 
     this._root = div;
     this._treeEl = div.querySelector('#layer-tree');
     this._data = {};
     return div;
   },
-
   _renderTree() {
-    // data shape: { ComponentLabel: { Theme: [ { id, label, layerName }, ... ] } }
-        const components = Object.keys(this._data).sort((a, b) => {
-      const ia = COMPONENT_PRIORITY.indexOf(a);
-      const ib = COMPONENT_PRIORITY.indexOf(b);
-      // Items in the priority list come first, in that exact order
-      if (ia !== -1 || ib !== -1) {
-        return (ia === -1 ? Number.MAX_SAFE_INTEGER : ia) - (ib === -1 ? Number.MAX_SAFE_INTEGER : ib);
-      }
-      // Anything else not listed falls back to alpha
+    const components = Object.keys(this._data).sort((a,b) => {
+      const ia = COMPONENT_PRIORITY.indexOf(a), ib = COMPONENT_PRIORITY.indexOf(b);
+      if (ia !== -1 || ib !== -1) return (ia === -1 ? 1e9 : ia) - (ib === -1 ? 1e9 : ib);
       return a.localeCompare(b);
     });
 
     this._treeEl.innerHTML = components.map((comp) => {
       const themes = this._data[comp] || {};
-      const themeBlocks = Object.keys(themes).sort((a,b)=>a.localeCompare(b)).map(themeName => {
-        const items = themes[themeName] || [];
-        const itemsHtml = items.map(it => `
+      const themeBlocks = Object.keys(themes).sort().map(themeName => {
+        const itemsHtml = (themes[themeName] || []).map(it => `
           <div class="tree-item">
-            <input
-              type="radio"
-              name="layer-radio"
-              id="lyr-${it.indicatorId}"
-              value="${it.layerName}"
-              data-indicator-id="${it.indicatorId}"
-              data-hazard-id="${it.hazardId}"
-              data-theme="${themeName}"
-            >
+            <input type="radio" name="layer-radio" id="lyr-${it.indicatorId}" value="${it.layerName}"
+              data-indicator-id="${it.indicatorId}" data-hazard-id="${it.hazardId}" data-theme="${themeName}">
             <label class="layer-name" for="lyr-${it.indicatorId}">${it.label}</label>
-          </div>
-        `).join("");
-
+          </div>`).join("");
         return `
           <div class="tree-subgroup" data-subgroup="${themeName}">
             <div class="tree-group-header">
               <span class="caret"><i class="fas fa-caret-down"></i></span>
-              <span class="group-name">
-                <i class="fas fa-folder-open me-1 text-warning"></i>${themeName}
-              </span>
+              <span class="group-name"><i class="fas fa-folder-open me-1 text-warning"></i>${themeName}</span>
             </div>
-            <div class="tree-items">
-              ${itemsHtml}
-            </div>
-          </div>
-        `;
+            <div class="tree-items">${itemsHtml}</div>
+          </div>`;
       }).join("");
-
       return `
         <div class="tree-group" data-group="${comp}">
           <div class="tree-group-header">
             <span class="caret"><i class="fas fa-caret-down"></i></span>
-            <span class="group-name">
-              <i class="fas fa-folder-open me-1"></i>${comp}
-            </span>
+            <span class="group-name"><i class="fas fa-folder-open me-1"></i>${comp}</span>
           </div>
-          <div class="tree-items">
-            ${themeBlocks}
-          </div>
-        </div>
-      `;
+          <div class="tree-items">${themeBlocks}</div>
+        </div>`;
     }).join("");
 
-    // expand/collapse: both component and theme headers
     this._treeEl.querySelectorAll('.tree-group-header').forEach(h => {
       h.addEventListener('click', () => {
-        const container = h.parentElement; // could be .tree-group or .tree-subgroup
+        const container = h.parentElement;
         const icon = h.querySelector('.caret i');
         const folder = h.querySelector('.group-name i');
         const collapsed = container.classList.toggle('collapsed');
@@ -337,17 +285,14 @@ const LayerTreeControl = L.Control.extend({
       });
     });
 
-    // auto-apply when a radio is clicked (optional; Apply button still works)
     this._treeEl.querySelectorAll('input[name="layer-radio"]').forEach(r => {
       r.addEventListener('change', (e) => {
         currentHazardType = e.target.dataset.theme || "";
-        const hazardId = e.target.dataset.hazardId || null;  // theme_id from API
+        const hazardId = e.target.dataset.hazardId || null;
         selectLayer(e.target.value, hazardId);
       });
     });
-
   },
-
   _setAllCollapsed(state) {
     this._treeEl.querySelectorAll('.tree-group, .tree-subgroup').forEach(g => {
       const headerIcon = g.querySelector('.caret i');
@@ -359,19 +304,15 @@ const LayerTreeControl = L.Control.extend({
       folder.classList.toggle('fa-folder-open', !state);
     });
   },
-
   _filterTree(q) {
-    // Show/hide by matching: component name, theme name, or indicator label
     const comps = this._treeEl.querySelectorAll('.tree-group');
     comps.forEach(compEl => {
       const compName = (compEl.dataset.group || "").toLowerCase();
       let compVisible = false;
-
       const themeEls = compEl.querySelectorAll('.tree-subgroup');
       themeEls.forEach(themeEl => {
         const themeName = (themeEl.dataset.subgroup || "").toLowerCase();
         let themeVisible = false;
-
         const items = Array.from(themeEl.querySelectorAll('.tree-item'));
         items.forEach(it => {
           const name = it.querySelector('.layer-name').textContent.toLowerCase();
@@ -379,22 +320,18 @@ const LayerTreeControl = L.Control.extend({
           it.style.display = visible ? '' : 'none';
           themeVisible = themeVisible || visible;
         });
-
         themeEl.style.display = themeVisible || !q ? '' : 'none';
-        // expand matching themes
-        if (q && themeVisible && themeEl.classList.contains('collapsed')) {
+        if (q && themeVisible && themeEl.classList.contains('collapsed')){
           themeEl.classList.remove('collapsed');
           const icon = themeEl.querySelector('.caret i');
           icon.classList.remove('fa-caret-right'); icon.classList.add('fa-caret-down');
           const folder = themeEl.querySelector('.group-name i');
           folder.classList.remove('fa-folder'); folder.classList.add('fa-folder-open');
         }
-
         compVisible = compVisible || themeVisible;
       });
-
       compEl.style.display = compVisible || !q ? '' : 'none';
-      if (q && compVisible && compEl.classList.contains('collapsed')) {
+      if (q && compVisible && compEl.classList.contains('collapsed')){
         compEl.classList.remove('collapsed');
         const icon = compEl.querySelector('.caret i');
         icon.classList.remove('fa-caret-right'); icon.classList.add('fa-caret-down');
@@ -405,8 +342,7 @@ const LayerTreeControl = L.Control.extend({
   }
 });
 
-
-/* ---------- Timeseries/Strategies popup/modal ---------- */
+/* Timeseries & strategies modal */
 function showHazardPopup(hazardId, hazardType, provinceName) {
   const stageOrder = ["Provision of inputs","On farm production","Post harvest and local processing","Product marketing","Consumption"];
 
@@ -417,49 +353,43 @@ function showHazardPopup(hazardId, hazardType, provinceName) {
     strategyDataByVC = groupBy(strategyData, "value_chain");
     timeseriesGroups = timeseriesData;
 
-    console.log('[selectedLayerFull]', window.selectedLayerFull);
-   console.log('[selectedLayerLocal]', window.selectedLayerLocal);
-
     const groupNames = Object.keys(timeseriesGroups);
-   const selectedGroup =
+    const selectedGroup =
       groupNames.find(g => norm(timeseriesGroups[g].layer_name) === norm(window.selectedLayerFull)) ||
       groupNames.find(g => localName(timeseriesGroups[g].layer_name) === window.selectedLayerLocal) ||
       groupNames[0];
-      
+
     let html = `
-      <div class="d-flex justify-content-between mb-3">
+      <div class="d-flex justify-content-between mb-3 flex-wrap gap-2">
         <div>
-          <h5 class="mb-1">${hazardType} in ${provinceName}</h5>
-          <small class="text-muted">Explore data for selected hazard and province.</small>
+          <h5 class="mb-1">${hazardType} · ${provinceName}</h5>
+          <small class="text-muted">{% trans "Explore data for selected hazard and province." %}</small>
         </div>
         <div class="btn-group" role="group">
-          <button type="button" id="btn-timeseries" class="btn btn-sm btn-outline-secondary active" onclick="toggleView('timeseries')">Time Series</button>
-          <button type="button" id="btn-strategies" class="btn btn-sm btn-outline-success" onclick="toggleView('strategies')">Adaptation Strategies</button>
+          <button type="button" id="btn-timeseries" class="btn btn-sm btn-outline-secondary active" onclick="toggleView('timeseries')">{% trans "Time Series" %}</button>
+          <button type="button" id="btn-strategies" class="btn btn-sm btn-outline-success" onclick="toggleView('strategies')">{% trans "Adaptation Strategies" %}</button>
         </div>
       </div>
 
       <div id="view-timeseries" class="px-2">
         <div class="card shadow-sm border-light mb-3">
           <div class="card-body">
-            <h6 class="card-title mb-3"><i class="fas fa-chart-line me-2"></i>Time Series Chart</h6>
+            <h6 class="card-title mb-3"><i class="fas fa-chart-line me-2"></i>{% trans "Time Series Chart" %}</h6>
             <div class="mb-3">
-              <label for="timeseries-group-select" class="form-label">Select Dataset</label>
+              <label for="timeseries-group-select" class="form-label">{% trans "Select Dataset" %}</label>
               <select id="timeseries-group-select" class="form-select form-select-sm" onchange="renderTimeseriesChart(this.value)">
-                ${groupNames.map(group => {
-                  const selected = timeseriesGroups[group].layer_name === defaultGroup ? "selected" : "";
-                  return `<option value="${group}" ${selected}>${group}</option>`;
-                }).join("")}
+                ${groupNames.map(group => `<option value="${group}" ${group === selectedGroup ? "selected" : ""}>${group}</option>`).join("")}
               </select>
             </div>
-            <div style="position:relative;">
-              <canvas id="ts-chart" style="max-height: 320px; width: 100%;"></canvas>
+            <div style="position:relative; height: 320px;">
+              <canvas id="ts-chart"></canvas>
             </div>
           </div>
         </div>
       </div>
 
       <div id="view-strategies" style="display:none;">
-        <ul class="nav nav-tabs mb-2">
+        <ul class="nav nav-tabs mb-2 flex-nowrap overflow-auto" style="white-space:nowrap;">
           ${Object.keys(strategyDataByVC).map((vc, idx) => `
             <li class="nav-item">
               <button class="nav-link vc-tab ${idx === 0 ? "active" : ""}" data-target="tab-${idx}">${vc}</button>
@@ -470,235 +400,138 @@ function showHazardPopup(hazardId, hazardType, provinceName) {
             const sortedRecords = [...records].sort((a, b) => stageOrder.indexOf(a.stage) - stageOrder.indexOf(b.stage));
             return `
               <div class="tab-pane fade ${idx === 0 ? "show active" : ""}" id="tab-${idx}">
-                <div class="mb-2">
-                  <strong>Province:</strong> ${provinceName},
-                  <strong>Hazard:</strong> ${hazardType},
-                  <strong>Value Chain:</strong> ${vc}
+                <div class="mb-2 small">
+                  <strong>{% trans "Province" %}:</strong> ${provinceName},
+                  <strong>{% trans "Hazard" %}:</strong> ${hazardType},
+                  <strong>{% trans "Value Chain" %}:</strong> ${vc}
                 </div>
-                <table class="table table-sm table-bordered">
-                  <thead>
-                    <tr>
-                      <th style="width:25%;">Stage</th>
-                      <th style="width:35%;">Impact</th>
-                      <th>Adaptation Strategy</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    ${sortedRecords.map(r => `
+                <div class="table-responsive">
+                  <table class="table table-sm table-bordered">
+                    <thead>
                       <tr>
-                        <td><span class="badge bg-primary">${r.stage}</span></td>
-                        <td>${r.risk}</td>
-                        <td>${r.strategy}</td>
-                      </tr>`).join("")}
-                  </tbody>
-                </table>
+                        <th style="width:25%;">{% trans "Stage" %}</th>
+                        <th style="width:35%;">{% trans "Impact" %}</th>
+                        <th>{% trans "Adaptation Strategy" %}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${sortedRecords.map(r => `
+                        <tr>
+                          <td><span class="badge bg-primary">${r.stage}</span></td>
+                          <td>${r.risk}</td>
+                          <td>${r.strategy}</td>
+                        </tr>`).join("")}
+                    </tbody>
+                  </table>
+                </div>
               </div>`;
           }).join("")}
         </div>
-      </div>
-    `;
-
+      </div>`;
     document.getElementById("modal-content-placeholder").innerHTML = html;
     new bootstrap.Modal(document.getElementById("strategyModal")).show();
-
     renderTimeseriesChart(selectedGroup);
-
     document.querySelectorAll(".vc-tab").forEach(btn => {
       btn.addEventListener("click", function () {
         document.querySelectorAll(".vc-tab").forEach(b => b.classList.remove("active"));
         document.querySelectorAll(".tab-pane").forEach(p => p.classList.remove("show", "active"));
         this.classList.add("active");
-        const targetId = this.dataset.target;
-        document.getElementById(targetId).classList.add("show", "active");
+        document.getElementById(this.dataset.target).classList.add("show", "active");
       });
     });
   });
 }
-
 function toggleView(view) {
   document.getElementById("view-timeseries").style.display = view === "timeseries" ? "" : "none";
   document.getElementById("view-strategies").style.display = view === "strategies" ? "" : "none";
   document.getElementById("btn-timeseries").classList.toggle("active", view === "timeseries");
   document.getElementById("btn-strategies").classList.toggle("active", view === "strategies");
 }
-
 function renderTimeseriesChart(group) {
   const ctx = document.getElementById("ts-chart").getContext("2d");
   const raw = timeseriesGroups[group] || { data: [] };
-  const data = raw.data;
-
+  const data = raw.data || [];
   const chartData = {
     labels: data.map(d => d.year),
-    datasets: [{
-      label: `Hazard Value (${group})`,
-      data: data.map(d => d.value),
-      borderColor: "#198754",
-      pointBackgroundColor: "#198754",
-      tension: 0.3,
-      fill: true,
-      backgroundColor: "rgba(25, 135, 84, 0.1)",
-    }]
+    datasets: [{ label: `Hazard Value (${group})`, data: data.map(d => d.value), borderColor: "#198754", pointBackgroundColor: "#198754", tension: 0.3, fill: true, backgroundColor: "rgba(25, 135, 84, 0.1)" }]
   };
-
-  const chartOptions = {
-    responsive: true, maintainAspectRatio: false,
-    plugins: { tooltip: { mode: 'index', intersect: false }, legend: { display: false }, title: { display: false } },
-    scales: {
-      x: { title: { display: true, text: "Year", font: { size: 12 } } },
-      y: { title: { display: true, text: "Value", font: { size: 12 } } }
-    }
-  };
-
+  const chartOptions = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { title: { display: true, text: "{% trans 'Year' %}" } }, y: { title: { display: true, text: "{% trans 'Value' %}" } } } };
   if (window.tsChart) window.tsChart.destroy();
   window.tsChart = new Chart(ctx, { type: "line", data: chartData, options: chartOptions });
 }
+function groupBy(arr, key){ return (arr||[]).reduce((acc, it) => ((acc[it[key]||"Unnamed"]= (acc[it[key]||"Unnamed"]||[])).push(it), acc), {}); }
 
-function groupBy(array, key) {
-  return array.reduce((acc, item) => {
-    const k = item[key] || "Unnamed";
-    acc[k] = acc[k] || [];
-    acc[k].push(item);
-    return acc;
-  }, {});
-}
-
-/* ---------- WMS GetFeatureInfo to pick province name ---------- */
+/* Identify province from WMS on click */
 async function identifyProvince(e) {
   if (!currentHazardId || !defaultGroup) {
     alert("{% trans 'Please select a hazard layer first.' %}");
     return;
   }
-
-  // Use map's CRS (Leaflet default = EPSG:3857) for GetFeatureInfo
-  const crs = L.CRS.EPSG3857;
-  const size = map.getSize();
-  const b = map.getBounds();
-  const sw = crs.project(b.getSouthWest());
-  const ne = crs.project(b.getNorthEast());
-
+  const crs = L.CRS.EPSG3857, size = map.getSize(), b = map.getBounds();
+  const sw = crs.project(b.getSouthWest()), ne = crs.project(b.getNorthEast());
   const params = new URLSearchParams({
-    SERVICE: "WMS",
-    VERSION: "1.1.1",
-    REQUEST: "GetFeatureInfo",
-    LAYERS: PROV_LAYER,
-    QUERY_LAYERS: PROV_LAYER,
-    STYLES: PROV_STYLE || "",
-    BBOX: `${sw.x},${sw.y},${ne.x},${ne.y}`,
-    FEATURE_COUNT: "1",
-    HEIGHT: String(size.y),
-    WIDTH: String(size.x),
-    FORMAT: "image/png",
-    INFO_FORMAT: "application/json",
-    SRS: "EPSG:3857",
-    X: String(Math.round(e.containerPoint.x)),
-    Y: String(Math.round(e.containerPoint.y)),
-    // Vendor tolerances help hit thin boundaries
-    FI_POINT_TOLERANCE: "10",
-    FI_LINE_TOLERANCE: "10",
-    FI_POLYGON_TOLERANCE: "5"
+    SERVICE:"WMS", VERSION:"1.1.1", REQUEST:"GetFeatureInfo",
+    LAYERS: PROV_LAYER, QUERY_LAYERS: PROV_LAYER, STYLES: PROV_STYLE || "",
+    BBOX:`${sw.x},${sw.y},${ne.x},${ne.y}`, FEATURE_COUNT:"1",
+    HEIGHT:String(size.y), WIDTH:String(size.x), FORMAT:"image/png",
+    INFO_FORMAT:"application/json", SRS:"EPSG:3857",
+    X:String(Math.round(e.containerPoint.x)), Y:String(Math.round(e.containerPoint.y)),
+    FI_POINT_TOLERANCE:"10", FI_LINE_TOLERANCE:"10", FI_POLYGON_TOLERANCE:"5"
   });
-
-  try {
+  try{
     const url = `${GEOSERVER_WMS}?${params.toString()}`;
-    const json = await fetch(url).then(r => r.json());
-    const feat = (json.features || [])[0];
+    const json = await fetch(url).then(r=>r.json());
+    const feat = (json.features||[])[0];
     if (!feat) return;
-
-    // Adjust these keys to your province schema
     const p = feat.properties || {};
-    const provinceName =
-      p.NAME_1 || p.NOME || p.province || p.name || p.NAME || "";
-    if (!provinceName) {
-      console.warn("No province name attribute found in GetFeatureInfo:", p);
-      return;
-    }
-
-    // We already set currentHazardType when selecting the radio (data-theme).
-    // If for some reason it's empty, try a safe fallback lookup:
-    if (!currentHazardType) {
-      currentHazardType = findThemeByLayerName(hazardTypeMap, defaultGroup) || "";
-    }
-
+    const provinceName = p.NAME_1 || p.NOME || p.province || p.name || p.NAME || "";
+    if (!provinceName) return;
+    if (!currentHazardType) currentHazardType = findThemeByLayerName(hazardTypeMap, defaultGroup) || "";
     showHazardPopup(currentHazardId, currentHazardType, provinceName);
-  } catch (err) {
-    console.error("GetFeatureInfo error:", err);
-  }
+  }catch(err){ console.error("GetFeatureInfo error:", err); }
 }
-
-// Optional: fallback resolver for theme from nested (Component -> Theme -> items[]) structure
-function findThemeByLayerName(tree, layerName) {
-  for (const comp of Object.keys(tree || {})) {
-    const themes = tree[comp] || {};
-    for (const theme of Object.keys(themes)) {
-      const items = themes[theme] || [];
+function findThemeByLayerName(tree, layerName){
+  for (const comp of Object.keys(tree||{})){
+    const themes = tree[comp]||{};
+    for (const theme of Object.keys(themes)){
+      const items = themes[theme]||[];
       if (items.some(x => x.layerName === layerName)) return theme;
     }
   }
   return "";
 }
 
-
-/* ---------- Init ---------- */
+/* Init */
 document.addEventListener("DOMContentLoaded", () => {
   map = L.map("map").setView([-20.6, 36.5], 5);
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
   map.addControl(new L.Control.Loading());
 
-  // Provinces WMS (no client GeoJSON)
   boundariesWms = L.tileLayer.wms(GEOSERVER_WMS, {
-    layers: PROV_LAYER,
-    styles: PROV_STYLE || undefined,
-    format: "image/png",
-    transparent: true,
-    version: "1.1.1",
-    tiled: true,
-    zIndex: 500  
+    layers: PROV_LAYER, styles: PROV_STYLE || undefined,
+    format: "image/png", transparent: true, version: "1.1.1", tiled: true, zIndex: 500
   }).addTo(map);
-
-  // Legends: Provinces (always visible) + Hazard (hidden until selected)
-  /*const BoundaryLegend = createLegendControl("{% trans 'Provinces' %}", "boundary-legend-img");
-  boundaryLegendControl = new BoundaryLegend({ position: "bottomright" }).addTo(map);
-  setLegendImage("boundary-legend-img", PROV_LAYER, PROV_STYLE || "");*/
 
   const HazardLegend = createLegendControl("{% trans 'Legend' %}", "hazard-legend-img");
   hazardLegendControl = new HazardLegend({ position: "bottomright" }).addTo(map);
   hazardLegendControl.getContainer().classList.add("hidden");
 
-  // Layer tree
   layerTreeControl = new LayerTreeControl({ position: "topleft" }).addTo(map);
 
-  // Load hazards and fill the tree
-fetch("/api/indicators/")
-  .then(res => res.json())
-  .then(data => {
-    // Build nested structure:
-    // treeData = {
-    //   "Hazard": {
-    //     "Human heat stress": [{ id, label, layerName }],
-    //     "Drought stress":    [{ ... }]
-    //   },
-    //   "Exposure": { ... },
-    //   ...
-    // }
+  fetch("/api/indicators/").then(res=>res.json()).then(data=>{
     const treeData = data.reduce((acc, item) => {
       const componentLabel = item.component_label || "Other";
       const theme = item.theme || "Untitled";
-      const node = {
-        indicatorId: item.id,
-        hazardId: item.theme_id, 
-        label: item.name,
-        layerName: item.geoserver_layer_name
-      };
+      const node = { indicatorId: item.id, hazardId: item.theme_id, label: item.name, layerName: item.geoserver_layer_name };
       if (!acc[componentLabel]) acc[componentLabel] = {};
       if (!acc[componentLabel][theme]) acc[componentLabel][theme] = [];
       acc[componentLabel][theme].push(node);
       return acc;
     }, {});
-    hazardTypeMap = treeData; // keep a global reference for later lookups
+    hazardTypeMap = treeData;
     layerTreeControl.setData(treeData);
   });
 
-  // Identify province from WMS on click
   map.on("click", identifyProvince);
 });
 </script>
@@ -729,9 +562,9 @@ fetch("/api/indicators/")
   </div>
 </div>
 
-<!-- Modal -->
+<!-- Fullscreen on small devices -->
 <div class="modal fade" id="strategyModal" tabindex="-1">
-  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+  <div class="modal-dialog modal-xl modal-fullscreen-sm-down modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header bg-success text-white">
         <h5 class="modal-title text-white">{% trans "Adaptation Strategies & Time Series" %}</h5>
