@@ -10,114 +10,90 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet-loading@0.1.23/src/Control.Loading.css" />
 
 <style>
-  #map {
-    height: 75vh;
-    border-radius: 8px;
+  /* Map height */
+  #map { height: 75vh; border-radius: 8px; }
+  @media (max-width: 576px){ #map { height: 65vh; } }
+
+  /* Leaflet controls placement */
+  .leaflet-top.leaflet-left { top: 12px !important; left: 12px !important; }
+
+  /* Instructions box (desktop) / drawer (mobile) */
+  .legend-box{
+    position: absolute; top: 90px; right: 20px; z-index: 999;
+    background: #fff; padding: 12px 15px; border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,.15); font-size: .9rem; max-width: 300px;
+    touch-action: pan-y;
+  }
+  /* Toggle button (only on small screens) */
+  .legend-toggle-fab{
+    position: absolute; right: 16px; bottom: 16px; z-index: 1000;
+    border: 0; border-radius: 999px; width: 44px; height: 44px;
+    display: none; align-items: center; justify-content: center;
+    background: #198754; color: #fff; box-shadow: 0 6px 16px rgba(0,0,0,.25);
+  }
+  .legend-toggle-fab:active{ transform: translateY(1px); }
+
+  @media (max-width: 768px){
+    .legend-box{
+      top: auto; right: 0; left: 0; bottom: 0; max-width: none;
+      margin: 0; border-radius: 12px 12px 0 0; width: 100%;
+      padding: 10px 14px; box-shadow: 0 -6px 18px rgba(0,0,0,.2);
+      transform: translateY(100%); transition: transform .25s ease;
+    }
+    .legend-box.open{ transform: translateY(0); }
+    .legend-toggle-fab{ display: inline-flex; }
   }
 
-  .legend-box {
-    position: absolute;
-    top: 90px;
-    right: 20px;
-    z-index: 999;
-    background: white;
-    padding: 12px 15px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.15);
-    font-size: 0.9rem;
-    max-width: 280px;
-  }
-
-  .leaflet-top.leaflet-left {
-    top: 15px !important;
-    left: 15px !important;
-  }
-
-  .hazard-badge {
-    cursor: pointer;
-    display: inline-block;
-    margin: 2px 2px;
-  }
+  .hazard-badge { cursor: pointer; display: inline-block; margin: 2px 2px; }
+  .hazard-badge.active { background-color: #007847 !important; color: #fff !important; }
 
   .vc-label {
-    background: #007847;
-    color: white;
-    border-radius: 50%;
-    width: 28px;
-    height: 28px;
-    text-align: center;
-    line-height: 26px;
-    font-size: 13px;
-    font-weight: bold;
-    border: 2px solid #fff;
+    background: #007847; color: #fff; border-radius: 50%;
+    width: 28px; height: 28px; text-align: center; line-height: 26px;
+    font-size: 13px; font-weight: bold; border: 2px solid #fff;
     box-shadow: 0 0 4px #00000050;
   }
 
-  .vc-icon {
-    font-size: 14px;
-    margin-right: 4px;
-  }
-
-  .hazard-badge.active {
-    background-color: #007847 !important;
-    color: white !important;
-  }
-
-  .legend-section {
-    margin-top: 10px;
-  }
-
-  .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    margin-bottom: 4px;
-  }
+  .vc-icon { font-size: 14px; margin-right: 4px; }
 
   .leaflet-popup-content.wide-popup { font-size: 0.95rem; }
   .leaflet-popup-content-wrapper.wide-popup { max-width: 600px; }
+  @media (max-width: 576px){
+    .leaflet-popup-content-wrapper.wide-popup { max-width: 90vw; }
+  }
 
   /* Always-on, non-interactive VC chips overlay */
-  .vc-stack {
-    display: inline-flex;
-    gap: 6px;
-    padding: 6px 8px;
-    background: rgba(255,255,255,0.9);
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0,0,0,.15);
-    align-items: center;
-    border: 1px solid rgba(0,0,0,.06);
-    pointer-events: none;           /* non-interactive overlay */
-    backdrop-filter: blur(2px);
-    font-size: 13px;
-    line-height: 1.2;
+  .vc-stack{
+    display: inline-flex; gap: 6px; padding: 6px 8px; background: rgba(255,255,255,.9);
+    border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,.15); align-items: center;
+    border: 1px solid rgba(0,0,0,.06); pointer-events: none; backdrop-filter: blur(2px);
+    font-size: 13px; line-height: 1.2;
   }
   .vc-stack .vc-name { font-weight: 600; color: #2b2b2b; margin-right: 2px; }
-  .vc-stack .vc-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 2px 6px;
-    border-radius: 999px;
-    background: #f1f3f5;
-    border: 1px solid #e9ecef;
-    white-space: nowrap;
+  .vc-stack .vc-chip{
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 6px; border-radius: 999px; background: #f1f3f5; border: 1px solid #e9ecef; white-space: nowrap;
   }
   .vc-stack .vc-chip i { font-size: 13px; }
 
-  /* --- Floating legend (bottom-right), same feel as hazard map --- */
+  /* Floating WMS legend (matching your style) */
   .leaflet-bottom.leaflet-right { right: 10px; bottom: 10px; }
-  .legend-control {
+  .legend-control{
     background: #fff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,.15);
-    overflow: hidden; width: 260px; max-height: 320px; display: none;
+    overflow: hidden; width: 260px; max-height: 320px; display: none; touch-action: pan-y;
   }
-  .legend-header {
+  .legend-header{
     display: flex; align-items: center; justify-content: space-between; gap: 8px;
     padding: 8px 10px; background: #198754; color: #fff; font-weight: 600; font-size: 0.95rem;
   }
   .legend-body { padding: 8px 10px; max-height: 270px; overflow: auto; }
   .legend-body img { width: 100%; height: auto; display: block; }
-  .legend-toggle { background: transparent; border: 0; color: #fff; font-size: 16px; line-height: 1; cursor: pointer; }
+
+  /* Table responsiveness */
+  @media (max-width: 576px){
+    #strategy-table { font-size: 12px; }
+    #strategy-table th, #strategy-table td { white-space: normal; }
+  }
 </style>
 
 <script src="https://unpkg.com/leaflet@1.9.2/dist/leaflet.js"></script>
@@ -125,6 +101,9 @@
 <script src="https://cdn.datatables.net/1.13.8/js/jquery.dataTables.min.js"></script>
 
 <script>
+/* Safe no-op for gettext if the JS catalog isn't loaded */
+if (typeof window.gettext !== 'function') { window.gettext = function(s){ return s; }; }
+
 let map, currentStrategyData = [], currentProvinceId, currentValueChain, currentHazard;
 
 // --- icons for VCs
@@ -146,12 +125,12 @@ const PROV_LAYER   = "crva:provinces";
 const PROV_STYLE   = "province_boundaries";  
 
 // --- Lightweight summaries (no geometry)
-// Expected: [{ id,name,centroid:{lat,lng}, value_chains:[...], hazards:[...] }, ...]
 const PROV_SUMMARY_URL = "/api/province-summaries/";
 
 const provinceSummariesById = new Map(); // id -> summary
 let vcOverlayMarkers = [];
 let vcCountMarkers = [];
+let legendControl;
 
 /* ---------- Legend Control ---------- */
 const LegendControl = L.Control.extend({
@@ -245,7 +224,7 @@ function showStrategyModal(provinceId, valueChain, hazard) {
   currentHazard = decodeURIComponent(hazard);
   currentProvinceId = provinceId;
 
-  // Province name from summaries cache (no GeoJSON now)
+  // Province name from summaries cache
   const provinceSummary = provinceSummariesById.get(provinceId);
   const provinceName = provinceSummary?.name || gettext("Unknown");
 
@@ -279,7 +258,7 @@ function showStrategyModal(provinceId, valueChain, hazard) {
 // Build always-on VC overlay HTML (name + chips)
 function overlayHtmlFor(summary) {
   const vcs = summary.value_chains || [];
-  if (!vcs.length) return ""; // nothing to show
+  if (!vcs.length) return "";
   const chips = vcs.map(vc => {
     const icon = vcIcons[vc] || "<i class='fas fa-leaf vc-icon'></i>";
     return `<span class="vc-chip">${icon}<span>${vc}</span></span>`;
@@ -287,7 +266,7 @@ function overlayHtmlFor(summary) {
   return `<div class="vc-stack"><span class="vc-name">${summary.name}</span>${chips}</div>`;
 }
 
-// Build popup (opened when user clicks numeric circle); shows VC + hazards (badges clickable)
+// Build popup (opened when user clicks numeric circle)
 function popupHtmlFor(summary) {
   const vcs = summary.value_chains || [];
   if (!vcs.length) {
@@ -326,8 +305,6 @@ async function renderProvinceOverlays() {
       if (!s?.centroid) return;
 
       const count = (s.value_chains || []).length;
-
-      // Skip provinces with no VC data (keeps map clean)
       if (count === 0) return;
 
       // Overlay chips
@@ -345,8 +322,12 @@ async function renderProvinceOverlays() {
           const html = popupHtmlFor(s);
           const legendWidth = 280 + 20 + 20;
           L.popup({
-            maxWidth: 600, minWidth: 500, className: 'wide-popup',
-            autoPan: true, autoPanPaddingTopLeft: [20, 20], autoPanPaddingBottomRight: [legendWidth, 20]
+            maxWidth: 600,
+            minWidth: (window.innerWidth < 576 ? 260 : 500),
+            className: 'wide-popup',
+            autoPan: true,
+            autoPanPaddingTopLeft: [20, 20],
+            autoPanPaddingBottomRight: [legendWidth, 20]
           })
           .setLatLng([s.centroid.lat, s.centroid.lng])
           .setContent(html)
@@ -374,16 +355,15 @@ document.addEventListener("DOMContentLoaded", () => {
     tiled: true
   }).addTo(map);
 
-  
-  // Add and set legend for province boundaries
+  // Province legend
   legendControl = new LegendControl({ position: "bottomright" }).addTo(map);
   setBoundaryLegend();
 
   renderProvinceOverlays();
 
-  // Optional declutter: hide chip text at low zooms (keep icons)
+  // Declutter chips text at low zoom
   map.on("zoomend", () => {
-    const showText = map.getZoom() >= 6; // tweak threshold
+    const showText = map.getZoom() >= 6;
     vcOverlayMarkers.forEach(m => {
       const el = m.getElement();
       if (!el) return;
@@ -393,6 +373,14 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  // Mobile: legend/instructions drawer toggle
+  const fab = document.getElementById("legendToggleFab");
+  const box = document.getElementById("legendBox");
+  if (fab && box){
+    fab.addEventListener("click", () => box.classList.toggle("open"));
+  }
+
+  // Keep popup class clean on modal close (your original behavior)
   const modal = document.getElementById('strategyModal');
   modal.addEventListener('hidden.bs.modal', () => {
     const popup = map._popup;
@@ -413,24 +401,28 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="card-body position-relative">
           <div id="map" class="mb-3"></div>
 
-        <!-- INSTRUCTIONS + LEGEND -->
-          <div class="legend-box">
-            <strong><i class="fas fa-circle text-success"></i> {% trans "Instructions" %}</strong>
+          <!-- Instructions / Legend -->
+          <button id="legendToggleFab" class="legend-toggle-fab" type="button" aria-label="{% trans 'Toggle instructions' %}">
+            <i class="fas fa-info"></i>
+          </button>
+          <div id="legendBox" class="legend-box">
+            <strong class="d-block mb-2"><i class="fas fa-circle text-success"></i> {% trans "Instructions" %}</strong>
             <ul class="mb-2 ps-3">
               <li>{% trans "Click a province circle to open value chains" %}</li>
               <li>{% trans "Click hazard badge to view strategies" %}</li>
               <li>{% trans "Download table as CSV from modal" %}</li>
             </ul>
-
+          </div>
+          <!-- /Instructions -->
         </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Strategy Modal -->
+<!-- Strategy Modal (fullscreen on small devices) -->
 <div class="modal fade" id="strategyModal" tabindex="-1">
-  <div class="modal-dialog modal-xl modal-dialog-scrollable">
+  <div class="modal-dialog modal-xl modal-fullscreen-sm-down modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header bg-success text-white">
         <h5 class="modal-title">
@@ -456,16 +448,19 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
 
         <!-- Strategies Table -->
-        <table id="strategy-table" class="table table-bordered table-hover table-sm align-middle">
-          <thead class="table-light">
-            <tr>
-              <th>{% trans "Stage" %}</th>
-              <th>{% trans "Impact" %}</th>
-              <th>{% trans "Adaptation Strategy" %}</th>
-            </tr>
-          </thead>
-          <tbody id="strategy-table-body"></tbody>
-        </table>
+        <div class="table-responsive">
+          <table id="strategy-table" class="table table-bordered table-hover table-sm align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>{% trans "Stage" %}</th>
+                <th>{% trans "Impact" %}</th>
+                <th>{% trans "Adaptation Strategy" %}</th>
+              </tr>
+            </thead>
+            <tbody id="strategy-table-body"></tbody>
+          </table>
+        </div>
+
       </div>
     </div>
   </div>

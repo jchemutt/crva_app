@@ -7,6 +7,7 @@ from django.conf.urls.i18n import i18n_patterns
 from django.views.i18n import set_language
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.i18n import JavaScriptCatalog
 
 router = DefaultRouter()
 router.register(r'hazards', HazardLayerViewSet, basename='hazardlayer')
@@ -20,6 +21,7 @@ urlpatterns = [
     path('', include('WebApp.webapp_urls_api')),  # non-translatable
     path('api/', include(router.urls)),
     path('admin/', admin.site.urls),
+    path('jsi18n/', JavaScriptCatalog.as_view(), name='javascript-catalog'),
 ]
 
 # Public UI — translatable
