@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-06 22:57+0300\n"
+"POT-Creation-Date: 2025-08-11 07:56+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,20 +18,20 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: .\WebApp\views.py:43
+#: .\WebApp\views.py:56 .\templates\WebApp\app_base.html:140
 msgid "Climate Risk & Vulnerability"
 msgstr "Risco Climático e Vulnerabilidade"
 
-#: .\WebApp\views.py:45 .\templates\WebApp\hazard_map.html:155
-#: .\templates\WebApp\implementation_strategies.html:10
+#: .\WebApp\views.py:58 .\templates\WebApp\app_base.html:149
+#: .\templates\WebApp\implementation_strategies.html:11
 msgid "Adaptation Strategies"
 msgstr "Estratégias de Adaptação"
 
-#: .\WebApp\views.py:49
+#: .\WebApp\views.py:62 .\templates\WebApp\app_base.html:158
 msgid "Implementation Strategies"
 msgstr "Estratégias de Implementação"
 
-#: .\templates\WebApp\about.html:4 .\templates\WebApp\app_base.html:45
+#: .\templates\WebApp\about.html:4 .\templates\WebApp\app_base.html:129
 msgid "About"
 msgstr "Sobre"
 
@@ -143,8 +143,8 @@ msgstr ""
 msgid "Partners"
 msgstr "Parceiros"
 
-#: .\templates\WebApp\about.html:77 .\templates\WebApp\app_base.html:30
-#: .\templates\WebApp\app_base.html:94 .\templates\WebApp\home.html:66
+#: .\templates\WebApp\about.html:77 .\templates\WebApp\app_base.html:114
+#: .\templates\WebApp\app_base.html:228 .\templates\WebApp\home.html:66
 msgid "Alliance of Bioversity International and CIAT"
 msgstr "Aliança da Bioversity International e CIAT"
 
@@ -156,157 +156,158 @@ msgstr "Banco Mundial"
 msgid "Adaptation Map"
 msgstr "Mapa de Adaptação"
 
-#: .\templates\WebApp\adaptation_map.html:257
+#: .\templates\WebApp\adaptation_map.html:162
+#: .\templates\WebApp\hazard_map.html:663
+msgid "Legend"
+msgstr ""
+
+#: .\templates\WebApp\adaptation_map.html:163
+#: .\templates\WebApp\hazard_map.html:124
+#, fuzzy
+#| msgid "Collapse all"
+msgid "Collapse/Expand"
+msgstr "Recolher tudo"
+
+#: .\templates\WebApp\adaptation_map.html:411
 msgid "Climate Adaptation Strategies Map"
 msgstr "Mapa de Estratégias de Adaptação Climática"
 
-#: .\templates\WebApp\adaptation_map.html:264
-#: .\templates\WebApp\hazard_map.html:333
+#: .\templates\WebApp\adaptation_map.html:418
+#: .\templates\WebApp\hazard_map.html:719
 msgid "Instructions"
 msgstr "Instruções"
 
-#: .\templates\WebApp\adaptation_map.html:266
+#: .\templates\WebApp\adaptation_map.html:420
 msgid "Click a province circle to open value chains"
 msgstr "Clique no círculo de uma província para abrir as cadeias de valor"
 
-#: .\templates\WebApp\adaptation_map.html:267
+#: .\templates\WebApp\adaptation_map.html:421
 msgid "Click hazard badge to view strategies"
 msgstr "Clique no selo de risco para ver as estratégias"
 
-#: .\templates\WebApp\adaptation_map.html:268
+#: .\templates\WebApp\adaptation_map.html:422
 msgid "Download table as CSV from modal"
 msgstr "Baixar tabela como CSV a partir do modal"
 
-#: .\templates\WebApp\adaptation_map.html:272
-msgid "Value Chains"
-msgstr "Cadeias de Valor"
-
-#: .\templates\WebApp\adaptation_map.html:291
+#: .\templates\WebApp\adaptation_map.html:437
 msgid "Key Value Chains and Risks"
 msgstr "Principais Cadeias de Valor e Riscos"
 
-#: .\templates\WebApp\adaptation_map.html:299
+#: .\templates\WebApp\adaptation_map.html:445
 msgid "Province"
 msgstr "Província"
 
-#: .\templates\WebApp\adaptation_map.html:300
+#: .\templates\WebApp\adaptation_map.html:446
 msgid "Value Chain"
 msgstr "Cadeia de Valor"
 
-#: .\templates\WebApp\adaptation_map.html:301
+#: .\templates\WebApp\adaptation_map.html:447
 msgid "Hazard"
 msgstr "Risco"
 
-#: .\templates\WebApp\adaptation_map.html:308
+#: .\templates\WebApp\adaptation_map.html:454
 msgid "CSV"
 msgstr "CSV"
 
-#: .\templates\WebApp\adaptation_map.html:316
-#: .\templates\WebApp\hazard_map.html:204
+#: .\templates\WebApp\adaptation_map.html:462
 msgid "Stage"
 msgstr "Etapa"
 
-#: .\templates\WebApp\adaptation_map.html:317
-#: .\templates\WebApp\hazard_map.html:205
+#: .\templates\WebApp\adaptation_map.html:463
 msgid "Impact"
 msgstr "Impacto"
 
-#: .\templates\WebApp\adaptation_map.html:318
-#: .\templates\WebApp\hazard_map.html:206
-#: .\templates\WebApp\implementation_strategies.html:50
-#: .\templates\WebApp\implementation_strategies.html:68
+#: .\templates\WebApp\adaptation_map.html:464
+#: .\templates\WebApp\implementation_strategies.html:51
+#: .\templates\WebApp\implementation_strategies.html:69
 msgid "Adaptation Strategy"
 msgstr "Estratégia de Adaptação"
 
-#: .\templates\WebApp\app_base.html:8 .\templates\WebApp\app_base.html:38
+#: .\templates\WebApp\app_base.html:8 .\templates\WebApp\app_base.html:122
 msgid "CRVA Portal"
 msgstr "Portal CRVA"
 
-#: .\templates\WebApp\app_base.html:27
+#: .\templates\WebApp\app_base.html:111
 msgid "Mozambique"
 msgstr "Moçambique"
 
-#: .\templates\WebApp\app_base.html:28
+#: .\templates\WebApp\app_base.html:112
 msgid "Mozambique Logo"
 msgstr "Logotipo de Moçambique"
 
-#: .\templates\WebApp\app_base.html:31
+#: .\templates\WebApp\app_base.html:115
 msgid "CIAT Logo"
 msgstr "Logotipo do CIAT"
 
-#: .\templates\WebApp\app_base.html:44
+#: .\templates\WebApp\app_base.html:128
 msgid "Home"
 msgstr "Início"
 
-#: .\templates\WebApp\app_base.html:50 .\templates\WebApp\app_base.html:64
+#: .\templates\WebApp\app_base.html:133
+msgid "Services"
+msgstr "Serviços"
+
+#: .\templates\WebApp\app_base.html:141
+msgid "Hazard maps, risks, exposure"
+msgstr "Mapas de perigos, riscos, exposição"
+
+#: .\templates\WebApp\app_base.html:150
+msgid "Options by region and value chain"
+msgstr "Opções por região e cadeia de valor"
+
+#: .\templates\WebApp\app_base.html:159
+msgid "Planned actions and progress"
+msgstr "Ações planeadas e progresso"
+
+#: .\templates\WebApp\app_base.html:171 .\templates\WebApp\app_base.html:194
 msgid "Português"
 msgstr "Português"
 
-#: .\templates\WebApp\app_base.html:50 .\templates\WebApp\app_base.html:57
+#: .\templates\WebApp\app_base.html:171 .\templates\WebApp\app_base.html:181
 msgid "English"
 msgstr "Inglês"
 
-#: .\templates\WebApp\app_base.html:77
+#: .\templates\WebApp\app_base.html:211
 msgid "Log Out"
 msgstr "Sair"
 
-#: .\templates\WebApp\app_base.html:96
+#: .\templates\WebApp\app_base.html:230
 msgid "Alliance Logo"
 msgstr "Logotipo da Aliança"
 
-#: .\templates\WebApp\hazard_map.html:4 .\templates\WebApp\hazard_map.html:322
-msgid "Hazard Map Viewer"
+#: .\templates\WebApp\hazard_map.html:4 .\templates\WebApp\hazard_map.html:713
+#, fuzzy
+#| msgid "Hazard Map Viewer"
+msgid "Map Viewer"
 msgstr "Visualizador de Mapa de Riscos"
 
-#: .\templates\WebApp\hazard_map.html:111
-msgid "Click to view data"
-msgstr "Clique para ver os dados"
-
-#: .\templates\WebApp\hazard_map.html:151
-msgid "Explore data for selected hazard and province."
-msgstr "Explore os dados para o risco e a província selecionados."
-
-#: .\templates\WebApp\hazard_map.html:154
-msgid "Time Series"
-msgstr "Séries Temporais"
-
-#: .\templates\WebApp\hazard_map.html:162
-msgid "Time Series Chart"
-msgstr "Gráfico de Séries Temporais"
-
-#: .\templates\WebApp\hazard_map.html:164
-msgid "Select Dataset"
-msgstr "Selecionar Conjunto de Dados"
-
-#: .\templates\WebApp\hazard_map.html:327
-msgid "Hazard Type"
-msgstr "Tipo de Risco"
-
-#: .\templates\WebApp\hazard_map.html:328
-msgid "-- Select type --"
-msgstr "-- Selecionar camada --"
-
-#: .\templates\WebApp\hazard_map.html:329
-msgid "Layer"
-msgstr "Camada"
-
-#: .\templates\WebApp\hazard_map.html:330
-msgid "-- Select layer --"
-msgstr "-- Selecionar camada --"
-
-#: .\templates\WebApp\hazard_map.html:334
-msgid "Select a hazard type and layer"
+#: .\templates\WebApp\hazard_map.html:568
+#, fuzzy
+#| msgid "Select a hazard type and layer"
+msgid "Please select a hazard layer first."
 msgstr "Selecione um tipo de risco e uma camada"
 
-#: .\templates\WebApp\hazard_map.html:335
+#: .\templates\WebApp\hazard_map.html:659
+#, fuzzy
+#| msgid "Province"
+msgid "Provinces"
+msgstr "Província"
+
+#: .\templates\WebApp\hazard_map.html:721
+msgid "Use the Layers panel to pick a category and an Indicator"
+msgstr "Use o painel de camadas para escolher uma categoria e um indicador"
+
+#: .\templates\WebApp\hazard_map.html:722
 msgid "Click on a province on the map"
 msgstr "Clique numa província no mapa"
 
-#: .\templates\WebApp\hazard_map.html:336
-msgid "Explore strategies or time series"
+#: .\templates\WebApp\hazard_map.html:723
+#, fuzzy
+#| msgid "Explore strategies or time series"
+msgid "Explore adaptation strategies or time series in the modal"
 msgstr "Explore estratégias ou séries temporais"
 
-#: .\templates\WebApp\hazard_map.html:351
+#: .\templates\WebApp\hazard_map.html:737
 msgid "Adaptation Strategies & Time Series"
 msgstr "Estratégias de Adaptação e Séries Temporais"
 
@@ -415,93 +416,123 @@ msgstr ""
 "apoiando iniciativas de agricultura inteligente em relação ao clima e "
 "segurança alimentar em Moçambique."
 
-#: .\templates\WebApp\implementation_strategies.html:22
+#: .\templates\WebApp\implementation_strategies.html:23
 msgid "Keyword"
 msgstr "Palavra-chave"
 
-#: .\templates\WebApp\implementation_strategies.html:24
+#: .\templates\WebApp\implementation_strategies.html:25
 msgid "Search strategy, activities, implementers, outcomes…"
 msgstr "Pesquisar estratégia, atividades, implementadores, resultados…"
 
-#: .\templates\WebApp\implementation_strategies.html:25
-#: .\templates\WebApp\implementation_strategies.html:35
+#: .\templates\WebApp\implementation_strategies.html:26
+#: .\templates\WebApp\implementation_strategies.html:36
 msgid "Clear"
 msgstr "Limpar"
 
-#: .\templates\WebApp\implementation_strategies.html:27
+#: .\templates\WebApp\implementation_strategies.html:28
 msgid ""
 "Search across strategy titles, activities, implementers, outcomes, and "
 "related content."
-msgstr "Pesquisar em títulos de estratégias, atividades, implementadores, resultados e conteúdo relacionado."
+msgstr ""
+"Pesquisar em títulos de estratégias, atividades, implementadores, resultados "
+"e conteúdo relacionado."
 
-#: .\templates\WebApp\implementation_strategies.html:32
+#: .\templates\WebApp\implementation_strategies.html:33
 msgid "Actions"
 msgstr "Ações"
 
-#: .\templates\WebApp\implementation_strategies.html:34
+#: .\templates\WebApp\implementation_strategies.html:35
 msgid "Apply"
 msgstr "Aplicar"
 
-#: .\templates\WebApp\implementation_strategies.html:48
+#: .\templates\WebApp\implementation_strategies.html:49
 msgid "Group by"
 msgstr "Agrupar por"
 
-#: .\templates\WebApp\implementation_strategies.html:51
-#: .\templates\WebApp\implementation_strategies.html:69
+#: .\templates\WebApp\implementation_strategies.html:52
+#: .\templates\WebApp\implementation_strategies.html:70
 msgid "Timeframe"
 msgstr "Período"
 
-#: .\templates\WebApp\implementation_strategies.html:56
+#: .\templates\WebApp\implementation_strategies.html:57
 msgid "Collapse all"
 msgstr "Recolher tudo"
 
-#: .\templates\WebApp\implementation_strategies.html:57
+#: .\templates\WebApp\implementation_strategies.html:58
 msgid "Expand all"
 msgstr "Expandir tudo"
 
-#: .\templates\WebApp\implementation_strategies.html:70
+#: .\templates\WebApp\implementation_strategies.html:71
 msgid "Proposed Activities"
 msgstr "Atividades Propostas"
 
-#: .\templates\WebApp\implementation_strategies.html:71
+#: .\templates\WebApp\implementation_strategies.html:72
 msgid "Implementers"
 msgstr "Implementadores"
 
-#: .\templates\WebApp\implementation_strategies.html:72
+#: .\templates\WebApp\implementation_strategies.html:73
 msgid "Resources / Investments Needed"
 msgstr "Recursos / Investimentos Necessários"
 
-#: .\templates\WebApp\implementation_strategies.html:73
+#: .\templates\WebApp\implementation_strategies.html:74
 msgid "Expected Outcomes"
 msgstr "Resultados Esperados"
 
-#: .\templates\WebApp\implementation_strategies.html:74
+#: .\templates\WebApp\implementation_strategies.html:75
 msgid "Beneficiaries"
 msgstr "Beneficiários"
 
-#: .\templates\WebApp\implementation_strategies.html:159
+#: .\templates\WebApp\implementation_strategies.html:160
 msgid "No filters applied."
 msgstr "Nenhum filtro aplicado."
 
-#: .\templates\WebApp\implementation_strategies.html:236
-#, python-format
-msgid ""
-"\n"
-"                  (%(counter)s item)\n"
-"                "
-msgid_plural ""
-"\n"
-"                  (%(counter)s items)\n"
-"                "
-msgstr[0] ""
-"\n"
-"                  (%(counter)s item)\n"
-"                "
-msgstr[1] ""
-"\n"
-"                  (%(counter)s itens)\n"
-"                "
+#~ msgid "Value Chains"
+#~ msgstr "Cadeias de Valor"
 
+#~ msgid "Click to view data"
+#~ msgstr "Clique para ver os dados"
+
+#~ msgid "Explore data for selected hazard and province."
+#~ msgstr "Explore os dados para o risco e a província selecionados."
+
+#~ msgid "Time Series"
+#~ msgstr "Séries Temporais"
+
+#~ msgid "Time Series Chart"
+#~ msgstr "Gráfico de Séries Temporais"
+
+#~ msgid "Select Dataset"
+#~ msgstr "Selecionar Conjunto de Dados"
+
+#~ msgid "Hazard Type"
+#~ msgstr "Tipo de Risco"
+
+#~ msgid "-- Select type --"
+#~ msgstr "-- Selecionar camada --"
+
+#~ msgid "Layer"
+#~ msgstr "Camada"
+
+#~ msgid "-- Select layer --"
+#~ msgstr "-- Selecionar camada --"
+
+#, python-format
+#~ msgid ""
+#~ "\n"
+#~ "                  (%(counter)s item)\n"
+#~ "                "
+#~ msgid_plural ""
+#~ "\n"
+#~ "                  (%(counter)s items)\n"
+#~ "                "
+#~ msgstr[0] ""
+#~ "\n"
+#~ "                  (%(counter)s item)\n"
+#~ "                "
+#~ msgstr[1] ""
+#~ "\n"
+#~ "                  (%(counter)s itens)\n"
+#~ "                "
 
 #~ msgid "Agro-Weather Advisory"
 #~ msgstr "Boletim Agroclimático"

@@ -19,6 +19,90 @@
     <link href="{% static 'css/base.css' %}" rel="stylesheet">
     <link href="{% static 'css/basic.css' %}" rel="stylesheet">
     <link href="{% static 'css/common.css' %}" rel="stylesheet">
+    <style>
+.navbar .dropdown-menu {
+  z-index: 2000; /* higher than cards/buttons */
+}
+.navbar .dropdown-menu.services-menu {
+  padding: 0.5rem;
+}
+
+.navbar .dropdown-menu.services-menu .dropdown-item {
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  white-space: normal; /* allow multi-line descriptions */
+}
+
+.navbar .dropdown-menu.services-menu .dropdown-item:hover {
+  background-color: #f2f8f5;
+  transform: translateX(3px);
+}
+
+.navbar .dropdown-menu.services-menu .fw-bold {
+  font-size: 0.95rem;
+}
+
+.navbar .dropdown-menu.services-menu small {
+  font-size: 0.78rem;
+  color: #666;
+  display: block;
+  line-height: 1.2;
+  margin-top: 2px;
+}
+
+/* Icon sizing/alignment */
+.navbar .dropdown-menu.services-menu i {
+  font-size: 1rem;
+  width: 1.25rem;
+  text-align: center;
+  flex: 0 0 1.25rem;
+}
+/* Language switcher intuitive styling */
+/* Language switcher intuitive styling (like Services menu) */
+.navbar .dropdown-menu.lang-menu {
+    padding: 0.5rem;
+    min-width: 220px;
+    z-index: 2060;
+}
+
+.navbar .dropdown-menu.lang-menu .dropdown-item {
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    white-space: normal;
+}
+
+.navbar .dropdown-menu.lang-menu .dropdown-item:hover {
+    background-color: #f2f8f5;
+    transform: translateX(3px);
+}
+
+/* Bold main language name */
+.navbar .dropdown-menu.lang-menu .fw-bold {
+    font-size: 0.95rem;
+}
+
+/* Muted secondary text */
+.navbar .dropdown-menu.lang-menu small {
+    font-size: 0.78rem;
+    color: #666;
+    display: block;
+    line-height: 1.2;
+    margin-top: 2px;
+}
+
+/* Icon styling for flags/globe */
+.navbar .dropdown-menu.lang-menu .lang-icon {
+    font-size: 1rem;
+    width: 1.25rem;
+    text-align: center;
+    flex: 0 0 1.25rem;
+}
+
+
+
+    </style>
 </head>
 <body id="page-top">
 
@@ -44,28 +128,78 @@
                 <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">{% trans "Home" %}</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'about' %}">{% trans "About" %}</a></li>
 
-                <!-- Language Switcher -->
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="langDropdown" role="button" data-bs-toggle="dropdown">
-                        🌐 {% if LANGUAGE_CODE == 'pt' %}{% trans "Português" %}{% else %}{% trans "English" %}{% endif %}
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="langDropdown">
-                        <li>
-                            <form action="{% url 'set_language' %}" method="post" class="px-3">
-                                {% csrf_token %}
-                                <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                                <button class="dropdown-item" type="submit" name="language" value="en">{% trans "English" %}</button>
-                            </form>
-                        </li>
-                        <li>
-                            <form action="{% url 'set_language' %}" method="post" class="px-3">
-                                {% csrf_token %}
-                                <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                                <button class="dropdown-item" type="submit" name="language" value="pt">{% trans "Português" %}</button>
-                            </form>
-                        </li>
-                    </ul>
-                </li>
+  <a class="nav-link dropdown-toggle" href="#" id="servicesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+      {% trans "Services" %}
+  </a>
+  <ul class="dropdown-menu services-menu" aria-labelledby="servicesDropdown" style="min-width: 280px;">
+      <li>
+          <a class="dropdown-item d-flex align-items-start gap-2" href="{% url 'hazard_map' %}">
+              <i class="fas fa-exclamation-triangle mt-1"></i>
+              <div>
+                  <div class="fw-bold">{% trans "Climate Risk & Vulnerability" %}</div>
+                  <small>{% trans "Hazard maps, risks, exposure" %}</small>
+              </div>
+          </a>
+      </li>
+      <li>
+          <a class="dropdown-item d-flex align-items-start gap-2" href="{% url 'adaptation_map' %}">
+              <i class="fas fa-leaf mt-1"></i>
+              <div>
+                  <div class="fw-bold">{% trans "Adaptation Strategies" %}</div>
+                  <small>{% trans "Options by region and value chain" %}</small>
+              </div>
+          </a>
+      </li>
+      <li>
+          <a class="dropdown-item d-flex align-items-start gap-2" href="{% url 'implementation_strategies' %}">
+              <i class="fas fa-project-diagram mt-1"></i>
+              <div>
+                  <div class="fw-bold">{% trans "Implementation Strategies" %}</div>
+                  <small>{% trans "Planned actions and progress" %}</small>
+              </div>
+          </a>
+      </li>
+  </ul>
+</li>
+
+
+                
+               <!-- Language Switcher -->
+<li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle" href="#" id="langDropdown" role="button" data-bs-toggle="dropdown">
+        🌐 {% if LANGUAGE_CODE == 'pt' %}{% trans "Português" %}{% else %}{% trans "English" %}{% endif %}
+    </a>
+    <ul class="dropdown-menu dropdown-menu-end lang-menu" aria-labelledby="langDropdown">
+        <li>
+            <form action="{% url 'set_language' %}" method="post" class="px-3">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                <button class="dropdown-item d-flex align-items-start gap-2" type="submit" name="language" value="en">
+                    
+                    <div>
+                        <div class="fw-bold">{% trans "English" %}</div>
+                       
+                    </div>
+                </button>
+            </form>
+        </li>
+        <li>
+            <form action="{% url 'set_language' %}" method="post" class="px-3">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                <button class="dropdown-item d-flex align-items-start gap-2" type="submit" name="language" value="pt">
+                    
+                    <div>
+                        <div class="fw-bold">{% trans "Português" %}</div>
+                        
+                    </div>
+                </button>
+            </form>
+        </li>
+    </ul>
+</li>
+
 
                 <!-- User Dropdown -->
                 <li class="nav-item dropdown">
