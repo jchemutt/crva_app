@@ -80,7 +80,7 @@
   .tree-group.collapsed .tree-items { display: none; }
   .tree-subgroup.collapsed .tree-items { display: none; }
   .tree-items { margin-left: 22px; margin-top: 6px; }
-  .tree-item { display: flex; align-items: center; gap: 8px; padding: 2px 0; font-size: .92rem; }
+  .tree-item { display: flex; align-items: center; gap: 8px; padding: 2px 0; font-size: .82rem; }
   .tree-item input[type="radio"] { accent-color: #0d6efd; }
   .tree-item .layer-name { flex: 1; }
   .layer-tree-footer {
@@ -103,6 +103,9 @@ let strategyDataByVC = {}, timeseriesGroups = {};
 let selectedProvince = '', defaultGroup = "";
 let hazardLegendControl, boundaryLegendControl, layerTreeControl;
 let boundariesWms;
+
+const COMPONENT_PRIORITY = ["Hazard", "Adaptive Capacity","Exposure","Sensitivity"];
+
 
 /* ---- GeoServer config ---- */
 const GEOSERVER_WMS = "https://crva.jcdevops.com/geoserver/wms";
@@ -260,7 +263,16 @@ const LayerTreeControl = L.Control.extend({
 
   _renderTree() {
     // data shape: { ComponentLabel: { Theme: [ { id, label, layerName }, ... ] } }
-    const components = Object.keys(this._data).sort((a, b) => a.localeCompare(b));
+        const components = Object.keys(this._data).sort((a, b) => {
+      const ia = COMPONENT_PRIORITY.indexOf(a);
+      const ib = COMPONENT_PRIORITY.indexOf(b);
+      // Items in the priority list come first, in that exact order
+      if (ia !== -1 || ib !== -1) {
+        return (ia === -1 ? Number.MAX_SAFE_INTEGER : ia) - (ib === -1 ? Number.MAX_SAFE_INTEGER : ib);
+      }
+      // Anything else not listed falls back to alpha
+      return a.localeCompare(b);
+    });
 
     this._treeEl.innerHTML = components.map((comp) => {
       const themes = this._data[comp] || {};
