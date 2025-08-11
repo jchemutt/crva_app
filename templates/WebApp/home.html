@@ -10,27 +10,45 @@
 
 {% block content %}
 <div class="container-fluid px-0">
-    <!-- Hero Section -->
-    <div class="position-relative">
-        <img src="{% static 'images/hero1.png' %}" class="img-fluid w-100" style="max-height: 550px; object-fit: cover;" alt="{% trans 'Hero Image' %}">
-        <div class="position-absolute top-50 start-50 translate-middle text-center text-white px-3 py-4" style="background-color: rgba(0, 0, 0, 0.5); border-radius: 1rem;">
-            <h1 class="display-5 fw-bold">{% trans "Climate Risk and Vulnerability Assessment Portal" %}</h1>
-            <p class="lead mt-2" style="color: #f8f9fa; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);">
-                {% trans "An interactive platform delivering agro-weather updates, crop advisory, market insights, climate risk assessments, and adaptation strategies to support climate-smart agricultural decision-making." %}
-            </p>
-        </div>
-    </div>
 
-    <!-- Search -->
-    <div class="container my-5 py-4 px-4 rounded" style="background-color: #f7f9f9;">
-        <div class="input-group shadow">
-            <input type="search" id="searchBox" class="form-control form-control-lg" placeholder="{% trans '🔍 Search for a Service' %}" aria-label="{% trans 'Search' %}">
-        </div>
+  <!-- Hero Section -->
+  <section class="position-relative" role="banner" aria-label="{% trans 'Hero' %}">
+    <img
+      src="{% static 'images/hero1.png' %}"
+      class="hero_style"
+      alt="{% trans 'Hero Image' %}"
+      loading="eager"
+      fetchpriority="high"
+    />
+    <div class="vertical_center">
+      <div class="text-center text-white px-3">
+        <h1 id="title_class">
+          {% trans "Climate Risk and Vulnerability Assessment Portal" %}
+        </h1>
+        <p id="tagline_class">
+          {% trans "An interactive platform delivering agro-weather updates, crop advisory, market insights, climate risk assessments, and adaptation strategies to support climate-smart agricultural decision-making." %}
+        </p>
+      </div>
     </div>
+  </section>
 
-    <!-- Cards -->
-    <div class="container">
-        <div class="row g-4">
+  <!-- Search -->
+  <div class="container my-5 py-4 px-4 rounded" style="background-color: #f7f9f9;">
+    <label for="searchBox" class="visually-hidden">{% trans "Search for a Service" %}</label>
+    <div class="input-group shadow">
+      <input
+        type="search"
+        id="searchBox"
+        class="form-control form-control-lg"
+        placeholder="{% trans '🔍 Search for a Service' %}"
+        aria-label="{% trans 'Search' %}"
+      >
+    </div>
+  </div>
+
+  <!-- Cards -->
+  <div class="container">
+    <div class="row g-4">
             {% for app_card in app_cards %}
                 <div class="col-md-6 col-lg-4">
                     <div class="card h-100 shadow-sm border-0 hover-shadow">
@@ -44,33 +62,38 @@
                 </div>
             {% endfor %}
         </div>
+    <!-- Description -->
+    <div class="row my-5">
+      <div class="col-lg-12">
+        <div class="card shadow border-0">
+          <div class="card-header text-white" style="background-color: #343a40;">
+            <h5 class="m-0">{% trans "Service Overview" %}</h5>
+          </div>
+          <div class="card-body">
+            <p>
+              {% trans "This platform provides tailored decision-support tools to strengthen agricultural resilience in Mozambique. It offers timely, location-specific information and guidance to farmers, extension workers, and policymakers. Below is a breakdown of the key services available:" %}
+            </p>
 
-        <!-- Description -->
-        <div class="row my-5">
-            <div class="col-lg-12">
-                <div class="card shadow border-0">
-                    <div class="card-header text-white" style="background-color: #343a40;">
-                        <h5 class="m-0">{% trans "Service Overview" %}</h5>
-                    </div>
-                    <div class="card-body">
-                        <p>{% trans "This platform provides tailored decision-support tools to strengthen agricultural resilience in Mozambique. It offers timely, location-specific information and guidance to farmers, extension workers, and policymakers. Below is a breakdown of the key services available:" %}</p>
-                        
-                        <ul class="mb-4">
-                            <li><strong>{% trans "Agro-Weather Advisory:" %}</strong> {% trans "Delivers localized forecasts and early warnings to help farmers plan agricultural activities based on rainfall, temperature, and extreme weather events." %}</li>
-                            <li><strong>{% trans "Crop Advisory:" %}</strong> {% trans "Provides expert guidance on crop selection, pest and disease management, and sustainable farming practices aligned with seasonal conditions." %}</li>
-                            <li><strong>{% trans "Market Information:" %}</strong> {% trans "Shares up-to-date data on crop prices, demand trends, and nearby market access points to support informed selling decisions and increase income." %}</li>
-                            <li><strong>{% trans "Climate Risk & Vulnerability Assessment:" %}</strong> {% trans "Maps areas most exposed to climate threats such as drought and floods, helping target adaptation and investment efforts effectively." %}</li>
-                            <li><strong>{% trans "Adaptation Strategies:" %}</strong> {% trans "Recommends practical solutions such as drought-tolerant crops, water conservation, soil protection, and agroforestry tailored to specific zones." %}</li>
-                        </ul>
+            <ul class="mb-4">
+              <li><strong>{% trans "Agro-Weather Advisory:" %}</strong> {% trans "Delivers localized forecasts and early warnings to help farmers plan agricultural activities based on rainfall, temperature, and extreme weather events." %}</li>
+              <li><strong>{% trans "Crop Advisory:" %}</strong> {% trans "Provides expert guidance on crop selection, pest and disease management, and sustainable farming practices aligned with seasonal conditions." %}</li>
+              <li><strong>{% trans "Market Information:" %}</strong> {% trans "Shares up-to-date data on crop prices, demand trends, and nearby market access points to support informed selling decisions and increase income." %}</li>
+              <li><strong>{% trans "Climate Risk & Vulnerability Assessment:" %}</strong> {% trans "Maps areas most exposed to climate threats such as drought and floods, helping target adaptation and investment efforts effectively." %}</li>
+              <li><strong>{% trans "Adaptation Strategies:" %}</strong> {% trans "Recommends practical solutions such as drought-tolerant crops, water conservation, soil protection, and agroforestry tailored to specific zones." %}</li>
+            </ul>
 
-                        <p class="mb-0">{% trans "This platform is developed by the" %} <strong>{% trans "Alliance of Bioversity International and CIAT" %}</strong>, {% trans "supporting climate-smart agriculture and food security initiatives in Mozambique." %}</p>
-                    </div>
-                </div>
-            </div>
+            <p class="mb-0">
+              {% trans "This platform is developed by the" %}
+              <strong>{% trans "Alliance of Bioversity International and CIAT" %}</strong>,
+              {% trans "supporting climate-smart agriculture and food security initiatives in Mozambique." %}
+            </p>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 
-    <!-- Optional Modal -->
-    {% include 'WebApp/home_about.html' %}
+  <!-- Optional Modal -->
+  {% include 'WebApp/home_about.html' %}
 </div>
 {% endblock %}
