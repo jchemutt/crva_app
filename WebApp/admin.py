@@ -8,12 +8,14 @@ from WebApp.models import (
     ValueChain,
     Hazard,
     Stage,
+    Risk,
     ValueChainHazard,
     RiskAdaptation,
     ProvinceTimeSeries,
     AdaptationStrategy,
     ImplementationStrategy,
     ImplementationEntry,
+    Component,
 )
 
 admin.site.site_header = "CRV App Administration"
@@ -89,6 +91,20 @@ class ImplementationEntryAdmin(ImportExportModelAdmin):
         return (txt[:80] + "…") if len(txt) > 80 else txt
     short_outcomes.short_description = "Expected Outcomes"
 
+@admin.register(Risk)
+class RiskAdmin(ImportExportModelAdmin):
+    list_display = ("short_description",)
+    search_fields = ("description",)
+
+    def short_description(self, obj):
+        txt = obj.description or ""
+        return (txt[:100] + "…") if len(txt) > 100 else txt
+    short_description.short_description = "Description"
+
+@admin.register(Component)
+class ComponentAdmin(ImportExportModelAdmin):
+    list_display = ("key", "label")
+    search_fields = ("key", "label")
 
 # -----------------------------
 # AdaptationStrategy Admin
