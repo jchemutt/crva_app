@@ -857,7 +857,7 @@ msgstr "Visualizador de Mapas"
 
 #: .\templates\WebApp\hazard_map.html:201
 msgid "Indicators"
-msgstr ""
+msgstr "Indicadores"
 
 #: .\templates\WebApp\hazard_map.html:203
 msgid "Expand"
@@ -869,7 +869,7 @@ msgstr "Recolher"
 
 #: .\templates\WebApp\hazard_map.html:208
 msgid "Search Indicators…"
-msgstr ""
+msgstr "Pesquisar Indicadores…"
 
 #: .\templates\WebApp\hazard_map.html:212
 #: .\templates\WebApp\implementation_strategies.html:26
@@ -900,7 +900,7 @@ msgstr "Selecionar Conjunto de Dados"
 
 #: .\templates\WebApp\hazard_map.html:458
 msgid "Year"
-msgstr ""
+msgstr "Ano"
 
 #: .\templates\WebApp\hazard_map.html:458
 msgid "Value"
