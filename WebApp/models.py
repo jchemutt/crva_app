@@ -107,7 +107,7 @@ class ProvinceTimeSeries(models.Model):
 
 
 class ImplementationStrategy(models.Model):
-    title = models.CharField(max_length=255)
+    title = models.TextField() 
 
     # Updated to link to AdaptationStrategy instead of RiskAdaptation
     adaptation_strategies = models.ManyToManyField(
