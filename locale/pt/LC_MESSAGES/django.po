@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-08-11 07:56+0300\n"
+"POT-Creation-Date: 2025-09-24 09:01+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,20 +18,21 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: .\WebApp\views.py:56 .\templates\WebApp\app_base.html:140
+#: .\WebApp\views.py:56 .\templates\WebApp\app_base.html:158
 msgid "Climate Risk & Vulnerability"
 msgstr "Risco Climático e Vulnerabilidade"
 
-#: .\WebApp\views.py:58 .\templates\WebApp\app_base.html:149
+#: .\WebApp\views.py:58 .\templates\WebApp\app_base.html:167
+#: .\templates\WebApp\hazard_map.html:370
 #: .\templates\WebApp\implementation_strategies.html:11
 msgid "Adaptation Strategies"
 msgstr "Estratégias de Adaptação"
 
-#: .\WebApp\views.py:62 .\templates\WebApp\app_base.html:158
+#: .\WebApp\views.py:62 .\templates\WebApp\app_base.html:176
 msgid "Implementation Strategies"
 msgstr "Estratégias de Implementação"
 
-#: .\templates\WebApp\about.html:4 .\templates\WebApp\app_base.html:129
+#: .\templates\WebApp\about.html:4 .\templates\WebApp\app_base.html:144
 msgid "About"
 msgstr "Sobre"
 
@@ -39,33 +40,28 @@ msgstr "Sobre"
 msgid "About the CRVA Portal"
 msgstr "Sobre o Portal CRVA"
 
-#: .\templates\WebApp\about.html:27
+#: .\templates\WebApp\about.html:26
 msgid ""
-"\n"
-"              The <strong>Climate Risk and Vulnerability Assessment (CRVA) "
-"Portal</strong> is an interactive web-based platform designed to support "
-"climate-resilient agriculture in Mozambique. It delivers accessible tools "
-"and data for informed decision-making at local, regional, and national "
-"levels.\n"
-"              "
+"The Climate Risk and Vulnerability Assessment (CRVA) Portal is an "
+"interactive web-based platform designed to support climate-resilient "
+"agriculture in Mozambique. It delivers accessible tools and data for "
+"informed decision-making at local, regional, and national levels."
 msgstr ""
-"\n"
-"              O <strong>Portal de Avaliação de Riscos e Vulnerabilidades "
-"Climáticas (CRVA)</strong> é uma plataforma web interativa concebida para "
-"apoiar a agricultura resiliente ao clima em Moçambique. Ela fornece "
-"ferramentas e dados acessíveis para a tomada de decisões informadas em "
-"níveis local, regional e nacional.\n"
-"              "
+"O <strong>Portal de Avaliação de Riscos e Vulnerabilidades Climáticas "
+"(CRVA)</strong> é uma plataforma web interativa concebida para apoiar a "
+"agricultura resiliente ao clima em Moçambique. Ela fornece ferramentas e "
+"dados acessíveis para a tomada de decisões informadas em níveis local, "
+"regional e nacional."
 
-#: .\templates\WebApp\about.html:32
+#: .\templates\WebApp\about.html:29
 msgid "The portal integrates the following key services:"
 msgstr "O portal integra os seguintes serviços principais:"
 
-#: .\templates\WebApp\about.html:35 .\templates\WebApp\home.html:59
+#: .\templates\WebApp\about.html:31 .\templates\WebApp\home.html:78
 msgid "Agro-Weather Advisory:"
 msgstr "Boletim Agroclimático:"
 
-#: .\templates\WebApp\about.html:36
+#: .\templates\WebApp\about.html:31
 msgid ""
 "Provides timely weather forecasts and alerts to assist farmers with "
 "scheduling critical activities such as planting, irrigation, and harvesting."
@@ -74,11 +70,11 @@ msgstr ""
 "agricultores a programar atividades críticas como plantio, irrigação e "
 "colheita."
 
-#: .\templates\WebApp\about.html:39 .\templates\WebApp\home.html:60
+#: .\templates\WebApp\about.html:32 .\templates\WebApp\home.html:79
 msgid "Crop Advisory:"
 msgstr "Orientação Agrícola:"
 
-#: .\templates\WebApp\about.html:40
+#: .\templates\WebApp\about.html:32
 msgid ""
 "Offers location-specific agronomic guidance on best crop practices, pest "
 "management, and nutrient application."
@@ -86,11 +82,11 @@ msgstr ""
 "Oferece orientação agronômica específica para o local sobre melhores "
 "práticas agrícolas, manejo de pragas e aplicação de nutrientes."
 
-#: .\templates\WebApp\about.html:43 .\templates\WebApp\home.html:61
+#: .\templates\WebApp\about.html:33 .\templates\WebApp\home.html:80
 msgid "Market Information:"
 msgstr "Informações de Mercado:"
 
-#: .\templates\WebApp\about.html:44
+#: .\templates\WebApp\about.html:33
 msgid ""
 "Supplies data on crop prices, market demand, and logistics to improve "
 "farmers’ access to markets and maximize income."
@@ -98,11 +94,11 @@ msgstr ""
 "Fornece dados sobre preços agrícolas, demanda de mercado e logística para "
 "melhorar o acesso dos agricultores aos mercados e maximizar a renda."
 
-#: .\templates\WebApp\about.html:47 .\templates\WebApp\home.html:62
+#: .\templates\WebApp\about.html:34 .\templates\WebApp\home.html:81
 msgid "Climate Risk & Vulnerability Assessment:"
 msgstr "Avaliação de Risco Climático e Vulnerabilidade:"
 
-#: .\templates\WebApp\about.html:48
+#: .\templates\WebApp\about.html:34
 msgid ""
 "Identifies regions most at risk from climate shocks like droughts or floods, "
 "enabling targeted adaptation and planning."
@@ -111,11 +107,11 @@ msgstr ""
 "ajudando a direcionar de forma eficaz os esforços de adaptação e "
 "investimento."
 
-#: .\templates\WebApp\about.html:51 .\templates\WebApp\home.html:63
+#: .\templates\WebApp\about.html:35 .\templates\WebApp\home.html:82
 msgid "Adaptation Strategies:"
 msgstr "Estratégias de Adaptação:"
 
-#: .\templates\WebApp\about.html:52
+#: .\templates\WebApp\about.html:35
 msgid ""
 "Suggests tailored resilience measures, including climate-smart agriculture "
 "practices, soil management, and water conservation."
@@ -123,32 +119,594 @@ msgstr ""
 "Sugere medidas de resiliência personalizadas, incluindo práticas agrícolas "
 "inteligentes em relação ao clima, manejo do solo e conservação da água."
 
-#: .\templates\WebApp\about.html:57
+#: .\templates\WebApp\about.html:39
+msgid ""
+"This portal was developed by the Alliance of Bioversity International and "
+"CIAT, in collaboration with local partners, to enhance food security and "
+"resilience to climate change in Mozambique."
+msgstr ""
+"Este portal foi desenvolvido pela <strong>Aliança da Bioversity "
+"International e CIAT</strong>, em colaboração com parceiros locais, para "
+"melhorar a segurança alimentar e a resiliência às mudanças climáticas em "
+"Moçambique."
+
+#: .\templates\WebApp\about.html:51
+msgid "Methodology"
+msgstr "Metodologia"
+
+#: .\templates\WebApp\about.html:56
 msgid ""
 "\n"
-"              This portal was developed by the <strong>Alliance of "
-"Bioversity International and CIAT</strong>, in collaboration with local "
-"partners, to enhance food security and resilience to climate change in "
-"Mozambique.\n"
-"              "
+"        The methodology combines high-resolution historical datasets\n"
+"        (CHIRPS precipitation and AgERA5 temperature, 1981–2024) with five "
+"CMIP6 climate\n"
+"        models under SSP245 and SSP585 scenarios. Data are bias-corrected "
+"using monthly\n"
+"        anomalies and standardized to 0.05° resolution. Indicators cover "
+"temperature,\n"
+"        precipitation, drought and flooding stress, human heat stress, "
+"rainfall Z-scores,\n"
+"        and the economic exposure of crop and livestock production to "
+"climate hazards.\n"
+"        "
 msgstr ""
 "\n"
-"              Este portal foi desenvolvido pela <strong>Aliança da "
-"Bioversity International e CIAT</strong>, em colaboração com parceiros "
-"locais, para melhorar a segurança alimentar e a resiliência às mudanças "
-"climáticas em Moçambique.\n"
-"              "
+"        A metodologia combina conjuntos de dados históricos de alta "
+"resolução\n"
+"        (precipitação CHIRPS e temperatura AgERA5, 1981–2024) com cinco "
+"modelos climáticos CMIP6\n"
+"        nos cenários SSP245 e SSP585. Os dados são corrigidos por viés "
+"usando anomalias mensais\n"
+"        e padronizados para uma resolução de 0,05°. Os indicadores abrangem "
+"temperatura,\n"
+"        precipitação, estresse por seca e inundação, estresse térmico "
+"humano, escores-Z de precipitação\n"
+"        e a exposição econômica da produção agrícola e pecuária aos riscos "
+"climáticos.\n"
+"        "
 
-#: .\templates\WebApp\about.html:72
+#: .\templates\WebApp\about.html:68
+msgid "Read Full Methodology"
+msgstr "Ler Metodologia Completa"
+
+#: .\templates\WebApp\about.html:77
+msgid "1. Climate Data Sources"
+msgstr "1. Fontes de Dados Climáticos"
+
+#: .\templates\WebApp\about.html:78
+msgid ""
+"The climate risk analysis is grounded in a comprehensive analysis of "
+"historical climate data (1981–2024) obtained from observation (satellite) "
+"and model-based datasets. Specifically, the Climate Hazards Group InfraRed "
+"Precipitation with Station data (CHIRPS) and the fifth-generation ECMWF "
+"atmospheric reanalysis dataset (AgERA5) were utilized to provide high-"
+"resolution historical data. The choice of including these datasets is based "
+"on their well-documented strengths in climate risk analysis, particularly "
+"for agricultural applications in Africa."
+msgstr ""
+"A análise de risco climático baseia-se em uma análise abrangente dos dados "
+"climáticos históricos (1981–2024), obtidos de observações (satélite) e de "
+"conjuntos de dados baseados em modelos. Especificamente, foram utilizados o "
+"CHIRPS (Climate Hazards Group InfraRed Precipitation with Station) e o "
+"AgERA5 (quinta geração de reanálise atmosférica do ECMWF) para fornecer "
+"dados históricos de alta resolução. A escolha desses conjuntos de dados deve-"
+"se às suas forças bem documentadas na análise de riscos climáticos, "
+"particularmente para aplicações agrícolas em África."
+
+#: .\templates\WebApp\about.html:80
+msgid ""
+"CHIRPS provides high-resolution precipitation estimates by blending "
+"satellite imagery with station data, ensuring better coverage in data-sparse "
+"regions like Mozambique."
+msgstr ""
+"O CHIRPS fornece estimativas de precipitação de alta resolução combinando "
+"imagens de satélite com dados de estações, garantindo melhor cobertura em "
+"regiões com escassez de dados, como Moçambique."
+
+#: .\templates\WebApp\about.html:81
+msgid ""
+"AgERA5, derived from ECMWF’s ERA5, is optimized for agricultural modelling, "
+"offering consistent, high-quality surface climate data."
+msgstr ""
+"O AgERA5, derivado do ERA5 do ECMWF, é otimizado para modelagem agrícola, "
+"oferecendo dados climáticos de superfície consistentes e de alta qualidade."
+
+#: .\templates\WebApp\about.html:83
+msgid ""
+"These datasets were chosen over alternatives (e.g., GPCC, CRU, ERA5-Land) "
+"due to their superior validation records, high spatial resolution, and "
+"extensive usage in climate risk studies. Future climate projections were "
+"derived from five Global Climate Models (GCMs) participating in Phase 6 of "
+"the Coupled Model Intercomparison Project (CMIP6). The following five GCMs "
+"from CMIP6 were selected:"
+msgstr ""
+"Esses conjuntos de dados foram escolhidos em detrimento de alternativas (por "
+"exemplo, GPCC, CRU, ERA5-Land) devido aos seus registos de validação "
+"superiores, alta resolução espacial e ampla utilização em estudos de risco "
+"climático. As projeções climáticas futuras foram derivadas de cinco Modelos "
+"Climáticos Globais (GCMs) que participam da Fase 6 do Coupled Model "
+"Intercomparison Project (CMIP6). Foram selecionados os seguintes cinco GCMs "
+"do CMIP6:"
+
+#: .\templates\WebApp\about.html:85
+msgid ""
+"ACCESS-ESM1-5 (Australia’s CSIRO and BOM) – Strong representation of large-"
+"scale atmospheric circulation."
+msgstr ""
+"ACCESS-ESM1-5 (CSIRO e BOM da Austrália) – Forte representação da circulação "
+"atmosférica em grande escala."
+
+#: .\templates\WebApp\about.html:86
+msgid ""
+"MPI-ESM1-2-HR (Max Planck Institute, Germany) – High-resolution model known "
+"for accurate precipitation simulations."
+msgstr ""
+"MPI-ESM1-2-HR (Instituto Max Planck, Alemanha) – Modelo de alta resolução "
+"conhecido por simulações precisas de precipitação."
+
+#: .\templates\WebApp\about.html:87
+msgid ""
+"EC-Earth3 (EC-Earth Consortium, Europe) – Advanced coupled system for ocean-"
+"atmosphere interactions."
+msgstr ""
+"EC-Earth3 (Consórcio EC-Earth, Europa) – Sistema avançado acoplado para "
+"interações oceano-atmosfera."
+
+#: .\templates\WebApp\about.html:88
+msgid ""
+"INM-CM5-0 (Institute of Numerical Mathematics, Russia) – Effective in "
+"representing land-surface processes."
+msgstr ""
+"INM-CM5-0 (Instituto de Matemática Numérica, Rússia) – Eficaz na "
+"representação dos processos de superfície terrestre."
+
+#: .\templates\WebApp\about.html:89
+msgid ""
+"MRI-ESM2-0 (Meteorological Research Institute, Japan) – Robust performance "
+"in extreme climate event projections."
+msgstr ""
+"MRI-ESM2-0 (Instituto de Pesquisa Meteorológica, Japão) – Desempenho robusto "
+"em projeções de eventos climáticos extremos."
+
+#: .\templates\WebApp\about.html:92
+msgid ""
+"These models were chosen to ensure a balance between different climate "
+"system representations and climate sensitivity, ensuring comprehensive "
+"climate risk projections. Projections were developed for two future "
+"timeframes: the near future (2021–2040) and mid-century (2041–2060). The "
+"analysis considers two emission scenarios defined by the Shared "
+"Socioeconomic Pathways (SSPs): SSP245 and SSP585. SSP245 represents a "
+"moderate emissions scenario aligned with efforts to limit global warming to "
+"below 2°C above pre-industrial levels, while SSP585 represents a high-"
+"emissions scenario with significantly less mitigation action."
+msgstr ""
+"Esses modelos foram escolhidos para garantir um equilíbrio entre diferentes "
+"representações do sistema climático e da sensibilidade climática, "
+"assegurando projeções abrangentes de risco climático. As projeções foram "
+"desenvolvidas para dois períodos futuros: futuro próximo (2021–2040) e "
+"meados do século (2041–2060). A análise considera dois cenários de emissões "
+"definidos pelos Caminhos Socioeconômicos Compartilhados (SSPs): SSP245 e "
+"SSP585. O SSP245 representa um cenário de emissões moderadas alinhado com "
+"esforços para limitar o aquecimento global abaixo de 2°C acima dos níveis "
+"pré-industriais, enquanto o SSP585 representa um cenário de altas emissões "
+"com significativamente menos ação de mitigação."
+
+#: .\templates\WebApp\about.html:93
+msgid ""
+"We applied statistical downscaling and bias correction using a monthly "
+"climate anomaly approach, ensuring that GCM outputs align with historical "
+"observations. The bias correction process involves:"
+msgstr ""
+"Aplicámos a redução estatística de escala e a correção de viés utilizando "
+"uma abordagem de anomalias climáticas mensais, garantindo que as saídas dos "
+"GCMs se alinhem com as observações históricas. O processo de correção de "
+"viés envolve:"
+
+#: .\templates\WebApp\about.html:95
+msgid ""
+"Computing Monthly Climate Anomalies: Differences between simulated and "
+"observed climate conditions are calculated for each month."
+msgstr ""
+"Cálculo das Anomalias Climáticas Mensais: As diferenças entre as condições "
+"climáticas simuladas e observadas são calculadas para cada mês."
+
+#: .\templates\WebApp\about.html:96
+msgid ""
+"Applying These Anomalies to Historical Data: The computed anomalies are then "
+"superimposed on historical CHIRPS (precipitation) and AgERA5 (temperature) "
+"datasets."
+msgstr ""
+"Aplicação dessas anomalias aos dados históricos: As anomalias calculadas são "
+"então sobrepostas aos conjuntos de dados históricos CHIRPS (precipitação) e "
+"AgERA5 (temperatura)."
+
+#: .\templates\WebApp\about.html:97
+msgid ""
+"Correcting Systematic Biases: The approach accounts for model-specific "
+"deviations, improving the reliability of future projections."
+msgstr ""
+"Correção de Viés Sistemático: A abordagem considera desvios específicos de "
+"cada modelo, melhorando a confiabilidade das projeções futuras."
+
+#: .\templates\WebApp\about.html:100
+msgid ""
+"This method ensures that climate projections maintain consistency with "
+"historical climate trends while correcting biases in raw GCM outputs. After "
+"the downscaling, all historical and projection datasets were standardized at "
+"0.05° spatial resolution."
+msgstr ""
+"Este método garante que as projeções climáticas mantenham consistência com "
+"as tendências climáticas históricas, corrigindo os vieses nas saídas brutas "
+"dos GCMs. Após a redução de escala, todos os conjuntos de dados históricos e "
+"de projeção foram padronizados para uma resolução espacial de 0,05°."
+
+#: .\templates\WebApp\about.html:102
+msgid ""
+"In alignment with the World Meteorological Organization (WMO) guidelines, "
+"baseline reference periods typically span 30 years (e.g., 1971–2000 or 1981–"
+"2010). However, for this study, the WMO’s proposed 20-year baseline interval "
+"(1995–2014) was adopted. This interval encompasses the final two decades of "
+"historical simulations using observed radiative forcings, providing a robust "
+"baseline for comparison with selected future time windows. This approach "
+"ensures the analysis remains relevant and consistent with contemporary "
+"climate assessment standards."
+msgstr ""
+"Em conformidade com as diretrizes da Organização Meteorológica Mundial "
+"(OMM), os períodos de referência normalmente abrangem 30 anos (por exemplo, "
+"1971–2000 ou 1981–2010). No entanto, para este estudo, foi adotado o "
+"intervalo de 20 anos proposto pela OMM (1995–2014). Este intervalo abrange "
+"as duas últimas décadas de simulações históricas utilizando forçamentos "
+"radiativos observados, proporcionando uma base sólida para comparação com os "
+"períodos futuros selecionados. Esta abordagem garante que a análise "
+"permaneça relevante e consistente com os padrões contemporâneos de avaliação "
+"climática."
+
+#: .\templates\WebApp\about.html:104
+msgid ""
+"Several indicators were calculated to assess historical and projected "
+"climate trends as listed in table below. These metrics were selected to "
+"capture the key climatic factors influencing the region's environmental and "
+"socio-economic systems, providing a robust foundation for climate impact "
+"assessments and adaptation planning."
+msgstr ""
+"Vários indicadores foram calculados para avaliar as tendências climáticas "
+"históricas e projetadas, conforme listado na tabela abaixo. Essas métricas "
+"foram selecionadas para capturar os principais fatores climáticos que "
+"influenciam os sistemas ambientais e socioeconômicos da região, fornecendo "
+"uma base robusta para avaliações de impacto climático e planejamento de "
+"adaptação."
+
+#: .\templates\WebApp\about.html:108
+msgid "Climate variables and indices"
+msgstr "Variáveis e índices climáticos"
+
+#: .\templates\WebApp\about.html:113
+msgid "Variable name"
+msgstr "Nome da variável"
+
+#: .\templates\WebApp\about.html:114
+msgid "Unit"
+msgstr "Unidade"
+
+#: .\templates\WebApp\about.html:115
+msgid "Description"
+msgstr "Descrição"
+
+#: .\templates\WebApp\about.html:116
+msgid "Categories"
+msgstr "Categorias"
+
+#: .\templates\WebApp\about.html:121
+msgid "Max-Temperature"
+msgstr "Temperatura Máxima"
+
+#: .\templates\WebApp\about.html:123
+msgid "Average maximum temperature"
+msgstr "Temperatura máxima média"
+
+#: .\templates\WebApp\about.html:127
+msgid "Min-Temperature"
+msgstr "Temperatura Mínima"
+
+#: .\templates\WebApp\about.html:129
+msgid "Average minimum temperature"
+msgstr "Temperatura mínima média"
+
+#: .\templates\WebApp\about.html:133
+msgid "Total Precipitation"
+msgstr "Precipitação Total"
+
+#: .\templates\WebApp\about.html:135
+msgid "Precipitation, sum over identified period"
+msgstr "Precipitação, soma sobre o período identificado"
+
+#: .\templates\WebApp\about.html:139
+msgid "Heat Stress Humans (HSH)"
+msgstr "Estresse Térmico Humano (HSH)"
+
+#: .\templates\WebApp\about.html:141
+msgid ""
+"The thermal index for humans uses the dry-bulb temperature and relative "
+"humidity to derive classes of human discomfort. Areas of extreme caution (32–"
+"41ºC), danger (41–54ºC), and extreme danger (41–54ºC) imply substantial "
+"discomfort to humans leading to inability to work on the land"
+msgstr ""
+"O índice térmico para humanos utiliza a temperatura de bulbo seco e a "
+"umidade relativa para derivar classes de desconforto humano. Áreas de "
+"cautela extrema (32–41ºC), perigo (41–54ºC) e perigo extremo (>54ºC) "
+"implicam desconforto substancial, levando à incapacidade de trabalhar na "
+"terra."
+
+#: .\templates\WebApp\about.html:143
+msgid ""
+"Mild or no stress: < 27 Caution: 27–32 Extreme caution: 32-41 Danger & "
+"Extreme danger: > 41 (with extreme danger being > 54)"
+msgstr ""
+"Leve ou sem estresse: < 27 Cautela: 27–32 Cautela extrema: 32–41 Perigo & "
+"Perigo extremo: > 41 (com perigo extremo > 54)"
+
+#: .\templates\WebApp\about.html:147
+msgid "Drought stress (NDWS)"
+msgstr "Estresse por seca (NDWS)"
+
+#: .\templates\WebApp\about.html:148 .\templates\WebApp\about.html:156
+msgid "Days"
+msgstr "Dias"
+
+#: .\templates\WebApp\about.html:149
+msgid ""
+"Number of water stress days. A water stress day is a day in which the actual "
+"to potential evapotranspiration ratio (Ea/Ep) is < 0.5. Ea/Ep is computed "
+"using a simple water balance model that uses daily CHIRPS, CHIRTS data, "
+"generated solar radiation, and soil water holding capacity data. Soils data "
+"from SoilGrids 1km. Solar radiation is from ERA5"
+msgstr ""
+"Número de dias de estresse hídrico. Um dia de estresse hídrico é aquele em "
+"que a razão entre evapotranspiração real e potencial (Ea/Ep) é < 0,5. Ea/Ep "
+"é calculada usando um modelo simples de balanço hídrico que utiliza dados "
+"diários do CHIRPS, CHIRTS, radiação solar gerada e capacidade de retenção de "
+"água do solo. Dados de solos do SoilGrids 1 km. Radiação solar do ERA5."
+
+#: .\templates\WebApp\about.html:151
+msgid ""
+"No significant stress: < 15 Moderate: 15 to 20 Severe: 20 to 25 Extreme: > 25"
+msgstr ""
+"Sem estresse significativo: < 15 Moderado: 15 a 20 Severo: 20 a 25 Extremo: "
+"> 25"
+
+#: .\templates\WebApp\about.html:155
+msgid "Waterlogging & flooding stress"
+msgstr "Estresse por encharcamento & inundação"
+
+#: .\templates\WebApp\about.html:157
+#, python-format
+msgid ""
+"Number of days with soil logged by water. A waterlogging day is a day in "
+"which the soil moisture is above field capacity and moving toward "
+"saturation. Soil moisture calculated using a simple watbal routine as for "
+"the number of water stress days. Met input from CHIRPS (precipitation), "
+"CHIRTS (temperatures), ERA5 (solar radiation), and soils data from SoilGrids "
+"1km. We use 0%% of the way to saturation (i.e., at the very start)"
+msgstr ""
+"Número de dias com o solo encharcado por água. Um dia de encharcamento "
+"ocorre quando a umidade do solo está acima da capacidade de campo e movendo-"
+"se em direção à saturação. A umidade do solo é calculada usando uma rotina "
+"simples de balanço hídrico, semelhante ao cálculo de dias de estresse "
+"hídrico. Dados meteorológicos do CHIRPS (precipitação), CHIRTS "
+"(temperatura), ERA5 (radiação solar) e dados de solos do SoilGrids 1 km. "
+"Consideramos 0%% do caminho para a saturação (ou seja, no início)."
+
+
+#: .\templates\WebApp\about.html:159
+msgid "No significant stress: < 2 Moderate: 2 to 5 Severe: 5 to 8 Extreme: > 8"
+msgstr ""
+"Sem estresse significativo: < 2 Moderado: 2 a 5 Severo: 5 a 8 Extremo: > 8"
+
+#: .\templates\WebApp\about.html:167
+msgid "Z-Scores"
+msgstr "Escores-Z"
+
+#: .\templates\WebApp\about.html:169
+msgid ""
+"A Z-score is a way of measuring how unusual or extreme a value is compared "
+"to the average (mean) of a dataset. It tells us how far a value is from the "
+"average, scaled by how spread out the data is (standard deviation). A "
+"positive Z-score means the value is above average, while a negative Z-score "
+"means it’s below average."
+msgstr ""
+"Um escore-Z é uma forma de medir quão incomum ou extremo é um valor em "
+"comparação com a média de um conjunto de dados. Ele mostra a distância de um "
+"valor em relação à média, escalada pelo grau de dispersão dos dados (desvio "
+"padrão). Um escore-Z positivo significa que o valor está acima da média, "
+"enquanto um escore-Z negativo significa que está abaixo."
+
+#: .\templates\WebApp\about.html:172
+msgid ""
+"In this report, Z-scores are used to identify years with particularly high "
+"or low rainfall in Mozambique’s regions:"
+msgstr ""
+"Neste relatório, os escores-Z são usados para identificar anos com "
+"precipitação particularmente alta ou baixa nas regiões de Moçambique:"
+
+#: .\templates\WebApp\about.html:175
+msgid ""
+"Z-scores greater than +1.5 indicate years with much more rainfall than usual "
+"(“extreme wet years”)."
+msgstr ""
+"Escores-Z maiores que +1,5 indicam anos com muito mais chuva que o normal "
+"(“anos extremamente úmidos”)."
+
+#: .\templates\WebApp\about.html:176
+msgid ""
+"Z-scores less than -1.5 indicate years with much less rainfall than usual "
+"(“extreme dry years”)."
+msgstr ""
+"Escores-Z menores que -1,5 indicam anos com muito menos chuva que o normal "
+"(“anos extremamente secos”)."
+
+#: .\templates\WebApp\about.html:178
+msgid ""
+"For example, a Z-score of +1.5 means that the rainfall for that year was one "
+"standard deviation above the average rainfall, which is moderately higher "
+"than usual. Similarly, a Z-score of -1.5 means the rainfall was one standard "
+"deviation below the average, which is moderately lower than usual. Values "
+"beyond these thresholds are considered extreme, helping to highlight "
+"significant climate variability and patterns like consecutive dry or wet "
+"years, as well as sudden shifts between extremes."
+msgstr ""
+"Por exemplo, um escore-Z de +1,5 significa que a precipitação daquele ano "
+"foi um desvio padrão acima da média, o que é moderadamente maior que o "
+"usual. Da mesma forma, um escore-Z de -1,5 significa que a precipitação foi "
+"um desvio padrão abaixo da média, o que é moderadamente menor que o usual. "
+"Valores além desses limites são considerados extremos, ajudando a destacar a "
+"variabilidade climática significativa e padrões como anos consecutivos secos "
+"ou úmidos, bem como mudanças súbitas entre extremos."
+
+#: .\templates\WebApp\about.html:180
+msgid "Formula: Z = (X – μ) / σ"
+msgstr "Fórmula: Z = (X – μ) / σ"
+
+#: .\templates\WebApp\about.html:183
+msgid "Z : The Z-score"
+msgstr "Z : O escore-Z"
+
+#: .\templates\WebApp\about.html:184
+msgid "X : The rainfall value for a specific year"
+msgstr "X : O valor da precipitação para um ano específico"
+
+#: .\templates\WebApp\about.html:185
+msgid "μ : The average rainfall over the entire dataset"
+msgstr "μ : A precipitação média em todo o conjunto de dados"
+
+#: .\templates\WebApp\about.html:186
+msgid "σ : The standard deviation of rainfall across the dataset"
+msgstr "σ : O desvio padrão da precipitação no conjunto de dados"
+
+#: .\templates\WebApp\about.html:188
+msgid ""
+"By standardizing the rainfall data in this way, Z-scores make it easier to "
+"compare and visualize periods of extreme weather and their impact across "
+"different regions."
+msgstr ""
+"Ao padronizar os dados de precipitação desta forma, os escores-Z facilitam a "
+"comparação e a visualização de períodos de clima extremo e seus impactos em "
+"diferentes regiões."
+
+#: .\templates\WebApp\about.html:191
+msgid "Exposure to Risk (Value of Production)"
+msgstr "Exposição ao Risco (Valor da Produção)"
+
+#: .\templates\WebApp\about.html:193
+msgid ""
+"Crop value of production data comes from MapSPAM 2017 V2r3 (Spatial "
+"Production Allocation Model) where production values are multiplied by "
+"country specific FAOstat international crop prices. Livestock value of "
+"production in 2005 International Dollars were provided by the authors of "
+"Herrero et al. (2013)."
+msgstr ""
+"Os dados sobre o valor da produção agrícola vêm do MapSPAM 2017 V2r3 (Modelo "
+"de Alocação de Produção Espacial), em que os valores de produção são "
+"multiplicados pelos preços internacionais das culturas específicos de cada "
+"país segundo a FAOstat. O valor da produção pecuária em Dólares "
+"Internacionais de 2005 foi fornecido pelos autores de Herrero et al. (2013)."
+
+#: .\templates\WebApp\about.html:196
+msgid ""
+"The process for calculating exposure to risk comprises several critical "
+"steps:"
+msgstr ""
+"O processo para calcular a exposição ao risco compreende várias etapas "
+"críticas:"
+
+#: .\templates\WebApp\about.html:199
+msgid "Annual or Seasonal Summarization:"
+msgstr "Sumarização Anual ou Sazonal:"
+
+#: .\templates\WebApp\about.html:199
+msgid ""
+"Raw hazard data is aligned with the GGCMI Phase 3 crop calendar for maize, "
+"then climate hazards are summarized at either annual or seasonal timescales. "
+"Future updates of the Atlas will incorporate crop-specific calendars."
+msgstr ""
+"Os dados brutos de perigos são alinhados com o calendário agrícola de milho "
+"da Fase 3 do GGCMI, e depois os riscos climáticos são resumidos em escalas "
+"anuais ou sazonais. Atualizações futuras do Atlas incorporarão calendários "
+"específicos de culturas."
+
+#: .\templates\WebApp\about.html:200
+msgid "Occurrence:"
+msgstr "Ocorrência:"
+
+#: .\templates\WebApp\about.html:200
+msgid ""
+"Hazards classified into severity levels (moderate, severe, extreme). This "
+"study applies severe thresholds."
+msgstr ""
+"Os riscos são classificados em níveis de severidade (moderado, severo, "
+"extremo). Este estudo aplica limiares severos."
+
+#: .\templates\WebApp\about.html:201
+msgid "Risk:"
+msgstr "Risco:"
+
+#: .\templates\WebApp\about.html:201
+msgid ""
+"We average the classified hazards over the years or seasons encompassed by "
+"the time-series to obtain an estimation of occurrence risk."
+msgstr ""
+"Fazemos a média dos riscos classificados ao longo dos anos ou estações "
+"abrangidos pela série temporal para obter uma estimativa de risco de "
+"ocorrência."
+
+#: .\templates\WebApp\about.html:202
+msgid "Compound Risks:"
+msgstr "Riscos Compostos:"
+
+#: .\templates\WebApp\about.html:202
+msgid ""
+"To assess the risk of compound hazards, we multiply the risks associated "
+"with dry, heat, and wet conditions. This multiplication highlights areas "
+"where multiple hazards may coincide, posing greater risk to agricultural "
+"outputs."
+msgstr ""
+"Para avaliar o risco de perigos compostos, multiplicamos os riscos "
+"associados a condições de seca, calor e excesso de água. Essa multiplicação "
+"destaca áreas onde múltiplos riscos podem coincidir, representando maior "
+"ameaça à produção agrícola."
+
+#: .\templates\WebApp\about.html:203
+msgid "Integration with Economic Data:"
+msgstr "Integração com Dados Econômicos:"
+
+#: .\templates\WebApp\about.html:203
+#, python-format
+msgid ""
+"Finally, we multiply the compound crop hazard risk data with crop value of "
+"production data. For example, if a crop is exposed to a hazard in 50%% of "
+"growing seasons and the value of production is $2M/year then, on average, "
+"$1M of production is exposed to the hazard. The exposed value of production "
+"is then extracted by administrative areas to indicate potential economic "
+"impacts on crop production."
+msgstr ""
+"Finalmente, multiplicamos os dados de risco composto de perigos agrícolas "
+"com os dados de valor de produção. Por exemplo, se uma cultura estiver "
+"exposta a um risco em 50%% das temporadas de cultivo e o valor da produção "
+"for de 2 milhões USD/ano, então, em média, 1 milhão USD da produção estará "
+"exposta ao risco. O valor exposto da produção é então extraído por áreas "
+"administrativas para indicar potenciais impactos econômicos na produção "
+"agrícola."
+
+
+#: .\templates\WebApp\about.html:219
 msgid "Partners"
 msgstr "Parceiros"
 
-#: .\templates\WebApp\about.html:77 .\templates\WebApp\app_base.html:114
-#: .\templates\WebApp\app_base.html:228 .\templates\WebApp\home.html:66
+#: .\templates\WebApp\about.html:224 .\templates\WebApp\app_base.html:121
+#: .\templates\WebApp\app_base.html:240 .\templates\WebApp\home.html:87
 msgid "Alliance of Bioversity International and CIAT"
 msgstr "Aliança da Bioversity International e CIAT"
 
-#: .\templates\WebApp\about.html:80
+#: .\templates\WebApp\about.html:227
 msgid "World Bank"
 msgstr "Banco Mundial"
 
@@ -156,158 +714,215 @@ msgstr "Banco Mundial"
 msgid "Adaptation Map"
 msgstr "Mapa de Adaptação"
 
-#: .\templates\WebApp\adaptation_map.html:162
-#: .\templates\WebApp\hazard_map.html:663
+#: .\templates\WebApp\adaptation_map.html:141
+#: .\templates\WebApp\hazard_map.html:515
 msgid "Legend"
 msgstr ""
 
-#: .\templates\WebApp\adaptation_map.html:163
-#: .\templates\WebApp\hazard_map.html:124
-#, fuzzy
-#| msgid "Collapse all"
+#: .\templates\WebApp\adaptation_map.html:142
+#: .\templates\WebApp\hazard_map.html:131
 msgid "Collapse/Expand"
-msgstr "Recolher tudo"
+msgstr "Recolher/Expandir"
 
-#: .\templates\WebApp\adaptation_map.html:411
+#: .\templates\WebApp\adaptation_map.html:400
 msgid "Climate Adaptation Strategies Map"
 msgstr "Mapa de Estratégias de Adaptação Climática"
 
-#: .\templates\WebApp\adaptation_map.html:418
-#: .\templates\WebApp\hazard_map.html:719
+#: .\templates\WebApp\adaptation_map.html:406
+#, fuzzy
+#| msgid "Instructions"
+msgid "Toggle instructions"
+msgstr "Instruções"
+
+#: .\templates\WebApp\adaptation_map.html:410
+#: .\templates\WebApp\hazard_map.html:552
 msgid "Instructions"
 msgstr "Instruções"
 
-#: .\templates\WebApp\adaptation_map.html:420
+#: .\templates\WebApp\adaptation_map.html:412
 msgid "Click a province circle to open value chains"
 msgstr "Clique no círculo de uma província para abrir as cadeias de valor"
 
-#: .\templates\WebApp\adaptation_map.html:421
+#: .\templates\WebApp\adaptation_map.html:413
 msgid "Click hazard badge to view strategies"
 msgstr "Clique no selo de risco para ver as estratégias"
 
-#: .\templates\WebApp\adaptation_map.html:422
+#: .\templates\WebApp\adaptation_map.html:414
 msgid "Download table as CSV from modal"
 msgstr "Baixar tabela como CSV a partir do modal"
 
-#: .\templates\WebApp\adaptation_map.html:437
+#: .\templates\WebApp\adaptation_map.html:430
 msgid "Key Value Chains and Risks"
 msgstr "Principais Cadeias de Valor e Riscos"
 
-#: .\templates\WebApp\adaptation_map.html:445
+#: .\templates\WebApp\adaptation_map.html:438
+#: .\templates\WebApp\hazard_map.html:404
 msgid "Province"
 msgstr "Província"
 
-#: .\templates\WebApp\adaptation_map.html:446
+#: .\templates\WebApp\adaptation_map.html:439
+#: .\templates\WebApp\hazard_map.html:406
 msgid "Value Chain"
 msgstr "Cadeia de Valor"
 
-#: .\templates\WebApp\adaptation_map.html:447
+#: .\templates\WebApp\adaptation_map.html:440
+#: .\templates\WebApp\hazard_map.html:405
 msgid "Hazard"
 msgstr "Risco"
 
-#: .\templates\WebApp\adaptation_map.html:454
+#: .\templates\WebApp\adaptation_map.html:447
 msgid "CSV"
 msgstr "CSV"
 
-#: .\templates\WebApp\adaptation_map.html:462
+#: .\templates\WebApp\adaptation_map.html:456
+#: .\templates\WebApp\hazard_map.html:412
 msgid "Stage"
 msgstr "Etapa"
 
-#: .\templates\WebApp\adaptation_map.html:463
+#: .\templates\WebApp\adaptation_map.html:457
+#: .\templates\WebApp\hazard_map.html:413
 msgid "Impact"
 msgstr "Impacto"
 
-#: .\templates\WebApp\adaptation_map.html:464
+#: .\templates\WebApp\adaptation_map.html:458
+#: .\templates\WebApp\hazard_map.html:414
 #: .\templates\WebApp\implementation_strategies.html:51
 #: .\templates\WebApp\implementation_strategies.html:69
 msgid "Adaptation Strategy"
 msgstr "Estratégia de Adaptação"
 
-#: .\templates\WebApp\app_base.html:8 .\templates\WebApp\app_base.html:122
+#: .\templates\WebApp\app_base.html:8 .\templates\WebApp\app_base.html:129
 msgid "CRVA Portal"
 msgstr "Portal CRVA"
 
-#: .\templates\WebApp\app_base.html:111
+#: .\templates\WebApp\app_base.html:118
 msgid "Mozambique"
 msgstr "Moçambique"
 
-#: .\templates\WebApp\app_base.html:112
+#: .\templates\WebApp\app_base.html:119
 msgid "Mozambique Logo"
 msgstr "Logotipo de Moçambique"
 
-#: .\templates\WebApp\app_base.html:115
+#: .\templates\WebApp\app_base.html:122
 msgid "CIAT Logo"
 msgstr "Logotipo do CIAT"
 
-#: .\templates\WebApp\app_base.html:128
+#: .\templates\WebApp\app_base.html:132
+msgid "Toggle navigation"
+msgstr ""
+
+#: .\templates\WebApp\app_base.html:140
 msgid "Home"
 msgstr "Início"
 
-#: .\templates\WebApp\app_base.html:133
+#: .\templates\WebApp\app_base.html:151
 msgid "Services"
 msgstr "Serviços"
 
-#: .\templates\WebApp\app_base.html:141
+#: .\templates\WebApp\app_base.html:159
 msgid "Hazard maps, risks, exposure"
 msgstr "Mapas de perigos, riscos, exposição"
 
-#: .\templates\WebApp\app_base.html:150
+#: .\templates\WebApp\app_base.html:168
 msgid "Options by region and value chain"
 msgstr "Opções por região e cadeia de valor"
 
-#: .\templates\WebApp\app_base.html:159
+#: .\templates\WebApp\app_base.html:177
 msgid "Planned actions and progress"
 msgstr "Ações planeadas e progresso"
 
-#: .\templates\WebApp\app_base.html:171 .\templates\WebApp\app_base.html:194
+#: .\templates\WebApp\app_base.html:188 .\templates\WebApp\app_base.html:207
 msgid "Português"
 msgstr "Português"
 
-#: .\templates\WebApp\app_base.html:171 .\templates\WebApp\app_base.html:181
+#: .\templates\WebApp\app_base.html:188 .\templates\WebApp\app_base.html:197
 msgid "English"
 msgstr "Inglês"
 
-#: .\templates\WebApp\app_base.html:211
+#: .\templates\WebApp\app_base.html:222
 msgid "Log Out"
 msgstr "Sair"
 
-#: .\templates\WebApp\app_base.html:230
+#: .\templates\WebApp\app_base.html:242
 msgid "Alliance Logo"
 msgstr "Logotipo da Aliança"
 
-#: .\templates\WebApp\hazard_map.html:4 .\templates\WebApp\hazard_map.html:713
-#, fuzzy
-#| msgid "Hazard Map Viewer"
+#: .\templates\WebApp\app_base.html:250
+msgid "Back to top"
+msgstr ""
+
+#: .\templates\WebApp\hazard_map.html:4 .\templates\WebApp\hazard_map.html:546
 msgid "Map Viewer"
-msgstr "Visualizador de Mapa de Riscos"
+msgstr "Visualizador de Mapas"
 
-#: .\templates\WebApp\hazard_map.html:568
-#, fuzzy
-#| msgid "Select a hazard type and layer"
+#: .\templates\WebApp\hazard_map.html:201
+msgid "Indicators"
+msgstr ""
+
+#: .\templates\WebApp\hazard_map.html:203
+msgid "Expand"
+msgstr "Expandir"
+
+#: .\templates\WebApp\hazard_map.html:204
+msgid "Collapse"
+msgstr "Recolher"
+
+#: .\templates\WebApp\hazard_map.html:208
+msgid "Search Indicators…"
+msgstr ""
+
+#: .\templates\WebApp\hazard_map.html:212
+#: .\templates\WebApp\implementation_strategies.html:26
+#: .\templates\WebApp\implementation_strategies.html:36
+msgid "Clear"
+msgstr "Limpar"
+
+#: .\templates\WebApp\hazard_map.html:213
+#: .\templates\WebApp\implementation_strategies.html:35
+msgid "Apply"
+msgstr "Aplicar"
+
+#: .\templates\WebApp\hazard_map.html:366
+msgid "Explore data for selected hazard and province."
+msgstr "Explore os dados para o risco e a província selecionados."
+
+#: .\templates\WebApp\hazard_map.html:369
+msgid "Time Series"
+msgstr "Séries Temporais"
+
+#: .\templates\WebApp\hazard_map.html:377
+msgid "Time Series Chart"
+msgstr "Gráfico de Séries Temporais"
+
+#: .\templates\WebApp\hazard_map.html:379
+msgid "Select Dataset"
+msgstr "Selecionar Conjunto de Dados"
+
+#: .\templates\WebApp\hazard_map.html:458
+msgid "Year"
+msgstr ""
+
+#: .\templates\WebApp\hazard_map.html:458
+msgid "Value"
+msgstr "Valor"
+
+#: .\templates\WebApp\hazard_map.html:467
 msgid "Please select a hazard layer first."
-msgstr "Selecione um tipo de risco e uma camada"
+msgstr "Por favor, selecione primeiro uma camada de risco."
 
-#: .\templates\WebApp\hazard_map.html:659
-#, fuzzy
-#| msgid "Province"
-msgid "Provinces"
-msgstr "Província"
-
-#: .\templates\WebApp\hazard_map.html:721
+#: .\templates\WebApp\hazard_map.html:554
 msgid "Use the Layers panel to pick a category and an Indicator"
 msgstr "Use o painel de camadas para escolher uma categoria e um indicador"
 
-#: .\templates\WebApp\hazard_map.html:722
+#: .\templates\WebApp\hazard_map.html:555
 msgid "Click on a province on the map"
 msgstr "Clique numa província no mapa"
 
-#: .\templates\WebApp\hazard_map.html:723
-#, fuzzy
-#| msgid "Explore strategies or time series"
+#: .\templates\WebApp\hazard_map.html:556
 msgid "Explore adaptation strategies or time series in the modal"
-msgstr "Explore estratégias ou séries temporais"
+msgstr "Explore estratégias de adaptação ou séries temporais na janela modal"
 
-#: .\templates\WebApp\hazard_map.html:737
+#: .\templates\WebApp\hazard_map.html:570
 msgid "Adaptation Strategies & Time Series"
 msgstr "Estratégias de Adaptação e Séries Temporais"
 
@@ -316,14 +931,18 @@ msgid "CRVA Portal - Home"
 msgstr "Portal CRVA - Início"
 
 #: .\templates\WebApp\home.html:15
+msgid "Hero"
+msgstr ""
+
+#: .\templates\WebApp\home.html:19
 msgid "Hero Image"
 msgstr "Imagem de Destaque"
 
-#: .\templates\WebApp\home.html:17
+#: .\templates\WebApp\home.html:26
 msgid "Climate Risk and Vulnerability Assessment Portal"
 msgstr "Portal de Avaliação de Riscos e Vulnerabilidades Climáticas"
 
-#: .\templates\WebApp\home.html:19
+#: .\templates\WebApp\home.html:29
 msgid ""
 "An interactive platform delivering agro-weather updates, crop advisory, "
 "market insights, climate risk assessments, and adaptation strategies to "
@@ -334,19 +953,23 @@ msgstr ""
 "climáticos e estratégias de adaptação para apoiar decisões agrícolas "
 "inteligentes em relação ao clima."
 
-#: .\templates\WebApp\home.html:27
+#: .\templates\WebApp\home.html:37
+msgid "Search for a Service"
+msgstr "Pesquisar um Serviço"
+
+#: .\templates\WebApp\home.html:43
 msgid "🔍 Search for a Service"
 msgstr "🔍 Pesquisar um Serviço"
 
-#: .\templates\WebApp\home.html:27
+#: .\templates\WebApp\home.html:44
 msgid "Search"
 msgstr "Pesquisar"
 
-#: .\templates\WebApp\home.html:53
+#: .\templates\WebApp\home.html:70
 msgid "Service Overview"
 msgstr "Visão Geral dos Serviços"
 
-#: .\templates\WebApp\home.html:56
+#: .\templates\WebApp\home.html:74
 msgid ""
 "This platform provides tailored decision-support tools to strengthen "
 "agricultural resilience in Mozambique. It offers timely, location-specific "
@@ -359,7 +982,7 @@ msgstr ""
 "agricultores, extensionistas e formuladores de políticas. Abaixo está uma "
 "visão geral dos principais serviços disponíveis:"
 
-#: .\templates\WebApp\home.html:59
+#: .\templates\WebApp\home.html:78
 msgid ""
 "Delivers localized forecasts and early warnings to help farmers plan "
 "agricultural activities based on rainfall, temperature, and extreme weather "
@@ -369,7 +992,7 @@ msgstr ""
 "agricultores a planejar atividades agrícolas com base nas chuvas, "
 "temperatura e eventos climáticos extremos."
 
-#: .\templates\WebApp\home.html:60
+#: .\templates\WebApp\home.html:79
 msgid ""
 "Provides expert guidance on crop selection, pest and disease management, and "
 "sustainable farming practices aligned with seasonal conditions."
@@ -378,7 +1001,7 @@ msgstr ""
 "pragas e doenças, e práticas agrícolas sustentáveis alinhadas às condições "
 "sazonais."
 
-#: .\templates\WebApp\home.html:61
+#: .\templates\WebApp\home.html:80
 msgid ""
 "Shares up-to-date data on crop prices, demand trends, and nearby market "
 "access points to support informed selling decisions and increase income."
@@ -387,7 +1010,7 @@ msgstr ""
 "demanda e pontos de acesso ao mercado mais próximos para apoiar decisões de "
 "venda informadas e aumentar a renda."
 
-#: .\templates\WebApp\home.html:62
+#: .\templates\WebApp\home.html:81
 msgid ""
 "Maps areas most exposed to climate threats such as drought and floods, "
 "helping target adaptation and investment efforts effectively."
@@ -396,7 +1019,7 @@ msgstr ""
 "ajudando a direcionar de forma eficaz os esforços de adaptação e "
 "investimento."
 
-#: .\templates\WebApp\home.html:63
+#: .\templates\WebApp\home.html:82
 msgid ""
 "Recommends practical solutions such as drought-tolerant crops, water "
 "conservation, soil protection, and agroforestry tailored to specific zones."
@@ -404,11 +1027,11 @@ msgstr ""
 "Recomenda soluções práticas como culturas tolerantes à seca, conservação da "
 "água, proteção do solo e agroflorestas adaptadas a zonas específicas."
 
-#: .\templates\WebApp\home.html:66
+#: .\templates\WebApp\home.html:86
 msgid "This platform is developed by the"
 msgstr "Esta plataforma foi desenvolvida pela"
 
-#: .\templates\WebApp\home.html:66
+#: .\templates\WebApp\home.html:88
 msgid ""
 "supporting climate-smart agriculture and food security initiatives in "
 "Mozambique."
@@ -424,11 +1047,6 @@ msgstr "Palavra-chave"
 msgid "Search strategy, activities, implementers, outcomes…"
 msgstr "Pesquisar estratégia, atividades, implementadores, resultados…"
 
-#: .\templates\WebApp\implementation_strategies.html:26
-#: .\templates\WebApp\implementation_strategies.html:36
-msgid "Clear"
-msgstr "Limpar"
-
 #: .\templates\WebApp\implementation_strategies.html:28
 msgid ""
 "Search across strategy titles, activities, implementers, outcomes, and "
@@ -440,10 +1058,6 @@ msgstr ""
 #: .\templates\WebApp\implementation_strategies.html:33
 msgid "Actions"
 msgstr "Ações"
-
-#: .\templates\WebApp\implementation_strategies.html:35
-msgid "Apply"
-msgstr "Aplicar"
 
 #: .\templates\WebApp\implementation_strategies.html:49
 msgid "Group by"
@@ -486,23 +1100,16 @@ msgstr "Beneficiários"
 msgid "No filters applied."
 msgstr "Nenhum filtro aplicado."
 
+#, fuzzy
+#~| msgid "Province"
+#~ msgid "Provinces"
+#~ msgstr "Província"
+
 #~ msgid "Value Chains"
 #~ msgstr "Cadeias de Valor"
 
 #~ msgid "Click to view data"
 #~ msgstr "Clique para ver os dados"
-
-#~ msgid "Explore data for selected hazard and province."
-#~ msgstr "Explore os dados para o risco e a província selecionados."
-
-#~ msgid "Time Series"
-#~ msgstr "Séries Temporais"
-
-#~ msgid "Time Series Chart"
-#~ msgstr "Gráfico de Séries Temporais"
-
-#~ msgid "Select Dataset"
-#~ msgstr "Selecionar Conjunto de Dados"
 
 #~ msgid "Hazard Type"
 #~ msgstr "Tipo de Risco"

@@ -315,6 +315,7 @@ async function renderProvinceOverlays() {
         vcOverlayMarkers.push(overlayMarker);
       }
 
+
       // Count circle (clickable)
       const circleIcon = L.divIcon({ className: 'vc-label', html: count, iconSize: [30, 30], iconAnchor: [15, 15] });
       const circleMarker = L.marker([s.centroid.lat, s.centroid.lng], { icon: circleIcon })
