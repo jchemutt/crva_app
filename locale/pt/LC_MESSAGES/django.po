@@ -717,7 +717,7 @@ msgstr "Mapa de Adaptação"
 #: .\templates\WebApp\adaptation_map.html:141
 #: .\templates\WebApp\hazard_map.html:515
 msgid "Legend"
-msgstr ""
+msgstr "Legenda"
 
 #: .\templates\WebApp\adaptation_map.html:142
 #: .\templates\WebApp\hazard_map.html:131
@@ -809,7 +809,7 @@ msgstr "Logotipo do CIAT"
 
 #: .\templates\WebApp\app_base.html:132
 msgid "Toggle navigation"
-msgstr ""
+msgstr "Alternar navegação"
 
 #: .\templates\WebApp\app_base.html:140
 msgid "Home"
@@ -849,7 +849,7 @@ msgstr "Logotipo da Aliança"
 
 #: .\templates\WebApp\app_base.html:250
 msgid "Back to top"
-msgstr ""
+msgstr "Voltar ao topo"
 
 #: .\templates\WebApp\hazard_map.html:4 .\templates\WebApp\hazard_map.html:546
 msgid "Map Viewer"
