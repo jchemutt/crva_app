@@ -104,19 +104,19 @@
 /* Safe no-op for gettext if the JS catalog isn't loaded */
 if (typeof window.gettext !== 'function') { window.gettext = function(s){ return s; }; }
 
-let map, currentStrategyData = [], currentProvinceId, currentValueChain, currentHazard;
+let map, currentStrategyData = [], currentProvinceId, currentValueChainId,currentHazardId,currentValueChain, currentHazard;
 
 // --- icons for VCs
 const vcIcons = {
-  "Groundnuts": "<i class='fas fa-seedling text-success vc-icon'></i>",
-  "Cassava": "<i class='fas fa-leaf text-primary vc-icon'></i>",
-  "Maize": "<i class='fas fa-tractor text-warning vc-icon'></i>",
-  "Goats": "<i class='fas fa-paw text-secondary vc-icon'></i>",
-  "Cattle": "<i class='fas fa-cow text-danger vc-icon'></i>",
-  "Rice": "<i class='fas fa-water text-info vc-icon'></i>",
-  "Sesame": "<i class='fas fa-seedling text-muted vc-icon'></i>",
-  "Tobacco": "<i class='fas fa-smoking text-success vc-icon'></i>",
-  "Sugarcane": "<i class='fas fa-industry text-purple vc-icon'></i>"
+  1: "<i class='fas fa-seedling text-success vc-icon'></i>",   // Sesame
+  2: "<i class='fas fa-leaf text-primary vc-icon'></i>",       // Cassava
+  3: "<i class='fas fa-tractor text-warning vc-icon'></i>",    // Maize
+  4: "<i class='fas fa-paw text-secondary vc-icon'></i>",      // Goats
+  5: "<i class='fas fa-cow text-danger vc-icon'></i>",         // Cattle
+  6: "<i class='fas fa-water text-info vc-icon'></i>",         // Rice
+  7: "<i class='fas fa-seedling text-muted vc-icon'></i>",     // Groundnuts
+  8: "<i class='fas fa-smoking text-success vc-icon'></i>",    // Tobacco
+  9: "<i class='fas fa-industry text-purple vc-icon'></i>"     // Sugarcane
 };
 
 // --- GeoServer WMS provinces (geometry stays server-side)
@@ -219,23 +219,24 @@ function populateStrategyTable(data) {
 }
 
 // Modal open
-function showStrategyModal(provinceId, valueChain, hazard) {
-  currentValueChain = decodeURIComponent(valueChain);
-  currentHazard = decodeURIComponent(hazard);
+function showStrategyModal(provinceId, vcId, vcName, hzId, hzName) {
   currentProvinceId = provinceId;
+  currentValueChainId = vcId;
+  currentHazardId = hzId;
+  currentValueChainName = vcName;
+  currentHazardName = hzName;
 
-  // Province name from summaries cache
   const provinceSummary = provinceSummariesById.get(provinceId);
   const provinceName = provinceSummary?.name || gettext("Unknown");
 
-  // badges
+  // badges (translated names)
   document.getElementById("selected-province").innerText = provinceName;
-  document.getElementById("selected-vc").innerText = currentValueChain;
-  document.getElementById("selected-hazard").innerText = currentHazard;
+  document.getElementById("selected-vc").innerText = vcName;
+  document.getElementById("selected-hazard").innerText = hzName;
 
   const apiUrl = `/api/strategies/?province=${provinceId}` +
-                 `&value_chain=${encodeURIComponent(currentValueChain)}` +
-                 `&hazard=${encodeURIComponent(currentHazard)}` +
+                 `&value_chain=${vcId}` +
+                 `&hazard=${hzId}` +
                  `&_=${Date.now()}`;
 
   fetch(apiUrl, { cache: "no-store" })
@@ -245,9 +246,9 @@ function showStrategyModal(provinceId, valueChain, hazard) {
       populateStrategyTable(data);
 
       // highlight selected hazard chip in popup (if present)
-      document.querySelectorAll(".hazard-badge").forEach(b => b.classList.remove("active"));
+          document.querySelectorAll(".hazard-badge").forEach(b => b.classList.remove("active"));
       document.querySelectorAll(
-        `.hazard-badge[data-vc='${encodeURIComponent(currentValueChain)}'][data-hz='${encodeURIComponent(currentHazard)}']`
+        `.hazard-badge[data-vc-id='${vcId}'][data-hz-id='${hzId}']`
       ).forEach(el => el.classList.add("active"));
 
       new bootstrap.Modal(document.getElementById('strategyModal')).show();
@@ -260,8 +261,8 @@ function overlayHtmlFor(summary) {
   const vcs = summary.value_chains || [];
   if (!vcs.length) return "";
   const chips = vcs.map(vc => {
-    const icon = vcIcons[vc] || "<i class='fas fa-leaf vc-icon'></i>";
-    return `<span class="vc-chip">${icon}<span>${vc}</span></span>`;
+    const icon = vcIcons[vc.id] || "<i class='fas fa-leaf vc-icon'></i>";
+    return `<span class="vc-chip">${icon}<span>${vc.name}</span></span>`;
   }).join("");
   return `<div class="vc-stack"><span class="vc-name">${summary.name}</span>${chips}</div>`;
 }
@@ -274,19 +275,25 @@ function popupHtmlFor(summary) {
             <hr class='my-1'>
             <div class="text-muted">No value-chain data available yet.</div>`;
   }
+
   let html = `<h6><i class='fas fa-map-marker-alt text-success me-1'></i>${summary.name}</h6><hr class='my-1'>`;
+
   vcs.forEach(vc => {
-    const icon = vcIcons[vc] || "<i class='fas fa-leaf vc-icon'></i>";
-    html += `<strong>${icon}${vc}</strong><br>`;
-    (summary.hazards || []).forEach(hz => {
+    const icon = vcIcons[vc.id] || "<i class='fas fa-leaf vc-icon'></i>";
+    html += `<strong>${icon}${vc.name}</strong><br>`;
+
+    (summary.hazards_by_vc[vc.id] || []).forEach(hz => {
       html += `<span class='badge bg-info text-dark hazard-badge'
-                 onclick="showStrategyModal(${summary.id}, '${encodeURIComponent(vc)}', '${encodeURIComponent(hz)}')"
-                 data-vc='${encodeURIComponent(vc)}' data-hz='${encodeURIComponent(hz)}'>${hz}</span> `;
+                 onclick="showStrategyModal(${summary.id}, ${vc.id}, '${vc.name}', ${hz.id}, '${hz.name}')"
+                 data-vc-id='${vc.id}' data-hz-id='${hz.id}'>${hz.name}</span> `;
     });
+
     html += "<hr class='my-1'>";
   });
+
   return html;
 }
+
 
 // Render overlays (chips) + numeric count circles
 async function renderProvinceOverlays() {

@@ -21,3 +21,4 @@ dependencies:
       - djangorestframework
       - django-extensions
       - PyJWT
+      - django-modeltranslation

@@ -28,6 +28,8 @@ from collections import defaultdict
 from django.db.models import Prefetch, Q  # for filtering
 from django.views.decorators.http import require_GET
 from django.contrib.postgres.aggregates import ArrayAgg
+from django.utils.translation import get_language
+
 
 import json
 from collections import defaultdict
@@ -137,91 +139,77 @@ def province_geojson(request):
 
 
 
-# views.py
-
-
 
 @require_GET
 def province_summaries(request):
-    """
-    Geometry-free summaries for the map overlay.
-    Returns: [
-      {
-        id, name,
-        centroid: {lat, lng},
-        value_chains: [..],
-        hazards: [..],
-        hazards_by_vc: { "<VC>": ["Hazard1", ...], ... }
-      }, ...
-    ]
-    """
+    lang = get_language()  # e.g., "pt" or "en"
 
-    # Build distinct arrays:
-    #  - value_chains_arr
-    #  - hazards_arr
-    #  - vc_hz_pairs as "VC|||HZ" strings (since JSONObject isn't available)
     qs = (
         Province.objects
         .filter(boundary__isnull=False)
         .annotate(_pt=PointOnSurface('boundary'))
         .annotate(_pt4326=Transform('_pt', 4326))
         .annotate(ptjson=AsGeoJSON('_pt4326'))
-        .annotate(
-            value_chains_arr=ArrayAgg(
-                'adaptations__vc_hazard__value_chain__name',
-                distinct=True
-            ),
-            hazards_arr=ArrayAgg(
-                'adaptations__vc_hazard__hazard__name',
-                distinct=True
-            ),
-            vc_hz_pairs=ArrayAgg(
-                Concat(
-                    'adaptations__vc_hazard__value_chain__name',
-                    Value('|||'),
-                    'adaptations__vc_hazard__hazard__name',
-                    output_field=CharField()
-                ),
-                distinct=True
-            ),
+        .prefetch_related(
+            'adaptations__vc_hazard__value_chain',
+            'adaptations__vc_hazard__hazard'
         )
-        .values('id', 'name', 'ptjson', 'value_chains_arr', 'hazards_arr', 'vc_hz_pairs')
+        .distinct()
     )
 
     out = []
-    for r in qs:
-        # Extract centroid from GeoJSON (coordinates = [lng, lat])
+    for p in qs:
+        # centroid
         lat = lng = None
-        if r['ptjson']:
+        if p.ptjson:
             try:
-                coords = json.loads(r['ptjson']).get('coordinates')  # [lng, lat]
+                coords = json.loads(p.ptjson).get('coordinates')
                 if isinstance(coords, (list, tuple)) and len(coords) == 2:
                     lng, lat = float(coords[0]), float(coords[1])
             except Exception:
                 pass
 
-        vc_list = [v for v in (r['value_chains_arr'] or []) if v]
-        hz_list = [h for h in (r['hazards_arr'] or []) if h]
+        # collect unique VCs, hazards, and VC→hazard mapping
+        vc_seen, hz_seen = set(), set()
+        vc_list, hz_list, hazards_by_vc = [], [], defaultdict(list)
 
-        # Build hazards_by_vc from "VC|||HZ" pairs
-        hazards_by_vc = defaultdict(list)
-        for s in (r['vc_hz_pairs'] or []):
-            if not s:
-                continue
-            try:
-                vc, hz = s.split('|||', 1)
-            except ValueError:
-                continue
-            if vc and hz and hz not in hazards_by_vc[vc]:
-                hazards_by_vc[vc].append(hz)
+        for ad in p.adaptations.all():
+            vc = ad.vc_hazard.value_chain
+            hz = ad.vc_hazard.hazard
+
+            vc_name = getattr(vc, f"name_{lang}", None) or vc.name
+            hz_name = getattr(hz, f"name_{lang}", None) or hz.name
+
+            # append VCs
+            if vc.id not in vc_seen:
+                vc_seen.add(vc.id)
+                vc_list.append({
+                    "id": vc.id,
+                    "name": vc_name,
+                })
+
+            # append Hazards
+            if hz.id not in hz_seen:
+                hz_seen.add(hz.id)
+                hz_list.append({
+                    "id": hz.id,
+                    "name": hz_name,
+                })
+
+            # map hazards by VC
+            if hz.id not in [h["id"] for h in hazards_by_vc[vc.id]]:
+                hazards_by_vc[vc.id].append({
+                    "id": hz.id,
+                    "name": hz_name,
+                })
 
         out.append({
-            "id": r["id"],
-            "name": r["name"],
+            "id": p.id,
+            "name": getattr(p, f"name_{lang}", None) or p.name,
             "centroid": {"lat": lat, "lng": lng},
-            "value_chains": vc_list,
-            "hazards": hz_list,
-            "hazards_by_vc": dict(hazards_by_vc),
+            "value_chains": vc_list,        # list of {id, name}
+            "hazards": hz_list,             # list of {id, name}
+            "hazards_by_vc": hazards_by_vc, # {vc_id: [ {id, name}, ... ]}
         })
 
     return JsonResponse(out, safe=False)
@@ -229,28 +217,28 @@ def province_summaries(request):
 
 
 
+@require_GET
 def strategy_api(request):
     province_id = request.GET.get("province")
-    value_chain = request.GET.get("value_chain")
-    hazard = request.GET.get("hazard")
+    vc_id = request.GET.get("value_chain")
+    hz_id = request.GET.get("hazard")
 
     qs = RiskAdaptation.objects.filter(
         province_id=province_id,
-        vc_hazard__value_chain__name=value_chain,
-        vc_hazard__hazard__name=hazard
-    ).select_related('stage')
+        vc_hazard__value_chain_id=vc_id,
+        vc_hazard__hazard_id=hz_id
+    ).select_related('stage', 'risk_ref', 'adaptation_strategy_ref')
 
     data = [
         {
             "stage": r.stage.name,
             "risk": r.risk_ref.description if r.risk_ref else None,
             "strategy": r.adaptation_strategy_ref.description if r.adaptation_strategy_ref else None
-        } for r in qs
+        }
+        for r in qs
     ]
 
     return JsonResponse(data, safe=False)
-
-
 
 def strategy_by_hazard_view(request):
     hazard_id = request.GET.get("hazard")      # actual foreign key ID from dataset
