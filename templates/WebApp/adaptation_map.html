@@ -315,12 +315,12 @@ async function renderProvinceOverlays() {
       if (count === 0) return;
 
       // Overlay chips
-      const html = overlayHtmlFor(s);
-      if (html) {
-        const overlayIcon = L.divIcon({ className: "", html, iconSize: null, iconAnchor: [0, 0] });
-        const overlayMarker = L.marker([s.centroid.lat, s.centroid.lng], { icon: overlayIcon, interactive: false }).addTo(map);
-        vcOverlayMarkers.push(overlayMarker);
-      }
+     // const html = overlayHtmlFor(s);
+     // if (html) {
+      //  const overlayIcon = L.divIcon({ className: "", html, iconSize: null, iconAnchor: [0, 0] });
+      //  const overlayMarker = L.marker([s.centroid.lat, s.centroid.lng], { icon: overlayIcon, interactive: false }).addTo(map);
+      //  vcOverlayMarkers.push(overlayMarker);
+     // }
 
 
       // Count circle (clickable)
