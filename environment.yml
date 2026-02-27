@@ -3,22 +3,21 @@ channels:
   - defaults
   - conda-forge
 dependencies:
-  - python=3.9
-  - django=4.1
+  - python=3.11
+  - django=4.1.*
   - django-allauth
   - django-import-export
-  - netcdf4
-  - shapely
   - gdal
   - geos
-  - earthengine-api
-  - beautifulsoup4
+  - shapely
+  - netcdf4
   - psycopg2
+  - beautifulsoup4
+  - earthengine-api
   - gunicorn
   - pip
   - pip:
-      - asgiref==3.8.0
-      - djangorestframework
-      - django-extensions
+      - djangorestframework==3.14.0
+      - django-extensions==3.2.3
+      - django-modeltranslation==0.18.11
       - PyJWT
-      - django-modeltranslation
