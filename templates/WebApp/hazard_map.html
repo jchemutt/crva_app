@@ -115,7 +115,8 @@ let hazardLegendControl, layerTreeControl;
 let boundariesWms;
 
 const COMPONENT_PRIORITY = ["Hazard", "Adaptive Capacity", "Exposure", "Sensitivity"];
-const GEOSERVER_WMS = "https://crva.jcdevops.com/geoserver/wms";
+const GEOSERVER_BASE = "{{ GEOSERVER_URL|escapejs }}";
+const GEOSERVER_WMS = `${GEOSERVER_BASE}/wms`;
 const PROV_LAYER = "crva:provinces";
 const PROV_STYLE = "province_boundaries";
 

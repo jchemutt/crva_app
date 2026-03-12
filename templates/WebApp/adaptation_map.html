@@ -120,7 +120,8 @@ const vcIcons = {
 };
 
 // --- GeoServer WMS provinces (geometry stays server-side)
-const PROV_WMS_URL = "https://crva.jcdevops.com/geoserver/wms";
+const GEOSERVER_BASE = "{{ GEOSERVER_URL|escapejs }}";
+const PROV_WMS_URL = `${GEOSERVER_BASE}/wms`;
 const PROV_LAYER   = "crva:provinces";
 const PROV_STYLE   = "province_boundaries";  
 

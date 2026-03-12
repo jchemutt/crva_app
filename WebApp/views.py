@@ -40,16 +40,9 @@ from django.db.models import Value, CharField
 from django.db.models.functions import Concat
 
 
+from django.conf import settings
 
-
-
-
-
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-
-BASE_DIR = Path(__file__).resolve().parent.parent
-f = open(str(BASE_DIR) + '/data.json', )
-data = json.load(f)
+settings.GEOSERVER_URL
 
 
 def home(request):

@@ -46,6 +46,8 @@ ALLOWED_HOSTS = data['ALLOWED_HOSTS']
 
 CSRF_TRUSTED_ORIGINS = data['CSRF_TRUSTED_ORIGINS']
 
+GEOSERVER_URL = data['GEOSERVER_URL'].rstrip('/')
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -126,6 +128,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'WebApp.context_processors.app_config',
             ],
         },
     },
