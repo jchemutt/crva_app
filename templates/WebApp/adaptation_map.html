@@ -224,8 +224,8 @@ function showStrategyModal(provinceId, vcId, vcName, hzId, hzName) {
   currentProvinceId = provinceId;
   currentValueChainId = vcId;
   currentHazardId = hzId;
-  currentValueChainName = vcName;
-  currentHazardName = hzName;
+  currentValueChain = vcName;
+  currentHazard = hzName;
 
   const provinceSummary = provinceSummariesById.get(provinceId);
   const provinceName = provinceSummary?.name || gettext("Unknown");
@@ -352,7 +352,9 @@ async function renderProvinceOverlays() {
 
 document.addEventListener("DOMContentLoaded", () => {
   map = L.map('map', { loadingControl: true }).setView([-17.6, 36.9], 6);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
 
   // Provinces as WMS (no client geometry)
   L.tileLayer.wms(PROV_WMS_URL, {
